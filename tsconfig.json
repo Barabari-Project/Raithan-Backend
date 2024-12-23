@@ -9,7 +9,7 @@
     "forceConsistentCasingInFileNames": true, // Enforce consistent file naming
     "skipLibCheck": true, // Skip type-checking for libraries in node_modules
     "typeRoots": [
-      "./types",
+      "src/types",
       "./node_modules/@types"
     ], // Includes custom type declarations
     "resolveJsonModule": true, // Allows importing JSON files
@@ -17,11 +17,11 @@
     "moduleResolution": "node" // Ensures compatibility with Node.js modules
   },
   "include": [
-    "src",
-    "types"
-  ], // Include source and custom types
+    "src/**/*",
+    "src/types/**/*"
+  ],
   "exclude": [
     "node_modules",
     "dist"
-  ] // Exclude unnecessary files
+  ]
 }
