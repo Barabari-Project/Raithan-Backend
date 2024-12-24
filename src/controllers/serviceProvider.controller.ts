@@ -19,7 +19,7 @@ export const initiateOnboarding = expressAsyncHandler(async (req: Request, res: 
         throw createHttpError(400, "Invalid mobile number format");
     }
 
-    const existingProvider = await ServiceProvider.findOne({ mobileNumber });
+    const existingProvider = await ServiceProvider.findOne({ mobileNumber: { $eq: mobileNumber } });
     if (existingProvider) {
         if (!existingProvider.status.endsWith(ServiceProviderStatus.PENDING)) {
             logger.debug(`User ${existingProvider._id} otp is already verified`);
@@ -28,7 +28,7 @@ export const initiateOnboarding = expressAsyncHandler(async (req: Request, res: 
     }
 
     await ServiceProvider.findOneAndUpdate(
-        { mobileNumber },
+        { mobileNumber: { $eq: mobileNumber } },
         { mobileNumber, status: ServiceProviderStatus.PENDING },
         { upsert: true, new: true }
     );
@@ -47,7 +47,7 @@ export const verifyOtp = expressAsyncHandler(async (req: Request, res: Response)
         throw createHttpError(400, "Invalid mobile number format");
     }
 
-    const existingProvider = await ServiceProvider.findOne({ mobileNumber });
+    const existingProvider = await ServiceProvider.findOne({ mobileNumber: { $eq: mobileNumber } });
     if (!existingProvider) {
         throw createHttpError(404, "User not found");
     } else if (!existingProvider.status.endsWith(ServiceProviderStatus.PENDING)) {
@@ -58,7 +58,7 @@ export const verifyOtp = expressAsyncHandler(async (req: Request, res: Response)
     await verifyOTP(mobileNumber, code);
 
     const provider = await ServiceProvider.findOneAndUpdate(
-        { mobileNumber },
+        { mobileNumber: { $eq: mobileNumber } },
         { status: ServiceProviderStatus.OTP_VERIFIED },
         { new: true }
     );
