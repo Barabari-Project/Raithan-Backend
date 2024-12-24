@@ -1,24 +1,22 @@
 {
   "compilerOptions": {
-    "target": "ES6", // Transpiles to ES6-compatible JavaScript
-    "module": "CommonJS", // Use CommonJS for Node.js modules
-    "rootDir": "./src", // Root directory of source files
-    "outDir": "./dist", // Output directory for compiled files
-    "strict": true, // Enable strict type-checking
-    "esModuleInterop": true, // Enables compatibility with CommonJS and ES6 modules
-    "forceConsistentCasingInFileNames": true, // Enforce consistent file naming
-    "skipLibCheck": true, // Skip type-checking for libraries in node_modules
+    "target": "ES6",
+    "module": "CommonJS",
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
     "typeRoots": [
-      "src/types",
+      "./src/types",
       "./node_modules/@types"
-    ], // Includes custom type declarations
-    "resolveJsonModule": true, // Allows importing JSON files
-    "noImplicitAny": false, // Allows `any` type where necessary
-    "moduleResolution": "node" // Ensures compatibility with Node.js modules
+    ],
+    "resolveJsonModule": true,
+    "moduleResolution": "node"
   },
   "include": [
-    "src/**/*",
-    "src/types/**/*"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",
