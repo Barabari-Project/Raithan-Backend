@@ -9,10 +9,15 @@ import { ServiceProviderStatus } from '../types/provider.types';
 import { sendOTP, verifyOTP } from '../utils/twilioService';
 import { logger } from '..';
 import { uploadFileToS3 } from '../utils/s3Upload';
+import { validateMobileNumber, validateName } from '../utils/validation';
 
 // Step 1: Store mobile number and send OTP
 export const initiateOnboarding = expressAsyncHandler(async (req: Request, res: Response) => {
     const { mobileNumber } = req.body;
+
+    if (!validateMobileNumber(mobileNumber)) {
+        throw createHttpError(400, "Invalid mobile number format");
+    }
 
     const existingProvider = await ServiceProvider.findOne({ mobileNumber });
     if (existingProvider) {
@@ -37,6 +42,10 @@ export const initiateOnboarding = expressAsyncHandler(async (req: Request, res: 
 // Step 2: Verify OTP and send JWT
 export const verifyOtp = expressAsyncHandler(async (req: Request, res: Response) => {
     const { mobileNumber, code } = req.body;
+
+    if (!validateMobileNumber(mobileNumber)) {
+        throw createHttpError(400, "Invalid mobile number format");
+    }
 
     const existingProvider = await ServiceProvider.findOne({ mobileNumber });
     if (!existingProvider) {
@@ -99,6 +108,11 @@ export const verifyOtp = expressAsyncHandler(async (req: Request, res: Response)
 
 export const updateProfile = expressAsyncHandler(async (req: Request, res: Response) => {
     const { firstName, lastName } = req.body;
+
+    if (!validateName(firstName) || !validateName(lastName)) {
+        throw createHttpError(400, "Invalid name format");
+    }
+
     const userId = req.userId;
     // Ensure file exists in the request
     if (!req.file) {
