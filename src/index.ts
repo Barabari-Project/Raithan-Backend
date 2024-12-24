@@ -4,6 +4,7 @@ import cors from 'cors';
 import winston from 'winston';
 import moment from 'moment-timezone';
 import connectToDatabase from './database';
+import routes from './routes';
 dotenv.config();
 
 connectToDatabase();
@@ -35,9 +36,10 @@ export const logger = winston.createLogger({
 });
 
 
-app.get('/health', (req: Request, res: Response) => {
+app.get('/raithan/health', (req: Request, res: Response) => {
     res.sendStatus(200);
 });
+app.use('/raithan/api', routes); 
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     logger.error(
