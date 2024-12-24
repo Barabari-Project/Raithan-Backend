@@ -21,10 +21,6 @@ const client = new Twilio(accountSid, authToken);
  * @returns Promise with the verification SID
  */
 export const sendOTP = async (toPhoneNumber: string): Promise<string> => {
-    logger.debug(`Sending OTP to ${toPhoneNumber}`);
-    logger.debug(`Verify Service SID: ${verifyServiceSid}`);
-    logger.debug(`Account SID: ${accountSid}`);
-    logger.debug(`Auth Token: ${authToken}`);
     const verification = await client.verify.v2.services(verifyServiceSid)
         .verifications.create({ to: toPhoneNumber, channel: 'sms' });
     return verification.sid;

@@ -29,7 +29,7 @@ export const initiateOnboarding = expressAsyncHandler(async (req: Request, res: 
 
     await ServiceProvider.findOneAndUpdate(
         { mobileNumber: { $eq: mobileNumber } },
-        { mobileNumber, status: ServiceProviderStatus.PENDING },
+        { $set: { mobileNumber, status: ServiceProviderStatus.PENDING } },
         { upsert: true, new: true }
     );
 
@@ -132,7 +132,7 @@ export const updateProfile = expressAsyncHandler(async (req: Request, res: Respo
 
     provider = await ServiceProvider.findByIdAndUpdate(
         userId,
-        { firstName, lastName, profilePictureUrl, status: ServiceProviderStatus.COMPLETED },
+        { $set: { firstName, lastName, profilePictureUrl, status: ServiceProviderStatus.COMPLETED } },
         { new: true }
     );
 

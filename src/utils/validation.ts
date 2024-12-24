@@ -1,6 +1,6 @@
 export const validateMobileNumber = (mobileNumber: string): boolean => {
-    const mobileNumberRegex = /^[0-9]{10}$/; // Simple validation for a 10-digit number
-    return mobileNumberRegex.test(mobileNumber);
+    const mobileRegex = /^\+91\d{10}$/; // Starts with +91 and followed by exactly 10 digits
+    return mobileRegex.test(mobileNumber);
 };
 export const validateName = (name: string): boolean => {
     const nameRegex = /^[A-Za-z\s]+$/; // Only letters and spaces allowed
