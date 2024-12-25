@@ -22,4 +22,6 @@ export enum ServiceProviderStatus {
     OTP_VERIFIED = "otp_verified",
     EMAIL_VERIFIED = "email_verified",
     COMPLETED = "completed",
+    VERIFIED = "verified",
+    REJECTED = "rejected",
 }

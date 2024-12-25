@@ -7,13 +7,12 @@ const serviceProviderSchema = new Schema<IServiceProvider>({
     mobileNumber: {
         type: String,
         required: true,
-        unique: true,
-        match: /^[0-9]{10}$/,
+        unique: true
     },
     email: {
         type: String,
         unique: true,
-        sparse: true, // Allows partial index for unique emails
+        sparse: true,
     },
     password: {
         type: String,

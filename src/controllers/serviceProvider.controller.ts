@@ -67,7 +67,7 @@ export const verifyOtp = expressAsyncHandler(async (req: Request, res: Response)
         throw createHttpError(404, "User not found");
     }
 
-    const token = generateJwt({ userId: provider._id });
+    const token = generateJwt({ userId: provider._id }, process.env.PROVIDER_JWT_SECRET!);
 
     res.status(200).json({
         success: true,
