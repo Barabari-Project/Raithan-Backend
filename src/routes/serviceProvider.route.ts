@@ -6,13 +6,19 @@ import {
     updateProfile,
 } from "../controllers/serviceProvider.controller";
 import { handleMulterError, multerMiddleware } from '../middlewares/multerMiddleware';
-import { authMiddleware } from "../middlewares/authMiddleware";
+import { authServiceProviderMiddleware } from "../middlewares/authMiddleware";
 
 const router = express.Router();
 
-router.post("/onboard/mobile", initiateOnboarding);
-router.post("/onboard/verify-otp", verifyOtp);
-// router.post("/onboard/email", authMiddleware, addEmailAndPassword);
-router.post("/onboard/profile", authMiddleware, multerMiddleware, handleMulterError, updateProfile);
+// onboarding routes
+
+// user onboarding routes
+router.post("/onboard/user/mobile", initiateOnboarding);
+router.post("/onboard/user/verify-otp", verifyOtp);
+// router.post("/onboard/user/email", authMiddleware, addEmailAndPassword);
+router.post("/onboard/user/profile", authServiceProviderMiddleware, multerMiddleware, handleMulterError, updateProfile);
+
+// business onboarding routes
+
 
 export default router;
