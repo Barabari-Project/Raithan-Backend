@@ -57,14 +57,31 @@ export const verifyServiceProvider = expressAsyncHandler(async (req: Request, re
     if (!isValidObjectId(id)) {
         throw createHttpError(400, "Invalid service provider ID");
     }
-    const serviceProvider = await ServiceProvider.findByIdAndUpdate(id, { status: ServiceProviderStatus.VERIFIED }, { new: true });
-    res.status(200).json(serviceProvider);
+    const serviceProvider = await ServiceProvider.findById(id);
+    if (!serviceProvider) {
+        throw createHttpError(404, "Service provider not found");
+    }
+    if (serviceProvider.status !== ServiceProviderStatus.COMPLETED) {
+        throw createHttpError(400, "Service provider is not pending verification");
+    }
+    const updatedServiceProvider = await ServiceProvider.findByIdAndUpdate(id, { status: ServiceProviderStatus.VERIFIED }, { new: true });
+    res.status(200).json({ serviceProvider: updatedServiceProvider });
 });
 
 export const rejectServiceProvider = expressAsyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const serviceProvider = await ServiceProvider.findByIdAndUpdate(id, { status: ServiceProviderStatus.REJECTED }, { new: true });
-    res.status(200).json(serviceProvider);
+    if (!isValidObjectId(id)) {
+        throw createHttpError(400, "Invalid service provider ID");
+    }
+    const serviceProvider = await ServiceProvider.findById(id);
+    if (!serviceProvider) {
+        throw createHttpError(404, "Service provider not found");
+    }
+    if (serviceProvider.status !== ServiceProviderStatus.COMPLETED) {
+        throw createHttpError(400, "Service provider is not pending verification");
+    }
+    const updatedServiceProvider = await ServiceProvider.findByIdAndUpdate(id, { status: ServiceProviderStatus.REJECTED }, { new: true });
+    res.status(200).json({ serviceProvider: updatedServiceProvider });
 });
 
 
