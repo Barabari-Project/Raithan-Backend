@@ -29,7 +29,7 @@ export const initiateOnboarding = expressAsyncHandler(async (req: Request, res: 
         }
     }
 
-    const seeker = await ServiceSeeker.findOne({ mobileNumber: { $eq: mobileNumber } });
+    const seeker = await ServiceSeeker.exists({ mobileNumber: { $eq: mobileNumber } });
 
     if (seeker) {
         throw createHttpError(400, "User already exists");

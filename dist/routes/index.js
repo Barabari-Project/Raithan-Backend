@@ -8,9 +8,11 @@ const serviceProvider_route_1 = __importDefault(require("./serviceProvider.route
 const admin_route_1 = __importDefault(require("./admin.route"));
 const serviceSeeker_route_1 = __importDefault(require("./serviceSeeker.route"));
 const business_route_1 = __importDefault(require("./business.route"));
+const common_route_1 = __importDefault(require("./common.route"));
 const router = (0, express_1.Router)();
-router.use('/service-provider', serviceProvider_route_1.default);
+router.use('/service-providers', serviceProvider_route_1.default);
 router.use('/admin', admin_route_1.default);
-router.use('/service-seeker', serviceSeeker_route_1.default);
+router.use('/service-seekers', serviceSeeker_route_1.default);
 router.use('/business', business_route_1.default);
+router.use(common_route_1.default);
 exports.default = router;

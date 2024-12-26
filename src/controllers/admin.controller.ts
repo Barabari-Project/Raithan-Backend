@@ -29,23 +29,6 @@ export const getServiceProviders = expressAsyncHandler(async (req: Request, res:
     res.status(200).json(serviceProviders);
 });
 
-export const getServiceProviderById = expressAsyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
-
-    // Validate the id parameter
-    if (!isValidObjectId(id)) {
-        throw createHttpError(400, "Invalid service provider ID");
-    }
-
-    const serviceProvider = await ServiceProvider.findById(id);
-
-    if (!serviceProvider) {
-        throw createHttpError(404, "Service provider not found");
-    }
-
-    res.status(200).json(serviceProvider);
-});
-
 export const getServiceProvidersPendingVerification = expressAsyncHandler(async (req: Request, res: Response) => {
     const serviceProviders = await ServiceProvider.find({ status: ServiceProviderStatus.COMPLETED });
     res.status(200).json(serviceProviders);
@@ -87,16 +70,4 @@ export const rejectServiceProvider = expressAsyncHandler(async (req: Request, re
 export const getServiceSeekers = expressAsyncHandler(async (req: Request, res: Response) => {
     const serviceSeekers = await ServiceSeeker.find();
     res.status(200).json(serviceSeekers);
-});
-
-export const getServiceSeekerById = expressAsyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
-    if (!isValidObjectId(id)) {
-        throw createHttpError(400, "Invalid service seeker ID");
-    }
-    const serviceSeeker = await ServiceSeeker.findById(id);
-    if (!serviceSeeker) {
-        throw createHttpError(404, "Service seeker not found");
-    }
-    res.status(200).json(serviceSeeker);
 });

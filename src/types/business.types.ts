@@ -12,6 +12,7 @@ export enum BusinessCategory {
 }
 
 export interface IBusiness extends Document {
+    _id: mongoose.Types.ObjectId;
     businessName: string;
     businessContactNo: string;
     businessEmail: string;
@@ -22,7 +23,7 @@ export interface IBusiness extends Document {
     landmark?: string;
     city: string;
     state: string;
-    userId: mongoose.Types.ObjectId;
+    serviceProvider: mongoose.Types.ObjectId;
     workingDays: { [day: string]: boolean };
     workingTime: { start: string; end: string };
     category: BusinessCategory;

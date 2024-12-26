@@ -26,9 +26,13 @@ exports.login = (0, express_async_handler_1.default)((req, res) => __awaiter(voi
     if (!seeker) {
         throw (0, http_errors_1.default)(404, "User not found");
     }
-    const provider = yield serviceProvider_model_1.default.findOne({ mobileNumber: { $eq: mobileNumber } });
+    const provider = yield serviceProvider_model_1.default.exists({ mobileNumber: { $eq: mobileNumber } });
     if (provider) {
-        throw (0, http_errors_1.default)(400, "User already exists");
+        throw (0, http_errors_1.default)(400, "Please login as service provider");
+    }
+    else {
+        const newSeeker = new serviceSeeker_model_1.default({ mobileNumber });
+        yield newSeeker.save();
     }
     yield (0, twilioService_1.sendOTP)(mobileNumber);
     res.status(200).json({ success: true, message: "OTP sent successfully" });

@@ -17,10 +17,13 @@ export const login = expressAsyncHandler(async (req: Request, res: Response) => 
         throw createHttpError(404, "User not found");
     }
 
-    const provider = await ServiceProvider.findOne({ mobileNumber: { $eq: mobileNumber } });
+    const provider = await ServiceProvider.exists({ mobileNumber: { $eq: mobileNumber } });
 
     if (provider) {
-        throw createHttpError(400, "User already exists");
+        throw createHttpError(400, "Please login as service provider");
+    } else {
+        const newSeeker = new ServiceSeeker({ mobileNumber });
+        await newSeeker.save();
     }
 
     await sendOTP(mobileNumber);

@@ -59,7 +59,7 @@ const BusinessSchema: Schema = new Schema<IBusiness>(
             type: String,
             required: true,
         },
-        userId: {
+        serviceProvider: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'serviceProvider',
             required: true,
@@ -121,4 +121,4 @@ BusinessSchema.post('save', function (error: any, doc: any, next: Function) {
 });
 
 // Export the model
-export const Business = mongoose.model<IBusiness>('Business', BusinessSchema,'Business');
+export const Business = mongoose.model<IBusiness>('business', BusinessSchema,'business');
