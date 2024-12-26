@@ -33,3 +33,17 @@ export const authAdminMiddleware = expressAsyncHandler(async (req: Request, res:
     }
 });
 
+export const authSeekerMiddleware = expressAsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+        throw createHttpError(401, "Unauthorized");
+    }
+
+    try {
+        const decoded = verifyJwt(token, process.env.SEEKER_JWT_SECRET!);
+        req.userId = decoded.userId;
+        next();
+    } catch (error: any) {
+        throw createHttpError(401, "Invalid token");
+    }
+});
