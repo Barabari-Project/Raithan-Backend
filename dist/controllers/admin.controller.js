@@ -59,11 +59,28 @@ exports.verifyServiceProvider = (0, express_async_handler_1.default)((req, res) 
     if (!(0, mongoose_1.isValidObjectId)(id)) {
         throw (0, http_errors_1.default)(400, "Invalid service provider ID");
     }
-    const serviceProvider = yield serviceProvider_model_1.default.findByIdAndUpdate(id, { status: provider_types_1.ServiceProviderStatus.VERIFIED }, { new: true });
-    res.status(200).json(serviceProvider);
+    const serviceProvider = yield serviceProvider_model_1.default.findById(id);
+    if (!serviceProvider) {
+        throw (0, http_errors_1.default)(404, "Service provider not found");
+    }
+    if (serviceProvider.status !== provider_types_1.ServiceProviderStatus.COMPLETED) {
+        throw (0, http_errors_1.default)(400, "Service provider is not pending verification");
+    }
+    const updatedServiceProvider = yield serviceProvider_model_1.default.findByIdAndUpdate(id, { status: provider_types_1.ServiceProviderStatus.VERIFIED }, { new: true });
+    res.status(200).json({ serviceProvider: updatedServiceProvider });
 }));
 exports.rejectServiceProvider = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const serviceProvider = yield serviceProvider_model_1.default.findByIdAndUpdate(id, { status: provider_types_1.ServiceProviderStatus.REJECTED }, { new: true });
-    res.status(200).json(serviceProvider);
+    if (!(0, mongoose_1.isValidObjectId)(id)) {
+        throw (0, http_errors_1.default)(400, "Invalid service provider ID");
+    }
+    const serviceProvider = yield serviceProvider_model_1.default.findById(id);
+    if (!serviceProvider) {
+        throw (0, http_errors_1.default)(404, "Service provider not found");
+    }
+    if (serviceProvider.status !== provider_types_1.ServiceProviderStatus.COMPLETED) {
+        throw (0, http_errors_1.default)(400, "Service provider is not pending verification");
+    }
+    const updatedServiceProvider = yield serviceProvider_model_1.default.findByIdAndUpdate(id, { status: provider_types_1.ServiceProviderStatus.REJECTED }, { new: true });
+    res.status(200).json({ serviceProvider: updatedServiceProvider });
 }));
