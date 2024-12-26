@@ -158,7 +158,7 @@ export const updateProfile = expressAsyncHandler(async (req: Request, res: Respo
 
 // Login
 export const login = expressAsyncHandler(async (req: Request, res: Response) => {
-    const { mobileNumber, password } = req.body;
+    const { mobileNumber } = req.body;
 
     const provider = await ServiceProvider.findOne({ mobileNumber: { $eq: mobileNumber } });
 

@@ -33,8 +33,8 @@ const serviceProviderSchema = new Schema<IServiceProvider>({
     },
     businessDetails: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'businessDetails',
-        required: [true, 'Business details are required'],
+        ref: 'Business',
+        // required: [true, 'Business details are required'],
     },
 }, {
     timestamps: true,

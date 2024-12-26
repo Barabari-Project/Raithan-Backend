@@ -22,7 +22,6 @@ router.post("/onboard/user/profile", authServiceProviderMiddleware, multerMiddle
 router.post("/login", login);
 router.post("/login/verify-otp", verifyLoginOtp);
 
-
 // business onboarding routes
 
 

@@ -12,12 +12,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.rejectServiceProvider = exports.verifyServiceProvider = exports.getServiceProvidersPendingVerification = exports.getServiceProviderById = exports.getServiceProviders = exports.login = void 0;
+exports.getServiceSeekerById = exports.getServiceSeekers = exports.rejectServiceProvider = exports.verifyServiceProvider = exports.getServiceProvidersPendingVerification = exports.getServiceProviderById = exports.getServiceProviders = exports.login = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const http_errors_1 = __importDefault(require("http-errors"));
 const validation_1 = require("../utils/validation");
 const jwt_1 = require("../utils/jwt");
 const serviceProvider_model_1 = __importDefault(require("../models/serviceProvider.model"));
+const mongoose_1 = require("mongoose");
+const provider_types_1 = require("../types/provider.types");
+const serviceSeeker_model_1 = __importDefault(require("../models/serviceSeeker.model"));
 exports.login = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     if (!(0, validation_1.validateEmail)(email)) {
@@ -35,8 +38,6 @@ exports.getServiceProviders = (0, express_async_handler_1.default)((req, res) =>
     const serviceProviders = yield serviceProvider_model_1.default.find();
     res.status(200).json(serviceProviders);
 }));
-const mongoose_1 = require("mongoose");
-const provider_types_1 = require("../types/provider.types");
 exports.getServiceProviderById = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     // Validate the id parameter
@@ -83,4 +84,19 @@ exports.rejectServiceProvider = (0, express_async_handler_1.default)((req, res) 
     }
     const updatedServiceProvider = yield serviceProvider_model_1.default.findByIdAndUpdate(id, { status: provider_types_1.ServiceProviderStatus.REJECTED }, { new: true });
     res.status(200).json({ serviceProvider: updatedServiceProvider });
+}));
+exports.getServiceSeekers = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const serviceSeekers = yield serviceSeeker_model_1.default.find();
+    res.status(200).json(serviceSeekers);
+}));
+exports.getServiceSeekerById = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    if (!(0, mongoose_1.isValidObjectId)(id)) {
+        throw (0, http_errors_1.default)(400, "Invalid service seeker ID");
+    }
+    const serviceSeeker = yield serviceSeeker_model_1.default.findById(id);
+    if (!serviceSeeker) {
+        throw (0, http_errors_1.default)(404, "Service seeker not found");
+    }
+    res.status(200).json(serviceSeeker);
 }));

@@ -12,7 +12,9 @@ const router = express_1.default.Router();
 // user onboarding routes
 router.post("/onboard/user/mobile", serviceProvider_controller_1.initiateOnboarding);
 router.post("/onboard/user/verify-otp", serviceProvider_controller_1.verifyOtp);
-// router.post("/onboard/user/email", authMiddleware, addEmailAndPassword);
 router.post("/onboard/user/profile", authMiddleware_1.authServiceProviderMiddleware, multerMiddleware_1.multerMiddleware, multerMiddleware_1.handleMulterError, serviceProvider_controller_1.updateProfile);
+// login
+router.post("/login", serviceProvider_controller_1.login);
+router.post("/login/verify-otp", serviceProvider_controller_1.verifyLoginOtp);
 // business onboarding routes
 exports.default = router;

@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateProfile = exports.verifyOtp = exports.initiateOnboarding = void 0;
+exports.verifyLoginOtp = exports.login = exports.updateProfile = exports.verifyOtp = exports.initiateOnboarding = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const serviceProvider_model_1 = __importDefault(require("../models/serviceProvider.model"));
 const http_errors_1 = __importDefault(require("http-errors"));
@@ -23,6 +23,8 @@ const twilioService_1 = require("../utils/twilioService");
 const __1 = require("..");
 const s3Upload_1 = require("../utils/s3Upload");
 const validation_1 = require("../utils/validation");
+const serviceSeeker_model_1 = __importDefault(require("../models/serviceSeeker.model"));
+// Onboarding
 // Step 1: Store mobile number and send OTP
 exports.initiateOnboarding = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { mobileNumber } = req.body;
@@ -35,6 +37,10 @@ exports.initiateOnboarding = (0, express_async_handler_1.default)((req, res) => 
             __1.logger.debug(`User ${existingProvider._id} otp is already verified`);
             throw (0, http_errors_1.default)(400, "User is already in onboarding process");
         }
+    }
+    const seeker = yield serviceSeeker_model_1.default.findOne({ mobileNumber: { $eq: mobileNumber } });
+    if (seeker) {
+        throw (0, http_errors_1.default)(400, "User already exists");
     }
     yield serviceProvider_model_1.default.findOneAndUpdate({ mobileNumber: { $eq: mobileNumber } }, { $set: { mobileNumber, status: provider_types_1.ServiceProviderStatus.PENDING } }, { upsert: true, new: true });
     yield (0, twilioService_1.sendOTP)(mobileNumber);
@@ -119,43 +125,24 @@ exports.updateProfile = (0, express_async_handler_1.default)((req, res) => __awa
         provider,
     });
 }));
-// Get all service providers
-// const getAllServiceProviders = expressAsyncHandler(async (req: Request, res: Response) => {
-//     const serviceProviders = await ServiceProvider.find();
-//     res.status(200).json(serviceProviders);
-// });
-// // Get a specific service provider by ID
-// const getServiceProviderById = expressAsyncHandler(async (req: Request, res: Response) => {
-//     const serviceProvider = await ServiceProvider.findById(req.params.id);
-//     if (!serviceProvider) {
-//         throw createHttpError(404, 'Service Provider not found');
-//     }
-//     res.status(200).json(serviceProvider);
-// });
-// // Update a service provider by ID
-// const updateServiceProvider = expressAsyncHandler(async (req: Request, res: Response) => {
-//     const updatedServiceProvider = await ServiceProvider.findByIdAndUpdate(
-//         req.params.id,
-//         req.body,
-//         { new: true } // Returns the updated document
-//     );
-//     if (!updatedServiceProvider) {
-//         throw createHttpError(404, 'Service Provider not found');
-//     }
-//     res.status(200).json(updatedServiceProvider);
-// });
-// // Not Using this for now.
-// const deleteServiceProvider = expressAsyncHandler(async (req: Request, res: Response) => {
-//     const deletedServiceProvider = await ServiceProvider.findByIdAndDelete(req.params.id);
-//     if (!deletedServiceProvider) {
-//         throw createHttpError(404, 'Service Provider not found');
-//     }
-//     res.status(200).json({ message: 'Service Provider deleted successfully' });
-// });
-// export {
-//     createServiceProvider,
-//     getAllServiceProviders,
-//     getServiceProviderById,
-//     updateServiceProvider,
-//     deleteServiceProvider
-// };
+// Login
+exports.login = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { mobileNumber } = req.body;
+    const provider = yield serviceProvider_model_1.default.findOne({ mobileNumber: { $eq: mobileNumber } });
+    if (!provider) {
+        throw (0, http_errors_1.default)(404, "User not found");
+    }
+    yield (0, twilioService_1.sendOTP)(mobileNumber);
+    res.status(200).json({ success: true, message: "OTP sent successfully" });
+}));
+// verify otp
+exports.verifyLoginOtp = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { mobileNumber, code } = req.body;
+    const provider = yield serviceProvider_model_1.default.findOne({ mobileNumber: { $eq: mobileNumber } });
+    if (!provider) {
+        throw (0, http_errors_1.default)(404, "User not found");
+    }
+    yield (0, twilioService_1.verifyOTP)(mobileNumber, code);
+    const token = (0, jwt_1.generateJwt)({ userId: provider._id }, process.env.PROVIDER_JWT_SECRET);
+    res.status(200).json({ success: true, message: "OTP verified successfully", token, provider });
+}));
