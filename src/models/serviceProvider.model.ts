@@ -31,9 +31,9 @@ const serviceProviderSchema = new Schema<IServiceProvider>({
         enum: Object.values(ServiceProviderStatus),
         default: ServiceProviderStatus.PENDING,
     },
-    businessDetails: {
+    business: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Business',
+        ref: 'business',
         // required: [true, 'Business details are required'],
     },
 }, {

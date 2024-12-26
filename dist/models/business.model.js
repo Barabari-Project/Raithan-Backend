@@ -96,7 +96,7 @@ const BusinessSchema = new mongoose_1.Schema({
         type: String,
         required: true,
     },
-    userId: {
+    serviceProvider: {
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: 'serviceProvider',
         required: true,
@@ -152,4 +152,4 @@ BusinessSchema.post('save', function (error, doc, next) {
     }
 });
 // Export the model
-exports.Business = mongoose_1.default.model('Business', BusinessSchema, 'Business');
+exports.Business = mongoose_1.default.model('business', BusinessSchema, 'business');

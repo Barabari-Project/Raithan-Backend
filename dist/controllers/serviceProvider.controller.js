@@ -38,7 +38,7 @@ exports.initiateOnboarding = (0, express_async_handler_1.default)((req, res) => 
             throw (0, http_errors_1.default)(400, "User is already in onboarding process");
         }
     }
-    const seeker = yield serviceSeeker_model_1.default.findOne({ mobileNumber: { $eq: mobileNumber } });
+    const seeker = yield serviceSeeker_model_1.default.exists({ mobileNumber: { $eq: mobileNumber } });
     if (seeker) {
         throw (0, http_errors_1.default)(400, "User already exists");
     }

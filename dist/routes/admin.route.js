@@ -14,8 +14,6 @@ router.get("/service-providers", authMiddleware_1.authAdminMiddleware, admin_con
 router.get("/service-providers/pending-verification", authMiddleware_1.authAdminMiddleware, admin_controller_1.getServiceProvidersPendingVerification);
 router.post("/service-providers/:id/verify", authMiddleware_1.authAdminMiddleware, admin_controller_1.verifyServiceProvider);
 router.post("/service-providers/:id/reject", authMiddleware_1.authAdminMiddleware, admin_controller_1.rejectServiceProvider);
-router.get("/service-providers/:id", authMiddleware_1.authAdminMiddleware, admin_controller_1.getServiceProviderById);
 // admin service seeker routes
 router.get("/service-seekers", authMiddleware_1.authAdminMiddleware, admin_controller_1.getServiceSeekers);
-router.get("/service-seekers/:id", authMiddleware_1.authAdminMiddleware, admin_controller_1.getServiceSeekerById);
 exports.default = router;

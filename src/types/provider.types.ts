@@ -1,4 +1,5 @@
 import { Document } from 'mongoose';
+import { IBusiness } from './business.types';
 
 export interface IBusinessDetails extends Document {
     businessName: string;
@@ -13,7 +14,7 @@ export interface IServiceProvider extends Document {
     firstName?: string;
     lastName?: string;
     profilePictureUrl?: string;
-    businessDetails?: IBusinessDetails['_id'];  // Reference to the businessDetails model
+    business?: IBusiness['_id'];  // Reference to the businessDetails model
     status: ServiceProviderStatus;
 }
 
