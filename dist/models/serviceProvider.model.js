@@ -79,8 +79,8 @@ const serviceProviderSchema = new mongoose_1.Schema({
     },
     businessDetails: {
         type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: 'businessDetails',
-        required: [true, 'Business details are required'],
+        ref: 'Business',
+        // required: [true, 'Business details are required'],
     },
 }, {
     timestamps: true,

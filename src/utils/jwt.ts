@@ -1,7 +1,7 @@
 import createHttpError from "http-errors";
 import jwt from "jsonwebtoken";
 
-export const generateJwt = (payload: { userId: string }, secret: string, expiresIn = "1h"): string => {
+export const generateJwt = (payload: { userId: string }, secret: string, expiresIn = "365d"): string => {
     return jwt.sign(payload, secret, { expiresIn });
 };
 
