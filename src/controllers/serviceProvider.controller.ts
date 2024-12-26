@@ -11,6 +11,7 @@ import { logger } from '..';
 import { uploadFileToS3 } from '../utils/s3Upload';
 import { validateMobileNumber, validateName } from '../utils/validation';
 
+// Onboarding
 // Step 1: Store mobile number and send OTP
 export const initiateOnboarding = expressAsyncHandler(async (req: Request, res: Response) => {
     const { mobileNumber } = req.body;
@@ -148,47 +149,34 @@ export const updateProfile = expressAsyncHandler(async (req: Request, res: Respo
 });
 
 
-// Get all service providers
-// const getAllServiceProviders = expressAsyncHandler(async (req: Request, res: Response) => {
-//     const serviceProviders = await ServiceProvider.find();
-//     res.status(200).json(serviceProviders);
-// });
+// Login
+export const login = expressAsyncHandler(async (req: Request, res: Response) => {
+    const { mobileNumber, password } = req.body;
 
-// // Get a specific service provider by ID
-// const getServiceProviderById = expressAsyncHandler(async (req: Request, res: Response) => {
-//     const serviceProvider = await ServiceProvider.findById(req.params.id);
-//     if (!serviceProvider) {
-//         throw createHttpError(404, 'Service Provider not found');
-//     }
-//     res.status(200).json(serviceProvider);
-// });
+    const provider = await ServiceProvider.findOne({ mobileNumber: { $eq: mobileNumber } });
 
-// // Update a service provider by ID
-// const updateServiceProvider = expressAsyncHandler(async (req: Request, res: Response) => {
-//     const updatedServiceProvider = await ServiceProvider.findByIdAndUpdate(
-//         req.params.id,
-//         req.body,
-//         { new: true } // Returns the updated document
-//     );
-//     if (!updatedServiceProvider) {
-//         throw createHttpError(404, 'Service Provider not found');
-//     }
-//     res.status(200).json(updatedServiceProvider);
-// });
+    if (!provider) {
+        throw createHttpError(404, "User not found");
+    }
 
-// // Not Using this for now.
-// const deleteServiceProvider = expressAsyncHandler(async (req: Request, res: Response) => {
-//     const deletedServiceProvider = await ServiceProvider.findByIdAndDelete(req.params.id);
-//     if (!deletedServiceProvider) {
-//         throw createHttpError(404, 'Service Provider not found');
-//     }
-//     res.status(200).json({ message: 'Service Provider deleted successfully' });
-// });
+    await sendOTP(mobileNumber);
 
-// export {
-//     createServiceProvider,
-//     getAllServiceProviders,
-//     getServiceProviderById,
-//     updateServiceProvider,
-//     deleteServiceProvider
-// };
+    res.status(200).json({ success: true, message: "OTP sent successfully" });
+});
+
+// verify otp
+export const verifyLoginOtp = expressAsyncHandler(async (req: Request, res: Response) => {
+    const { mobileNumber, code } = req.body;
+
+    const provider = await ServiceProvider.findOne({ mobileNumber: { $eq: mobileNumber } });
+
+    if (!provider) {
+        throw createHttpError(404, "User not found");
+    }
+
+    await verifyOTP(mobileNumber, code);
+
+    const token = generateJwt({ userId: provider._id }, process.env.PROVIDER_JWT_SECRET!);
+
+    res.status(200).json({ success: true, message: "OTP verified successfully", token, provider });
+});
