@@ -10,6 +10,7 @@ import { sendOTP, verifyOTP } from '../utils/twilioService';
 import { logger } from '..';
 import { uploadFileToS3 } from '../utils/s3Upload';
 import { validateMobileNumber, validateName } from '../utils/validation';
+import ServiceSeeker from '../models/serviceSeeker.model';
 
 // Onboarding
 // Step 1: Store mobile number and send OTP
@@ -26,6 +27,12 @@ export const initiateOnboarding = expressAsyncHandler(async (req: Request, res: 
             logger.debug(`User ${existingProvider._id} otp is already verified`);
             throw createHttpError(400, "User is already in onboarding process");
         }
+    }
+
+    const seeker = await ServiceSeeker.findOne({ mobileNumber: { $eq: mobileNumber } });
+
+    if (seeker) {
+        throw createHttpError(400, "User already exists");
     }
 
     await ServiceProvider.findOneAndUpdate(

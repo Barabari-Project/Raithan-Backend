@@ -4,6 +4,9 @@ import createHttpError from 'http-errors';
 import { validateEmail } from '../utils/validation';
 import { generateJwt } from '../utils/jwt';
 import ServiceProvider from '../models/serviceProvider.model';
+import { isValidObjectId } from 'mongoose';
+import { ServiceProviderStatus } from '../types/provider.types';
+import ServiceSeeker from '../models/serviceSeeker.model';
 
 export const login = expressAsyncHandler(async (req: Request, res: Response) => {
     const { email, password } = req.body;
@@ -25,9 +28,6 @@ export const getServiceProviders = expressAsyncHandler(async (req: Request, res:
     const serviceProviders = await ServiceProvider.find();
     res.status(200).json(serviceProviders);
 });
-
-import { isValidObjectId } from 'mongoose';
-import { ServiceProviderStatus } from '../types/provider.types';
 
 export const getServiceProviderById = expressAsyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -84,4 +84,19 @@ export const rejectServiceProvider = expressAsyncHandler(async (req: Request, re
     res.status(200).json({ serviceProvider: updatedServiceProvider });
 });
 
+export const getServiceSeekers = expressAsyncHandler(async (req: Request, res: Response) => {
+    const serviceSeekers = await ServiceSeeker.find();
+    res.status(200).json(serviceSeekers);
+});
 
+export const getServiceSeekerById = expressAsyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    if (!isValidObjectId(id)) {
+        throw createHttpError(400, "Invalid service seeker ID");
+    }
+    const serviceSeeker = await ServiceSeeker.findById(id);
+    if (!serviceSeeker) {
+        throw createHttpError(404, "Service seeker not found");
+    }
+    res.status(200).json(serviceSeeker);
+});
