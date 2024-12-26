@@ -47,7 +47,7 @@ export const updateBusiness = expressAsyncHandler(async (req: Request, res: Resp
 
     const updatedBusiness = await Business.findByIdAndUpdate(
         req.params.id,
-        { ...req.body, userId: req.userId },
+        { $set: { ...req.body, userId: req.userId } },
         { new: true, runValidators: true }
     );
     if (!updatedBusiness) {

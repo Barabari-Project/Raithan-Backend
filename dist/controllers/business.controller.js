@@ -55,7 +55,7 @@ exports.updateBusiness = (0, express_async_handler_1.default)((req, res) => __aw
     if (!(0, mongoose_1.isValidObjectId)(req.params.id)) {
         throw (0, http_errors_1.default)(400, 'Invalid business ID');
     }
-    const updatedBusiness = yield business_model_1.Business.findByIdAndUpdate(req.params.id, Object.assign(Object.assign({}, req.body), { userId: req.userId }), { new: true, runValidators: true });
+    const updatedBusiness = yield business_model_1.Business.findByIdAndUpdate(req.params.id, { $set: Object.assign(Object.assign({}, req.body), { userId: req.userId }) }, { new: true, runValidators: true });
     if (!updatedBusiness) {
         throw (0, http_errors_1.default)(404, 'Business not found');
     }
