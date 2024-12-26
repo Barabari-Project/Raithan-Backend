@@ -17,6 +17,12 @@ export const login = expressAsyncHandler(async (req: Request, res: Response) => 
         throw createHttpError(404, "User not found");
     }
 
+    const provider = await ServiceProvider.findOne({ mobileNumber: { $eq: mobileNumber } });
+
+    if (provider) {
+        throw createHttpError(400, "User already exists");
+    }
+
     await sendOTP(mobileNumber);
 
     res.status(200).json({ success: true, message: "OTP sent successfully" });
