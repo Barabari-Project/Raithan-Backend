@@ -16,7 +16,7 @@ dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)({
-    origin: process.env.FRONTEND_BASE_URL,
+    origin: '*',
 }));
 exports.logger = winston_1.default.createLogger({
     // Log only if level is less than (meaning more severe) or equal to this
