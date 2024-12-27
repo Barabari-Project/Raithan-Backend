@@ -11,7 +11,7 @@ const router = express_1.default.Router();
 router.post("/auth/login", admin_controller_1.login);
 // admin service provider routes
 router.get("/service-providers", authMiddleware_1.authAdminMiddleware, admin_controller_1.getServiceProviders);
-router.get("/service-providers/pending-verification", authMiddleware_1.authAdminMiddleware, admin_controller_1.getServiceProvidersPendingVerification);
+router.get("/service-providers/:status", authMiddleware_1.authAdminMiddleware, admin_controller_1.getServiceProvidersByStatus);
 router.post("/service-providers/:id/verify", authMiddleware_1.authAdminMiddleware, admin_controller_1.verifyServiceProvider);
 router.post("/service-providers/:id/reject", authMiddleware_1.authAdminMiddleware, admin_controller_1.rejectServiceProvider);
 // admin service seeker routes

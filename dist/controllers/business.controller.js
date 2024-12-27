@@ -18,11 +18,15 @@ const business_model_1 = require("../models/business.model");
 const mongoose_1 = require("mongoose");
 const serviceProvider_model_1 = __importDefault(require("../models/serviceProvider.model"));
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
+const provider_types_1 = require("../types/provider.types");
 // Create a new business
 exports.createBusiness = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const serviceProvider = yield serviceProvider_model_1.default.findById(req.userId);
     if (!serviceProvider) {
         throw (0, http_errors_1.default)(404, 'Service Provider not found');
+    }
+    if (serviceProvider.status !== provider_types_1.ServiceProviderStatus.BUSINESS_DETAILS_REMAINING) {
+        throw (0, http_errors_1.default)(400, 'Service Provider is not in business details remaining state');
     }
     const isBusinessAlreadyExists = yield business_model_1.Business.findOne({ serviceProvider: serviceProvider._id });
     if (isBusinessAlreadyExists) {
@@ -31,6 +35,7 @@ exports.createBusiness = (0, express_async_handler_1.default)((req, res) => __aw
     const newBusiness = new business_model_1.Business(Object.assign(Object.assign({}, req.body), { serviceProvider: serviceProvider._id }));
     yield newBusiness.save();
     serviceProvider.business = newBusiness._id;
+    serviceProvider.status = provider_types_1.ServiceProviderStatus.COMPLETED;
     yield serviceProvider.save();
     res.status(201).json({
         success: true,

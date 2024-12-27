@@ -115,7 +115,7 @@ exports.updateProfile = (0, express_async_handler_1.default)((req, res) => __awa
     }
     // Upload profile picture to S3
     const profilePictureUrl = yield (0, s3Upload_1.uploadFileToS3)(req.file, 'profile-pictures');
-    provider = yield serviceProvider_model_1.default.findByIdAndUpdate(userId, { $set: { firstName, lastName, profilePictureUrl, status: provider_types_1.ServiceProviderStatus.COMPLETED } }, { new: true });
+    provider = yield serviceProvider_model_1.default.findByIdAndUpdate(userId, { $set: { firstName, lastName, profilePictureUrl, status: provider_types_1.ServiceProviderStatus.BUSINESS_DETAILS_REMAINING } }, { new: true });
     if (!provider) {
         throw (0, http_errors_1.default)(404, 'User not found');
     }
