@@ -35,11 +35,10 @@ export const logger = winston.createLogger({
     ],
 });
 
-
 app.get('/raithan/health', (req: Request, res: Response) => {
     res.sendStatus(200);
 });
-app.use('/raithan/api', routes); 
+app.use('/raithan/api', routes);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     logger.error(

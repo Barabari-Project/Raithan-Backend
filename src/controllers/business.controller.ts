@@ -5,6 +5,7 @@ import { isValidObjectId } from 'mongoose';
 import ServiceProvider from '../models/serviceProvider.model';
 import expressAsyncHandler from 'express-async-handler';
 import { logger } from '..';
+import { ServiceProviderStatus } from '../types/provider.types';
 
 // Create a new business
 export const createBusiness = expressAsyncHandler(async (req: Request, res: Response) => {
@@ -13,6 +14,11 @@ export const createBusiness = expressAsyncHandler(async (req: Request, res: Resp
     if (!serviceProvider) {
         throw createHttpError(404, 'Service Provider not found');
     }
+
+    if (serviceProvider.status !== ServiceProviderStatus.BUSINESS_DETAILS_REMAINING) {
+        throw createHttpError(400, 'Service Provider is not in business details remaining state');
+    }
+
     const isBusinessAlreadyExists = await Business.findOne({ serviceProvider: serviceProvider._id });
 
     if (isBusinessAlreadyExists) {
@@ -22,6 +28,7 @@ export const createBusiness = expressAsyncHandler(async (req: Request, res: Resp
     await newBusiness.save();
 
     serviceProvider.business = newBusiness._id;
+    serviceProvider.status = ServiceProviderStatus.COMPLETED;
     await serviceProvider.save();
 
     res.status(201).json({
@@ -30,8 +37,6 @@ export const createBusiness = expressAsyncHandler(async (req: Request, res: Resp
         business: newBusiness,
     });
 });
-
-
 
 // Update a business by ID
 export const updateBusiness = expressAsyncHandler(async (req: Request, res: Response) => {
@@ -44,6 +49,7 @@ export const updateBusiness = expressAsyncHandler(async (req: Request, res: Resp
         { $set: { ...req.body, serviceProvider: req.userId } },
         { new: true, runValidators: true }
     );
+
     if (!updatedBusiness) {
         throw createHttpError(404, 'Business not found');
     }
