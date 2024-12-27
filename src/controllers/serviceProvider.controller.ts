@@ -140,7 +140,7 @@ export const updateProfile = expressAsyncHandler(async (req: Request, res: Respo
 
     provider = await ServiceProvider.findByIdAndUpdate(
         userId,
-        { $set: { firstName, lastName, profilePictureUrl, status: ServiceProviderStatus.COMPLETED } },
+        { $set: { firstName, lastName, profilePictureUrl, status: ServiceProviderStatus.BUSINESS_DETAILS_REMAINING } },
         { new: true }
     );
 

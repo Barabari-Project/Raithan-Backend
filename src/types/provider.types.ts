@@ -22,6 +22,7 @@ export enum ServiceProviderStatus {
     PENDING = "pending",
     OTP_VERIFIED = "otp_verified",
     EMAIL_VERIFIED = "email_verified",
+    BUSINESS_DETAILS_REMAINING = "business_details_remaining",
     COMPLETED = "completed",
     VERIFIED = "verified",
     REJECTED = "rejected",

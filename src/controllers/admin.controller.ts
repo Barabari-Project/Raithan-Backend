@@ -29,8 +29,26 @@ export const getServiceProviders = expressAsyncHandler(async (req: Request, res:
     res.status(200).json(serviceProviders);
 });
 
-export const getServiceProvidersPendingVerification = expressAsyncHandler(async (req: Request, res: Response) => {
-    const serviceProviders = await ServiceProvider.find({ status: ServiceProviderStatus.COMPLETED });
+export const getServiceProvidersByStatus = expressAsyncHandler(async (req: Request, res: Response) => {
+    const { status } = req.params;
+
+    // Check if the status is provided
+    if (!status) {
+        throw createHttpError(400, "Status query parameter is required.");
+    }
+
+    // Validate if the status is a valid value from ServiceProviderStatus enum
+    if (!Object.values(ServiceProviderStatus).includes(status as ServiceProviderStatus)) {
+        throw createHttpError(400, "Invalid status provided.");
+    }
+
+    // Fetch service providers with the valid status
+    const serviceProviders = await ServiceProvider.find({ status: { $eq: status } });
+
+    if (serviceProviders.length === 0) {
+        throw createHttpError(404, "No service providers found with the given status.");
+    }
+
     res.status(200).json(serviceProviders);
 });
 

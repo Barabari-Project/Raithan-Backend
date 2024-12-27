@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getServiceSeekers = exports.rejectServiceProvider = exports.verifyServiceProvider = exports.getServiceProvidersPendingVerification = exports.getServiceProviders = exports.login = void 0;
+exports.getServiceSeekers = exports.rejectServiceProvider = exports.verifyServiceProvider = exports.getServiceProvidersByStatus = exports.getServiceProviders = exports.login = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const http_errors_1 = __importDefault(require("http-errors"));
 const validation_1 = require("../utils/validation");
@@ -38,8 +38,21 @@ exports.getServiceProviders = (0, express_async_handler_1.default)((req, res) =>
     const serviceProviders = yield serviceProvider_model_1.default.find();
     res.status(200).json(serviceProviders);
 }));
-exports.getServiceProvidersPendingVerification = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const serviceProviders = yield serviceProvider_model_1.default.find({ status: provider_types_1.ServiceProviderStatus.COMPLETED });
+exports.getServiceProvidersByStatus = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { status } = req.params;
+    // Check if the status is provided
+    if (!status) {
+        throw (0, http_errors_1.default)(400, "Status query parameter is required.");
+    }
+    // Validate if the status is a valid value from ServiceProviderStatus enum
+    if (!Object.values(provider_types_1.ServiceProviderStatus).includes(status)) {
+        throw (0, http_errors_1.default)(400, "Invalid status provided.");
+    }
+    // Fetch service providers with the valid status
+    const serviceProviders = yield serviceProvider_model_1.default.find({ status: { $eq: status } });
+    if (serviceProviders.length === 0) {
+        throw (0, http_errors_1.default)(404, "No service providers found with the given status.");
+    }
     res.status(200).json(serviceProviders);
 }));
 exports.verifyServiceProvider = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
