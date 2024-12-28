@@ -25,6 +25,10 @@ const MechanicProductSchema: Schema = new Schema<IMechanicProduct>({
         type: Boolean,
         required: true,
     },
+    numberOfWorkers: {
+        type: Number,
+        required: true,
+    },
     business: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'business',

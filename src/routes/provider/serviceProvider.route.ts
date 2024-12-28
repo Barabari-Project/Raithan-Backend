@@ -7,7 +7,7 @@ import {
     verifyOtp
 } from "../../controllers/provider/serviceProvider.controller";
 import { authServiceProviderMiddleware } from "../../middlewares/authMiddleware";
-import { multerMiddlewareForSingleFile } from '../../middlewares/multerMiddleware';
+import { handleMulterError, multerMiddleware } from '../../middlewares/multerMiddleware';
 
 const router = express.Router();
 
@@ -17,8 +17,9 @@ const router = express.Router();
 router.post("/onboard/user/mobile", initiateOnboarding);
 router.post("/onboard/user/verify-otp", verifyOtp);
 router.post("/onboard/user/profile",
-    multerMiddlewareForSingleFile.single('img'),
+    multerMiddleware.single('img'),
     authServiceProviderMiddleware,
+    handleMulterError,
     updateProfile
 );
 

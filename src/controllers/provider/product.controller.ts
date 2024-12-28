@@ -42,49 +42,52 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
 
     if (category === BusinessCategory.HARVESTORS) {
         const { hp, modelNo, type } = req.body;
+        logger.debug(`req.file: ${req.file}`);
+        logger.debug(`req.files: ${req?.files?.length}`);
         if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
             throw createHttpError(400, 'Profile picture is required');
-        } else if (req.files.length === 6) {
+        } else if (req.files.length !== 6) {
             // 4 photos from 4 directions, driving license and rc book
             throw createHttpError(400, 'You need to upload 6 images');
         }
         const images = req.files.map(async (file) => await uploadFileToS3(file, 'product-images'));
+        const uploadedImages = await Promise.all(images);
         product = await HarvestorProduct.create({
-            images,
+            images: uploadedImages,
             hp,
             modelNo,
             business: business._id,
             type: type
         });
-        res.status(201).json({ message: 'Product created successfully', product });
     } else if (category === BusinessCategory.EARTH_MOVERS) {
         if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
             throw createHttpError(400, 'Profile picture is required');
-        } else if (req.files.length === 6) {
+        } else if (req.files.length !== 6) {
             // 4 photos from 4 directions, driving license and rc book
             throw createHttpError(400, 'You need to upload 6 images');
         }
         const images = req.files.map(async (file) => await uploadFileToS3(file, 'product-images'));
+        const uploadedImages = await Promise.all(images);
         const { modelNo, hp, type } = req.body;
         product = await EarthMoverProduct.create({
-            images,
+            images: uploadedImages,
             modelNo,
             hp,
             business: business._id,
             type: type
         });
-        res.status(201).json({ message: 'Product created successfully', product });
     } else if (category === BusinessCategory.IMPLEMENTS) {
         if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
             throw createHttpError(400, 'Profile picture is required');
-        } else if (req.files.length === 6) {
+        } else if (req.files.length !== 6) {
             // 4 photos from 4 directions, driving license and rc book
             throw createHttpError(400, 'You need to upload 6 images');
         }
         const images = req.files.map(async (file) => await uploadFileToS3(file, 'product-images'));
+        const uploadedImages = await Promise.all(images);
         const { modelNo, hp, type } = req.body;
         product = await ImplementProduct.create({
-            images,
+            images: uploadedImages,
             modelNo,
             hp,
             business: business._id
@@ -92,14 +95,15 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
     } else if (category === BusinessCategory.MACHINES) {
         if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
             throw createHttpError(400, 'Profile picture is required');
-        } else if (req.files.length === 6) {
+        } else if (req.files.length !== 6) {
             // 4 photos from 4 directions, driving license and rc book
             throw createHttpError(400, 'You need to upload 6 images');
         }
         const images = req.files.map(async (file) => await uploadFileToS3(file, 'product-images'));
+        const uploadedImages = await Promise.all(images);
         const { modelNo, hp, type } = req.body;
         product = await MachineProduct.create({
-            images,
+            images: uploadedImages,
             modelNo,
             hp,
             business: business._id,
@@ -107,14 +111,15 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
     } else if (category === BusinessCategory.PADDY_TRANSPLANTORS) {
         if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
             throw createHttpError(400, 'Profile picture is required');
-        } else if (req.files.length === 6) {
+        } else if (req.files.length !== 6) {
             // 4 photos from 4 directions, driving license and rc book
             throw createHttpError(400, 'You need to upload 6 images');
         }
         const images = req.files.map(async (file) => await uploadFileToS3(file, 'product-images'));
+        const uploadedImages = await Promise.all(images);
         const { modelNo, hp } = req.body;
         product = await PaddyTransplantorProduct.create({
-            images,
+            images: uploadedImages,
             modelNo,
             hp,
             business: business._id,
@@ -122,14 +127,15 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
     } else if (category === BusinessCategory.DRONES) {
         if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
             throw createHttpError(400, 'Profile picture is required');
-        } else if (req.files.length === 5) {
+        } else if (req.files.length !== 5) {
             // 4 photos from 4 directions and 1 bill
             throw createHttpError(400, 'You need to upload 5 images');
         }
         const images = req.files.map(async (file) => await uploadFileToS3(file, 'product-images'));
+        const uploadedImages = await Promise.all(images);
         const { type, modelNo } = req.body;
         product = await DroneProduct.create({
-            images,
+            images: uploadedImages,
             type,
             modelNo,
             business: business._id,
@@ -139,31 +145,40 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
             throw createHttpError(400, 'Profile picture is required');
         }
         // eShram card 
-        if (req.files.length === 1) {
+        if (req.files.length !== 1) {
             throw createHttpError(400, 'You need to upload 1 image');
         }
         const images = req.files.map(async (file) => await uploadFileToS3(file, 'product-images'));
-        const { eShramCardNumber, readyToTravelIn10Km, isIndividual, services } = req.body;
+        const uploadedImages = await Promise.all(images);
+        let { eShramCardNumber, readyToTravelIn10Km, isIndividual, services, numberOfWorkers } = req.body;
+        if (isIndividual) {
+            numberOfWorkers = 1;
+        }
         product = await MechanicProduct.create({
-            images,
+            images: uploadedImages,
             eShramCardNumber,
             readyToTravelIn10Km,
             isIndividual,
             services,
+            numberOfWorkers,
             business: business._id,
         });
     } else if (category === BusinessCategory.AGRICULTURE_LABOR) {
-        const { eShramCardNumber, readyToTravelIn10Km, isIndividual, services, numberOfWorkers } = req.body;
+        let { eShramCardNumber, readyToTravelIn10Km, isIndividual, services, numberOfWorkers } = req.body;
+        if (isIndividual) {
+            numberOfWorkers = 1;
+        }
         if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
             throw createHttpError(400, 'Profile picture is required');
         }
         // eShram card 
-        if (req.files.length === 1) {
+        if (req.files.length !== 1) {
             throw createHttpError(400, 'You need to upload 1 image');
         }
         const images = req.files.map(async (file) => await uploadFileToS3(file, 'product-images'));
+        const uploadedImages = await Promise.all(images);
         product = await AgricultureLaborProduct.create({
-            images,
+            images: uploadedImages,
             eShramCardNumber,
             readyToTravelIn10Km,
             isIndividual,

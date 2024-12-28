@@ -58,6 +58,7 @@ export interface IMechanicProduct extends Document {
     readyToTravelIn10Km: boolean;
     isIndividual: boolean;
     services: MechanicServiceType[];
+    numberOfWorkers: number;
 }
 
 export enum MechanicServiceType {

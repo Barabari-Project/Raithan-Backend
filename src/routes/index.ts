@@ -11,7 +11,7 @@ router.use('/service-providers', serviceProviderRoutes);
 router.use('/admin', adminRoutes);
 router.use('/service-seekers', serviceSeekerRoutes);
 router.use('/business', businessRoutes);
-// router.use('/products', productRoutes);
+router.use('/products', productRoutes);
 router.use(commonRoutes);
 
 export default router;
