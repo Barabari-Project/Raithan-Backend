@@ -48,6 +48,10 @@ const PaddyTransplantorProductSchema = new mongoose_1.Schema({
         type: String,
         required: true,
     },
+    isVerified: {
+        type: Boolean,
+        default: false,
+    },
     modelNo: {
         type: String,
         required: true,

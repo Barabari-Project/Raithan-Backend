@@ -20,7 +20,7 @@ const twilioService_1 = require("../utils/twilioService");
 const serviceProvider_model_1 = __importDefault(require("../models/serviceProvider.model"));
 const jwt_1 = require("../utils/jwt");
 // Login
-exports.login = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.login = (0, express_async_handler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { mobileNumber } = req.body;
     const seeker = yield serviceSeeker_model_1.default.findOne({ mobileNumber: { $eq: mobileNumber } });
     if (!seeker) {
@@ -35,7 +35,7 @@ exports.login = (0, express_async_handler_1.default)((req, res) => __awaiter(voi
         yield newSeeker.save();
     }
     yield (0, twilioService_1.sendOTP)(mobileNumber);
-    res.status(200).json({ success: true, message: "OTP sent successfully" });
+    res.status(200).json({ message: "OTP sent successfully" });
 }));
 // verify otp
 exports.verifyLoginOtp = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {

@@ -52,6 +52,10 @@ const EarthMoverProductSchema = new mongoose_1.Schema({
         type: String,
         required: true,
     },
+    isVerified: {
+        type: Boolean,
+        default: false,
+    },
     type: {
         type: String,
         required: true,
