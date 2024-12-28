@@ -1,11 +1,10 @@
 import { Request, Response } from 'express';
 import createHttpError from 'http-errors';
-import { Business } from '../models/business.model';
+import { Business } from '../../models/business.model';
 import { isValidObjectId } from 'mongoose';
-import ServiceProvider from '../models/serviceProvider.model';
+import ServiceProvider from '../../models/serviceProvider.model';
 import expressAsyncHandler from 'express-async-handler';
-import { logger } from '..';
-import { ServiceProviderStatus } from '../types/provider.types';
+import { ServiceProviderStatus } from '../../types/provider.types';
 
 // Create a new business
 export const createBusiness = expressAsyncHandler(async (req: Request, res: Response) => {

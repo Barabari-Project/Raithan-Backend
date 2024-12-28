@@ -15,7 +15,7 @@ export const getServiceProviderById = expressAsyncHandler(async (req: Request, r
         throw createHttpError(400, "Invalid service provider ID");
     }
 
-    const serviceProvider = await ServiceProvider.findById(id);
+    const serviceProvider = await ServiceProvider.findById(id).populate('business');
 
     if (!serviceProvider) {
         throw createHttpError(404, "Service provider not found");
