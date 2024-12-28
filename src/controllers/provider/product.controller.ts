@@ -1,20 +1,19 @@
-import expressAsyncHandler from "express-async-handler";
 import { Request, Response } from "express";
-import { BusinessCategory } from "../../types/business.types";
+import expressAsyncHandler from "express-async-handler";
 import createHttpError from "http-errors";
-import { uploadFileToS3 } from "../../utils/s3Upload";
-import { HarvestorProduct } from "../../models/products/harvestorProduct.model";
 import { Business } from "../../models/business.model";
+import { AgricultureLaborProduct } from "../../models/products/AgricultureLaborProduct.model";
+import { DroneProduct } from "../../models/products/DroneProduct.model";
 import { EarthMoverProduct } from "../../models/products/earthMoverProduct.model";
+import { HarvestorProduct } from "../../models/products/harvestorProduct.model";
 import { ImplementProduct } from "../../models/products/ImplementProduct.model";
 import { MachineProduct } from "../../models/products/MachineProduct.model";
-import { PaddyTransplantorProduct } from "../../models/products/PaddyTransplantorProduct.model";
-import { DroneProduct } from "../../models/products/DroneProduct.model";
 import { MechanicProduct } from "../../models/products/MechanicProduct.model";
-import { AgricultureLaborProduct } from "../../models/products/AgricultureLaborProduct.model";
+import { PaddyTransplantorProduct } from "../../models/products/PaddyTransplantorProduct.model";
 import ServiceProvider from "../../models/serviceProvider.model";
+import { BusinessCategory } from "../../types/business.types";
 import { ServiceProviderStatus } from "../../types/provider.types";
-import { logger } from "../..";
+import { uploadFileToS3 } from "../../utils/s3Upload";
 
 export const createProduct = expressAsyncHandler(async (req: Request, res: Response) => {
     const { category } = req.body;
@@ -42,8 +41,6 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
 
     if (category === BusinessCategory.HARVESTORS) {
         const { hp, modelNo, type } = req.body;
-        logger.debug(`req.file: ${req.file}`);
-        logger.debug(`req.files: ${req?.files?.length}`);
         if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
             throw createHttpError(400, 'Profile picture is required');
         } else if (req.files.length !== 6) {

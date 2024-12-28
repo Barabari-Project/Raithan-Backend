@@ -12,7 +12,7 @@ exports.multerMiddleware = (0, multer_1.default)({
     limits: {
         fileSize: 5 * 1024 * 1024, // 5 MB limit
     },
-}).single('profilePicture');
+});
 // Middleware to handle multer errors
 const handleMulterError = (err, req, res, next) => {
     if (err instanceof multer_1.default.MulterError) {

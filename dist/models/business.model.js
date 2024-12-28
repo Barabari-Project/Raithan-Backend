@@ -137,8 +137,8 @@ const BusinessSchema = new mongoose_1.Schema({
         required: true,
     },
     category: {
-        type: String,
-        required: true,
+        type: [String],
+        default: [],
         enum: Object.values(business_types_1.BusinessCategory),
     },
 }, { timestamps: true });
