@@ -17,6 +17,8 @@ import { PaddyTransplantorProduct } from '../models/products/PaddyTransplantorPr
 import { AgricultureLaborProduct } from '../models/products/AgricultureLaborProduct.model';
 import { EarthMoverProduct } from '../models/products/earthMoverProduct.model';
 import { DroneProduct } from '../models/products/DroneProduct.model';
+import { ProductStatus } from '../types/product.types';
+import { findProductsByStatus } from './common.controller';
 
 export const login = expressAsyncHandler(async (req: Request, res: Response) => {
     const { email, password } = req.body;
@@ -101,14 +103,29 @@ export const getServiceSeekers = expressAsyncHandler(async (req: Request, res: R
 });
 
 export const verifyProduct = expressAsyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const { category } = req.body;
+    const { id: productId, category } = req.params;
+    const userId = req.userId;
+    const product = await updateProductStatus(category, productId, userId!, ProductStatus.VERIFIED);
 
-    if (!isValidObjectId(id)) {
+    res.status(200).json({ product });
+});
+
+export const rejectProduct = expressAsyncHandler(async (req: Request, res: Response) => {
+    const { id: productId, category } = req.params;
+    const userId = req.userId;
+    const product = await updateProductStatus(category, productId, userId!, ProductStatus.REJECTED);
+    res.status(200).json({ product });
+});
+
+export const updateProductStatus = async (category: String, productId: String, userId: String, status: ProductStatus) => {
+    if (!Object.values(BusinessCategory).includes(category as BusinessCategory)) {
+        throw createHttpError(400, "Invalid category");
+    }
+
+    if (!isValidObjectId(productId)) {
         throw createHttpError(400, "Invalid product ID");
     }
 
-    const userId = req.userId;
     const serviceProvider = await ServiceProvider.findById(userId);
     let product;
     if (!serviceProvider) {
@@ -121,67 +138,74 @@ export const verifyProduct = expressAsyncHandler(async (req: Request, res: Respo
     if (!business) {
         throw createHttpError(404, "Business not found");
     }
-    if (!business.category.includes(category)) {
+    if (!business.category.includes(category as BusinessCategory)) {
         throw createHttpError(400, "Business does not offer this category");
     }
 
     if (category === BusinessCategory.HARVESTORS) {
-        product = await HarvestorProduct.findById(id);
+        product = await HarvestorProduct.findById(productId);
         if (!product) {
             throw createHttpError(404, "Product not found");
         }
-        product.isVerified = true;
+        product.verificationStatus = status;
         await product.save();
     } else if (category === BusinessCategory.IMPLEMENTS) {
-        product = await ImplementProduct.findById(id);
+        product = await ImplementProduct.findById(productId);
         if (!product) {
             throw createHttpError(404, "Product not found");
         }
-        product.isVerified = true;
+        product.verificationStatus = status;
         await product.save();
     } else if (category === BusinessCategory.MACHINES) {
-        product = await MachineProduct.findById(id);
+        product = await MachineProduct.findById(productId);
         if (!product) {
             throw createHttpError(404, "Product not found");
         }
-        product.isVerified = true;
+        product.verificationStatus = status;
         await product.save();
     } else if (category === BusinessCategory.MECHANICS) {
-        product = await MechanicProduct.findById(id);
+        product = await MechanicProduct.findById(productId);
         if (!product) {
             throw createHttpError(404, "Product not found");
         }
-        product.isVerified = true;
+        product.verificationStatus = status;
         await product.save();
     } else if (category === BusinessCategory.PADDY_TRANSPLANTORS) {
-        product = await PaddyTransplantorProduct.findById(id);
+        product = await PaddyTransplantorProduct.findById(productId);
         if (!product) {
             throw createHttpError(404, "Product not found");
         }
-        product.isVerified = true;
+        product.verificationStatus = status;
         await product.save();
     } else if (category === BusinessCategory.AGRICULTURE_LABOR) {
-        product = await AgricultureLaborProduct.findById(id);
+        product = await AgricultureLaborProduct.findById(productId);
         if (!product) {
             throw createHttpError(404, "Product not found");
         }
-        product.isVerified = true;
+        product.verificationStatus = status;
         await product.save();
     } else if (category === BusinessCategory.EARTH_MOVERS) {
-        product = await EarthMoverProduct.findById(id);
+        product = await EarthMoverProduct.findById(productId);
         if (!product) {
             throw createHttpError(404, "Product not found");
         }
-        product.isVerified = true;
+        product.verificationStatus = status;
         await product.save();
     } else if (category === BusinessCategory.DRONES) {
-        product = await DroneProduct.findById(id);
+        product = await DroneProduct.findById(productId);
         if (!product) {
             throw createHttpError(404, "Product not found");
         }
-        product.isVerified = true;
+        product.verificationStatus = status;
         await product.save();
     }
+    
+    return product;
+}
 
-    res.status(200).json({ product });
+export const getUnverifiedProducts = expressAsyncHandler(async (req: Request, res: Response) => {
+    const { category } = req.params;
+    const products = await findProductsByStatus(category, ProductStatus.UNVERIFIED);
+    res.status(200).json({ products });
 });
+

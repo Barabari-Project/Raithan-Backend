@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { IPaddyTransplantorProduct } from "../../types/product.types";
+import { IPaddyTransplantorProduct, ProductStatus } from "../../types/product.types";
 import createHttpError from "http-errors";
 
 const PaddyTransplantorProductSchema: Schema = new Schema<IPaddyTransplantorProduct>({
@@ -11,9 +11,10 @@ const PaddyTransplantorProductSchema: Schema = new Schema<IPaddyTransplantorProd
         type: String,
         required: true,
     },
-    isVerified: {
-        type: Boolean,
-        default: false,
+    verificationStatus: {
+        type: String,
+        enum: Object.values(ProductStatus),
+        default: ProductStatus.UNVERIFIED,
     },
     modelNo: {
         type: String,
