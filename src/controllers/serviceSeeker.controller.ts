@@ -1,5 +1,5 @@
 
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import expressAsyncHandler from 'express-async-handler';
 import ServiceSeeker from '../models/serviceSeeker.model';
 import createHttpError from 'http-errors';
@@ -8,7 +8,7 @@ import ServiceProvider from '../models/serviceProvider.model';
 import { generateJwt } from '../utils/jwt';
 
 // Login
-export const login = expressAsyncHandler(async (req: Request, res: Response) => {
+export const login = expressAsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const { mobileNumber } = req.body;
 
     const seeker = await ServiceSeeker.findOne({ mobileNumber: { $eq: mobileNumber } });
@@ -28,7 +28,7 @@ export const login = expressAsyncHandler(async (req: Request, res: Response) => 
 
     await sendOTP(mobileNumber);
 
-    res.status(200).json({ success: true, message: "OTP sent successfully" });
+    res.status(200).json({ message: "OTP sent successfully" });
 });
 
 // verify otp

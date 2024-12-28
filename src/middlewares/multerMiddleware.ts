@@ -16,6 +16,8 @@ export const handleMulterError = (err: any, req: Request, res: Response, next: N
     if (err instanceof multer.MulterError) {
         if (err.code === 'LIMIT_FILE_SIZE') {
             throw createHttpError(400, 'File size should not exceed 5 MB');
+        } else if (err.code === 'LIMIT_FILE_COUNT') {
+            throw createHttpError(400, 'You can only upload up to 6 images');
         }
     }
     next(err); // Pass other errors to the next middleware

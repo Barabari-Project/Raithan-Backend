@@ -1,10 +1,10 @@
 import express from "express";
 import { createBusiness,  updateBusiness } from "../../controllers/provider/business.controller";
-import { authServiceProviderMiddleware } from "../../middlewares/authMiddleware";
+import { authMiddleware } from "../../middlewares/authMiddleware";
 
 const router = express.Router();
 
-router.post("/", authServiceProviderMiddleware, createBusiness);
-router.put("/:id", authServiceProviderMiddleware, updateBusiness);
+router.post("/", authMiddleware(process.env.PROVIDER_JWT_SECRET!), createBusiness);
+router.put("/:id", authMiddleware(process.env.PROVIDER_JWT_SECRET!), updateBusiness);
 
 export default router;  
