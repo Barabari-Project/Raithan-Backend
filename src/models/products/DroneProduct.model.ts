@@ -11,6 +11,10 @@ const DroneProductSchema: Schema = new Schema<IDroneProduct>({
         type: String,
         required: true,
     },
+    isVerified: {
+        type: Boolean,
+        default: false,
+    },
     type: {
         type: String,
         required: true,

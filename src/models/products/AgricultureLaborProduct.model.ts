@@ -19,6 +19,10 @@ const AgricultureLaborProductSchema: Schema = new Schema<IAgricultureLaborProduc
         type: Boolean,
         required: true,
     },
+    isVerified: {
+        type: Boolean,
+        default: false,
+    },
     services: {
         type: [String],
         enum: Object.values(AgricultureLaborServiceType),

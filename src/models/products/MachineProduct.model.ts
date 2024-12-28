@@ -15,6 +15,10 @@ const MachineProductSchema: Schema = new Schema<IMachineProduct>({
         type: String,
         required: true,
     },
+    isVerified: {
+        type: Boolean,
+        default: false,
+    },
     business: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'business',

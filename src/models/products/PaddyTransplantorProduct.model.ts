@@ -11,6 +11,10 @@ const PaddyTransplantorProductSchema: Schema = new Schema<IPaddyTransplantorProd
         type: String,
         required: true,
     },
+    isVerified: {
+        type: Boolean,
+        default: false,
+    },
     modelNo: {
         type: String,
         required: true,

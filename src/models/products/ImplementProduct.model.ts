@@ -15,6 +15,10 @@ const ImplementProductSchema: Schema = new Schema<IImplementProduct>({
         type: String,
         required: true,
     },
+    isVerified: {
+        type: Boolean,
+        default: false,
+    },
     business: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'business',

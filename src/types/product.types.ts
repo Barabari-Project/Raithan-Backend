@@ -7,6 +7,7 @@ export interface IHarvestorProduct extends Document {
     hp: string;
     modelNo: string;
     type: string;
+    isVerified: boolean;
 }
 
 export interface IEarthMoverProduct extends Document {
@@ -16,6 +17,7 @@ export interface IEarthMoverProduct extends Document {
     hp: string;
     modelNo: string;
     type: string;
+    isVerified: boolean;
 }
 
 export interface IImplementProduct extends Document {
@@ -24,6 +26,7 @@ export interface IImplementProduct extends Document {
     images: string[];
     hp: string;
     modelNo: string;
+    isVerified: boolean;
 }
 
 export interface IMachineProduct extends Document {
@@ -32,6 +35,7 @@ export interface IMachineProduct extends Document {
     images: string[];
     hp: string;
     modelNo: string;
+    isVerified: boolean;
 }
 
 export interface IPaddyTransplantorProduct extends Document {
@@ -40,6 +44,7 @@ export interface IPaddyTransplantorProduct extends Document {
     images: string[];
     hp: string;
     modelNo: string;
+    isVerified: boolean;
 }
 
 export interface IDroneProduct extends Document {
@@ -48,6 +53,7 @@ export interface IDroneProduct extends Document {
     images: string[];
     modelNo: string;
     type: string;
+    isVerified: boolean;
 }
 
 export interface IMechanicProduct extends Document {
@@ -59,6 +65,7 @@ export interface IMechanicProduct extends Document {
     isIndividual: boolean;
     services: MechanicServiceType[];
     numberOfWorkers: number;
+    isVerified: boolean;
 }
 
 export enum MechanicServiceType {
@@ -77,6 +84,7 @@ export interface IAgricultureLaborProduct extends Document {
     isIndividual: boolean;
     services: AgricultureLaborServiceType[];
     numberOfWorkers: number;
+    isVerified: boolean;
 }
 
 export enum AgricultureLaborServiceType {

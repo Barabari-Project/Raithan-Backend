@@ -17,6 +17,10 @@ const MechanicProductSchema: Schema = new Schema<IMechanicProduct>({
         type: String,
         required: true,
     },
+    isVerified: {
+        type: Boolean,
+        default: false,
+    },
     readyToTravelIn10Km: {
         type: Boolean,
         required: true,
