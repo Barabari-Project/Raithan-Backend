@@ -43,7 +43,7 @@ export const initiateOnboarding = expressAsyncHandler(async (req: Request, res: 
 
     await sendOTP(mobileNumber);
 
-    res.status(200).json({ success: true, message: "OTP sent successfully" });
+    res.status(200).json({ message: "OTP sent successfully" });
 
 });
 
@@ -78,7 +78,6 @@ export const verifyOtp = expressAsyncHandler(async (req: Request, res: Response)
     const token = generateJwt({ userId: provider._id }, process.env.PROVIDER_JWT_SECRET!);
 
     res.status(200).json({
-        success: true,
         message: "OTP verified successfully",
         token,
     });
@@ -149,7 +148,6 @@ export const updateProfile = expressAsyncHandler(async (req: Request, res: Respo
     }
 
     res.status(200).json({
-        success: true,
         message: 'Profile updated successfully',
         provider,
     });
@@ -168,7 +166,7 @@ export const login = expressAsyncHandler(async (req: Request, res: Response) => 
 
     await sendOTP(mobileNumber);
 
-    res.status(200).json({ success: true, message: "OTP sent successfully" });
+    res.status(200).json({ message: "OTP sent successfully" });
 });
 
 // verify otp
@@ -185,5 +183,5 @@ export const verifyLoginOtp = expressAsyncHandler(async (req: Request, res: Resp
 
     const token = generateJwt({ userId: provider._id }, process.env.PROVIDER_JWT_SECRET!);
 
-    res.status(200).json({ success: true, message: "OTP verified successfully", token, provider });
+    res.status(200).json({ message: "OTP verified successfully", token, provider });
 });

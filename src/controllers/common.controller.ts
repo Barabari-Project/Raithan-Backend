@@ -21,7 +21,7 @@ export const getServiceProviderById = expressAsyncHandler(async (req: Request, r
         throw createHttpError(404, "Service provider not found");
     }
 
-    res.status(200).json(serviceProvider);
+    res.status(200).json({ serviceProvider });
 });
 
 // Get a business by ID
@@ -33,7 +33,7 @@ export const getBusinessById = expressAsyncHandler(async (req: Request, res: Res
     if (!business) {
         throw createHttpError(404, 'Business not found');
     }
-    res.status(200).json({ success: true, business });
+    res.status(200).json({ business });
 });
 
 export const getBusinessesByUserId = expressAsyncHandler(async (req: Request, res: Response) => {
@@ -50,7 +50,6 @@ export const getBusinessesByUserId = expressAsyncHandler(async (req: Request, re
     }
 
     res.status(200).json({
-        success: true,
         business,
     });
 });
@@ -64,5 +63,5 @@ export const getServiceSeekerById = expressAsyncHandler(async (req: Request, res
     if (!serviceSeeker) {
         throw createHttpError(404, "Service seeker not found");
     }
-    res.status(200).json(serviceSeeker);
+    res.status(200).json({ serviceSeeker });
 });
