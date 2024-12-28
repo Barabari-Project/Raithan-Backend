@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 import { BusinessCategory, IBusiness } from '../types/business.types';
 import createHttpError from 'http-errors';
 
@@ -103,8 +103,8 @@ const BusinessSchema: Schema = new Schema<IBusiness>(
             required: true,
         },
         category: {
-            type: String,
-            required: true,
+            type: [String],
+            default: [],
             enum: Object.values(BusinessCategory),
         },
     },
@@ -121,4 +121,4 @@ BusinessSchema.post('save', function (error: any, doc: any, next: Function) {
 });
 
 // Export the model
-export const Business = mongoose.model<IBusiness>('business', BusinessSchema,'business');
+export const Business = mongoose.model<IBusiness>('business', BusinessSchema, 'business');

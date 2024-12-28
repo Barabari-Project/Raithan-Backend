@@ -2,15 +2,15 @@
 
 import { Request, Response } from 'express';
 import expressAsyncHandler from 'express-async-handler';
-import ServiceProvider from '../models/serviceProvider.model';
+import ServiceProvider from '../../models/serviceProvider.model';
 import createHttpError from 'http-errors';
-import { generateJwt } from "../utils/jwt";
-import { ServiceProviderStatus } from '../types/provider.types';
-import { sendOTP, verifyOTP } from '../utils/twilioService';
-import { logger } from '..';
-import { uploadFileToS3 } from '../utils/s3Upload';
-import { validateMobileNumber, validateName } from '../utils/validation';
-import ServiceSeeker from '../models/serviceSeeker.model';
+import { generateJwt } from "../../utils/jwt";
+import { ServiceProviderStatus } from '../../types/provider.types';
+import { sendOTP, verifyOTP } from '../../utils/twilioService';
+import { logger } from '../..';
+import { uploadFileToS3 } from '../../utils/s3Upload';
+import { validateMobileNumber, validateName } from '../../utils/validation';
+import ServiceSeeker from '../../models/serviceSeeker.model';
 
 // Onboarding
 // Step 1: Store mobile number and send OTP
@@ -122,7 +122,7 @@ export const updateProfile = expressAsyncHandler(async (req: Request, res: Respo
     }
 
     const userId = req.userId;
-    // Ensure file exists in the request
+    logger.debug(`req.file: ${req.file}`);
     if (!req.file) {
         throw createHttpError(400, 'Profile picture is required');
     }

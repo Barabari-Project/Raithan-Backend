@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Document } from "mongoose";
 
 export enum BusinessCategory {
     MECHANICS = 'Mechanics',
@@ -26,5 +26,5 @@ export interface IBusiness extends Document {
     serviceProvider: mongoose.Types.ObjectId;
     workingDays: { [day: string]: boolean };
     workingTime: { start: string; end: string };
-    category: BusinessCategory;
+    category: BusinessCategory[];
 }

@@ -25,7 +25,7 @@ exports.getServiceProviderById = (0, express_async_handler_1.default)((req, res)
     if (!(0, mongoose_1.isValidObjectId)(id)) {
         throw (0, http_errors_1.default)(400, "Invalid service provider ID");
     }
-    const serviceProvider = yield serviceProvider_model_1.default.findById(id);
+    const serviceProvider = yield serviceProvider_model_1.default.findById(id).populate('business');
     if (!serviceProvider) {
         throw (0, http_errors_1.default)(404, "Service provider not found");
     }
