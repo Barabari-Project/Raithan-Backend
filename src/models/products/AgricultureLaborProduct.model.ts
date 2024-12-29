@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { AgricultureLaborServiceType, IAgricultureLaborProduct } from "../../types/product.types";
+import { AgricultureLaborServiceType, IAgricultureLaborProduct, ProductStatus } from "../../types/product.types";
 import createHttpError from "http-errors";
 
 const AgricultureLaborProductSchema: Schema = new Schema<IAgricultureLaborProduct>({
@@ -18,6 +18,11 @@ const AgricultureLaborProductSchema: Schema = new Schema<IAgricultureLaborProduc
     isIndividual: {
         type: Boolean,
         required: true,
+    },
+    verificationStatus: {
+        type: String,
+        enum: Object.values(ProductStatus),
+        default: ProductStatus.UNVERIFIED,
     },
     services: {
         type: [String],

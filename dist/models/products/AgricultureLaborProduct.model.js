@@ -57,6 +57,10 @@ const AgricultureLaborProductSchema = new mongoose_1.Schema({
         type: Boolean,
         required: true,
     },
+    isVerified: {
+        type: Boolean,
+        default: false,
+    },
     services: {
         type: [String],
         enum: Object.values(product_types_1.AgricultureLaborServiceType),

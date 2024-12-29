@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { IEarthMoverProduct } from "../../types/product.types";
+import { IEarthMoverProduct, ProductStatus } from "../../types/product.types";
 import createHttpError from "http-errors";
 
 const EarthMoverProductSchema: Schema = new Schema<IEarthMoverProduct>({
@@ -14,6 +14,11 @@ const EarthMoverProductSchema: Schema = new Schema<IEarthMoverProduct>({
     modelNo: {
         type: String,
         required: true,
+    },
+    verificationStatus: {
+        type: String,
+        enum: Object.values(ProductStatus),
+        default: ProductStatus.UNVERIFIED,
     },
     type: {
         type: String,

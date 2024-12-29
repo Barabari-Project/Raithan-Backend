@@ -7,6 +7,6 @@ const express_1 = __importDefault(require("express"));
 const business_controller_1 = require("../../controllers/provider/business.controller");
 const authMiddleware_1 = require("../../middlewares/authMiddleware");
 const router = express_1.default.Router();
-router.post("/", authMiddleware_1.authServiceProviderMiddleware, business_controller_1.createBusiness);
-router.put("/:id", authMiddleware_1.authServiceProviderMiddleware, business_controller_1.updateBusiness);
+router.post("/", (0, authMiddleware_1.authMiddleware)(process.env.PROVIDER_JWT_SECRET), business_controller_1.createBusiness);
+router.put("/:id", (0, authMiddleware_1.authMiddleware)(process.env.PROVIDER_JWT_SECRET), business_controller_1.updateBusiness);
 exports.default = router;

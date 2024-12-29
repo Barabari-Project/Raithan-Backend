@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { IMachineProduct } from "../../types/product.types";
+import { IMachineProduct, ProductStatus } from "../../types/product.types";
 import createHttpError from "http-errors";
 
 const MachineProductSchema: Schema = new Schema<IMachineProduct>({
@@ -14,6 +14,11 @@ const MachineProductSchema: Schema = new Schema<IMachineProduct>({
     modelNo: {
         type: String,
         required: true,
+    },
+    verificationStatus: {
+        type: String,
+        enum: Object.values(ProductStatus),
+        default: ProductStatus.UNVERIFIED,
     },
     business: {
         type: mongoose.Schema.Types.ObjectId,

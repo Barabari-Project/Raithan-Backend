@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { IMechanicProduct, MechanicServiceType } from "../../types/product.types";
+import { IMechanicProduct, MechanicServiceType, ProductStatus } from "../../types/product.types";
 import createHttpError from "http-errors";
 
 const MechanicProductSchema: Schema = new Schema<IMechanicProduct>({
@@ -16,6 +16,11 @@ const MechanicProductSchema: Schema = new Schema<IMechanicProduct>({
     eShramCardNumber: {
         type: String,
         required: true,
+    },
+    verificationStatus: {
+        type: String,
+        enum: Object.values(ProductStatus),
+        default: ProductStatus.UNVERIFIED,
     },
     readyToTravelIn10Km: {
         type: Boolean,

@@ -44,7 +44,7 @@ exports.initiateOnboarding = (0, express_async_handler_1.default)((req, res) => 
     }
     yield serviceProvider_model_1.default.findOneAndUpdate({ mobileNumber: { $eq: mobileNumber } }, { $set: { mobileNumber, status: provider_types_1.ServiceProviderStatus.PENDING } }, { upsert: true, new: true });
     yield (0, twilioService_1.sendOTP)(mobileNumber);
-    res.status(200).json({ success: true, message: "OTP sent successfully" });
+    res.status(200).json({ message: "OTP sent successfully" });
 }));
 // Step 2: Verify OTP and send JWT
 exports.verifyOtp = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -67,7 +67,6 @@ exports.verifyOtp = (0, express_async_handler_1.default)((req, res) => __awaiter
     }
     const token = (0, jwt_1.generateJwt)({ userId: provider._id }, process.env.PROVIDER_JWT_SECRET);
     res.status(200).json({
-        success: true,
         message: "OTP verified successfully",
         token,
     });
@@ -120,7 +119,6 @@ exports.updateProfile = (0, express_async_handler_1.default)((req, res) => __awa
         throw (0, http_errors_1.default)(404, 'User not found');
     }
     res.status(200).json({
-        success: true,
         message: 'Profile updated successfully',
         provider,
     });
@@ -133,7 +131,7 @@ exports.login = (0, express_async_handler_1.default)((req, res) => __awaiter(voi
         throw (0, http_errors_1.default)(404, "User not found");
     }
     yield (0, twilioService_1.sendOTP)(mobileNumber);
-    res.status(200).json({ success: true, message: "OTP sent successfully" });
+    res.status(200).json({ message: "OTP sent successfully" });
 }));
 // verify otp
 exports.verifyLoginOtp = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -144,5 +142,5 @@ exports.verifyLoginOtp = (0, express_async_handler_1.default)((req, res) => __aw
     }
     yield (0, twilioService_1.verifyOTP)(mobileNumber, code);
     const token = (0, jwt_1.generateJwt)({ userId: provider._id }, process.env.PROVIDER_JWT_SECRET);
-    res.status(200).json({ success: true, message: "OTP verified successfully", token, provider });
+    res.status(200).json({ message: "OTP verified successfully", token, provider });
 }));

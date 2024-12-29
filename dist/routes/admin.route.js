@@ -10,10 +10,12 @@ const router = express_1.default.Router();
 // admin auth routes
 router.post("/auth/login", admin_controller_1.login);
 // admin service provider routes
-router.get("/service-providers", authMiddleware_1.authAdminMiddleware, admin_controller_1.getServiceProviders);
-router.get("/service-providers/:status", authMiddleware_1.authAdminMiddleware, admin_controller_1.getServiceProvidersByStatus);
-router.post("/service-providers/:id/verify", authMiddleware_1.authAdminMiddleware, admin_controller_1.verifyServiceProvider);
-router.post("/service-providers/:id/reject", authMiddleware_1.authAdminMiddleware, admin_controller_1.rejectServiceProvider);
+router.get("/service-providers", (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.getServiceProviders);
+router.get("/service-providers/:status", (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.getServiceProvidersByStatus);
+router.post("/service-providers/:id/verify", (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.verifyServiceProvider);
+router.post("/service-providers/:id/reject", (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.rejectServiceProvider);
+// verify product
+router.post("/products/:id/verify", (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.verifyProduct);
 // admin service seeker routes
-router.get("/service-seekers", authMiddleware_1.authAdminMiddleware, admin_controller_1.getServiceSeekers);
+router.get("/service-seekers", (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.getServiceSeekers);
 exports.default = router;

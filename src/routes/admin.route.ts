@@ -1,5 +1,5 @@
 import express from "express";
-import { getServiceProviders, getServiceProvidersByStatus, getServiceSeekers, login, rejectServiceProvider, verifyServiceProvider } from "../controllers/admin.controller";
+import { getServiceProviders, getServiceProvidersByStatus, getServiceSeekers, getUnverifiedProducts, login, rejectProduct, rejectServiceProvider, verifyProduct, verifyServiceProvider } from "../controllers/admin.controller";
 import { authMiddleware } from "../middlewares/authMiddleware";
 
 const router = express.Router();
@@ -13,9 +13,12 @@ router.get("/service-providers/:status", authMiddleware(process.env.ADMIN_JWT_SE
 router.post("/service-providers/:id/verify", authMiddleware(process.env.ADMIN_JWT_SECRET!), verifyServiceProvider);
 router.post("/service-providers/:id/reject", authMiddleware(process.env.ADMIN_JWT_SECRET!), rejectServiceProvider);
 
+// verify product
+router.post("/products/:category/:id/verify", authMiddleware(process.env.ADMIN_JWT_SECRET!), verifyProduct);
+router.post("/products/:category/:id/reject", authMiddleware(process.env.ADMIN_JWT_SECRET!), rejectProduct);
+router.get("/products/:category/unverified", authMiddleware(process.env.ADMIN_JWT_SECRET!), getUnverifiedProducts);
 
 // admin service seeker routes
 router.get("/service-seekers", authMiddleware(process.env.ADMIN_JWT_SECRET!), getServiceSeekers);
-
 
 export default router;

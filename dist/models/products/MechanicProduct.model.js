@@ -55,6 +55,10 @@ const MechanicProductSchema = new mongoose_1.Schema({
         type: String,
         required: true,
     },
+    isVerified: {
+        type: Boolean,
+        default: false,
+    },
     readyToTravelIn10Km: {
         type: Boolean,
         required: true,

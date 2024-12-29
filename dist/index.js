@@ -11,8 +11,9 @@ const winston_1 = __importDefault(require("winston"));
 const moment_timezone_1 = __importDefault(require("moment-timezone"));
 const database_1 = __importDefault(require("./database"));
 const routes_1 = __importDefault(require("./routes"));
-const multer_1 = __importDefault(require("multer"));
+const validateEnvVars_1 = require("./utils/validateEnvVars");
 dotenv_1.default.config();
+(0, validateEnvVars_1.validateEnvVars)();
 (0, database_1.default)();
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
@@ -37,18 +38,6 @@ app.get('/raithan/health', (req, res) => {
 });
 app.use('/raithan/api', routes_1.default);
 app.use((err, req, res, next) => {
-    if (err instanceof multer_1.default.MulterError) {
-        if (err.code === 'LIMIT_FILE_SIZE') {
-            exports.logger.error(`Error occurred during ${req.method} request to ${req.url} | Status: ${400} | Message: 'File size should not exceed 5 MB' || "No error message"} | Stack: ${err.stack || "No stack trace"}`);
-            res.status(400).json({ error: 'File size should not exceed 5 MB' });
-            return;
-        }
-        if (err.code === 'LIMIT_FILE_COUNT') {
-            exports.logger.error(`Error occurred during ${req.method} request to ${req.url} | Status: ${400} | Message: 'You can only upload up to 6 images' || "No error message"} | Stack: ${err.stack || "No stack trace"}`);
-            res.status(400).json({ error: 'You can only upload up to 6 images' });
-            return;
-        }
-    }
     exports.logger.error(`Error occurred during ${req.method} request to ${req.url} | Status: ${err.statusCode || 500} | Message: ${err.message || "No error message"} | Stack: ${err.stack || "No stack trace"}`);
     // if statusCode is there it means that message will also be created by us
     // if statusCode is not there it means that message is not created by us its something else in this situation we want to send internal server error.

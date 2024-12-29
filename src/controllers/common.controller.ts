@@ -6,6 +6,17 @@ import createHttpError from "http-errors";
 import ServiceProvider from "../models/serviceProvider.model";
 import ServiceSeeker from "../models/serviceSeeker.model";
 import { Business } from "../models/business.model";
+import { BusinessCategory } from "../types/business.types";
+import { HarvestorProduct } from "../models/products/harvestorProduct.model";
+import { ImplementProduct } from "../models/products/ImplementProduct.model";
+import { MachineProduct } from "../models/products/MachineProduct.model";
+import { MechanicProduct } from "../models/products/MechanicProduct.model";
+import { DroneProduct } from "../models/products/DroneProduct.model";
+import { AgricultureLaborProduct } from "../models/products/AgricultureLaborProduct.model";
+import { PaddyTransplantorProduct } from "../models/products/PaddyTransplantorProduct.model";
+import { EarthMoverProduct } from "../models/products/earthMoverProduct.model";
+import { ProductStatus } from "../types/product.types";
+import { logger } from "..";
 
 export const getServiceProviderById = expressAsyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -65,3 +76,39 @@ export const getServiceSeekerById = expressAsyncHandler(async (req: Request, res
     }
     res.status(200).json({ serviceSeeker });
 });
+
+export const getProductsByCategory = expressAsyncHandler(async (req: Request, res: Response) => {
+    logger.info("getProductsByCategory");
+    const { category } = req.params;
+    logger.info(category);
+    const products = await findProductsByStatus(category, ProductStatus.VERIFIED)
+    res.status(200).json({ products });
+});
+
+export const findProductsByStatus = async (category: String, status: ProductStatus): Promise<any> => {
+    if (!Object.values(BusinessCategory).includes(category as BusinessCategory)) {
+        throw createHttpError(400, "Invalid category");
+    }
+
+    let products;
+    if (category === BusinessCategory.HARVESTORS) {
+        products = await HarvestorProduct.find({ verificationStatus: status });
+    } else if (category === BusinessCategory.IMPLEMENTS) {
+        products = await ImplementProduct.find({ verificationStatus: status });
+    } else if (category === BusinessCategory.MACHINES) {
+        products = await MachineProduct.find({ verificationStatus: status });
+    } else if (category === BusinessCategory.MECHANICS) {
+        products = await MechanicProduct.find({ verificationStatus: status });
+    } else if (category === BusinessCategory.PADDY_TRANSPLANTORS) {
+        products = await PaddyTransplantorProduct.find({ verificationStatus: status });
+    } else if (category === BusinessCategory.AGRICULTURE_LABOR) {
+        products = await AgricultureLaborProduct.find({ verificationStatus: status });
+    } else if (category === BusinessCategory.EARTH_MOVERS) {
+        products = await EarthMoverProduct.find({ verificationStatus: status });
+    } else if (category === BusinessCategory.DRONES) {
+        products = await DroneProduct.find({ verificationStatus: status });
+    } else {
+        throw createHttpError(400, "Invalid category");
+    }
+    return products;
+};

@@ -7,6 +7,7 @@ export interface IHarvestorProduct extends Document {
     hp: string;
     modelNo: string;
     type: string;
+    verificationStatus: ProductStatus;
 }
 
 export interface IEarthMoverProduct extends Document {
@@ -16,6 +17,13 @@ export interface IEarthMoverProduct extends Document {
     hp: string;
     modelNo: string;
     type: string;
+    verificationStatus: ProductStatus;
+}
+
+export enum ProductStatus {
+    VERIFIED = 'Verified',
+    UNVERIFIED = 'Unverified',
+    REJECTED = 'Rejected',
 }
 
 export interface IImplementProduct extends Document {
@@ -24,6 +32,7 @@ export interface IImplementProduct extends Document {
     images: string[];
     hp: string;
     modelNo: string;
+    verificationStatus: ProductStatus;
 }
 
 export interface IMachineProduct extends Document {
@@ -32,6 +41,7 @@ export interface IMachineProduct extends Document {
     images: string[];
     hp: string;
     modelNo: string;
+    verificationStatus: ProductStatus;
 }
 
 export interface IPaddyTransplantorProduct extends Document {
@@ -40,6 +50,7 @@ export interface IPaddyTransplantorProduct extends Document {
     images: string[];
     hp: string;
     modelNo: string;
+    verificationStatus: ProductStatus;
 }
 
 export interface IDroneProduct extends Document {
@@ -48,6 +59,7 @@ export interface IDroneProduct extends Document {
     images: string[];
     modelNo: string;
     type: string;
+    verificationStatus: ProductStatus;
 }
 
 export interface IMechanicProduct extends Document {
@@ -59,6 +71,7 @@ export interface IMechanicProduct extends Document {
     isIndividual: boolean;
     services: MechanicServiceType[];
     numberOfWorkers: number;
+    verificationStatus: ProductStatus;
 }
 
 export enum MechanicServiceType {
@@ -77,6 +90,7 @@ export interface IAgricultureLaborProduct extends Document {
     isIndividual: boolean;
     services: AgricultureLaborServiceType[];
     numberOfWorkers: number;
+    verificationStatus: ProductStatus;
 }
 
 export enum AgricultureLaborServiceType {

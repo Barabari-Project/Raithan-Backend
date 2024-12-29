@@ -12,18 +12,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.authSeekerMiddleware = exports.authAdminMiddleware = exports.authServiceProviderMiddleware = void 0;
+exports.authMiddleware = void 0;
 const jwt_1 = require("../utils/jwt");
 const http_errors_1 = __importDefault(require("http-errors"));
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
-exports.authServiceProviderMiddleware = (0, express_async_handler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const authMiddleware = (secret) => (0, express_async_handler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(" ")[1];
     if (!token) {
         throw (0, http_errors_1.default)(401, "Unauthorized");
     }
     try {
-        const decoded = (0, jwt_1.verifyJwt)(token, process.env.PROVIDER_JWT_SECRET);
+        const decoded = (0, jwt_1.verifyJwt)(token, secret);
         req.userId = decoded.userId;
         next();
     }
@@ -31,33 +31,4 @@ exports.authServiceProviderMiddleware = (0, express_async_handler_1.default)((re
         throw (0, http_errors_1.default)(401, "Invalid token");
     }
 }));
-exports.authAdminMiddleware = (0, express_async_handler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
-    const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(" ")[1];
-    if (!token) {
-        throw (0, http_errors_1.default)(401, "Unauthorized");
-    }
-    try {
-        const decoded = (0, jwt_1.verifyJwt)(token, process.env.ADMIN_JWT_SECRET);
-        req.userId = decoded.userId;
-        next();
-    }
-    catch (error) {
-        throw (0, http_errors_1.default)(401, "Invalid token");
-    }
-}));
-exports.authSeekerMiddleware = (0, express_async_handler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
-    const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(" ")[1];
-    if (!token) {
-        throw (0, http_errors_1.default)(401, "Unauthorized");
-    }
-    try {
-        const decoded = (0, jwt_1.verifyJwt)(token, process.env.SEEKER_JWT_SECRET);
-        req.userId = decoded.userId;
-        next();
-    }
-    catch (error) {
-        throw (0, http_errors_1.default)(401, "Invalid token");
-    }
-}));
+exports.authMiddleware = authMiddleware;

@@ -29,7 +29,7 @@ exports.getServiceProviderById = (0, express_async_handler_1.default)((req, res)
     if (!serviceProvider) {
         throw (0, http_errors_1.default)(404, "Service provider not found");
     }
-    res.status(200).json(serviceProvider);
+    res.status(200).json({ serviceProvider });
 }));
 // Get a business by ID
 exports.getBusinessById = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -40,7 +40,7 @@ exports.getBusinessById = (0, express_async_handler_1.default)((req, res) => __a
     if (!business) {
         throw (0, http_errors_1.default)(404, 'Business not found');
     }
-    res.status(200).json({ success: true, business });
+    res.status(200).json({ business });
 }));
 exports.getBusinessesByUserId = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { userId } = req.params;
@@ -53,7 +53,6 @@ exports.getBusinessesByUserId = (0, express_async_handler_1.default)((req, res) 
         throw (0, http_errors_1.default)(404, 'No businesses found for the given userId');
     }
     res.status(200).json({
-        success: true,
         business,
     });
 }));
@@ -66,5 +65,5 @@ exports.getServiceSeekerById = (0, express_async_handler_1.default)((req, res) =
     if (!serviceSeeker) {
         throw (0, http_errors_1.default)(404, "Service seeker not found");
     }
-    res.status(200).json(serviceSeeker);
+    res.status(200).json({ serviceSeeker });
 }));
