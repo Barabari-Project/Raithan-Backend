@@ -125,22 +125,7 @@ export const updateProductStatus = async (category: String, productId: String, u
     if (!isValidObjectId(productId)) {
         throw createHttpError(400, "Invalid product ID");
     }
-
-    const serviceProvider = await ServiceProvider.findById(userId);
     let product;
-    if (!serviceProvider) {
-        throw createHttpError(404, "Service provider not found");
-    }
-    if (serviceProvider.status !== ServiceProviderStatus.VERIFIED) {
-        throw createHttpError(400, "Service provider is not verified");
-    }
-    const business = await Business.findOne({ serviceProvider: serviceProvider._id });
-    if (!business) {
-        throw createHttpError(404, "Business not found");
-    }
-    if (!business.category.includes(category as BusinessCategory)) {
-        throw createHttpError(400, "Business does not offer this category");
-    }
 
     if (category === BusinessCategory.HARVESTORS) {
         product = await HarvestorProduct.findById(productId);
@@ -199,7 +184,6 @@ export const updateProductStatus = async (category: String, productId: String, u
         product.verificationStatus = status;
         await product.save();
     }
-    
     return product;
 }
 
@@ -208,4 +192,3 @@ export const getUnverifiedProducts = expressAsyncHandler(async (req: Request, re
     const products = await findProductsByStatus(category, ProductStatus.UNVERIFIED);
     res.status(200).json({ products });
 });
-

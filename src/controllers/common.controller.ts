@@ -16,6 +16,7 @@ import { AgricultureLaborProduct } from "../models/products/AgricultureLaborProd
 import { PaddyTransplantorProduct } from "../models/products/PaddyTransplantorProduct.model";
 import { EarthMoverProduct } from "../models/products/earthMoverProduct.model";
 import { ProductStatus } from "../types/product.types";
+import { logger } from "..";
 
 export const getServiceProviderById = expressAsyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -77,11 +78,12 @@ export const getServiceSeekerById = expressAsyncHandler(async (req: Request, res
 });
 
 export const getProductsByCategory = expressAsyncHandler(async (req: Request, res: Response) => {
+    logger.info("getProductsByCategory");
     const { category } = req.params;
+    logger.info(category);
     const products = await findProductsByStatus(category, ProductStatus.VERIFIED)
     res.status(200).json({ products });
 });
-
 
 export const findProductsByStatus = async (category: String, status: ProductStatus): Promise<any> => {
     if (!Object.values(BusinessCategory).includes(category as BusinessCategory)) {
@@ -90,21 +92,23 @@ export const findProductsByStatus = async (category: String, status: ProductStat
 
     let products;
     if (category === BusinessCategory.HARVESTORS) {
-        products = await HarvestorProduct.find({ isVerified: true });
+        products = await HarvestorProduct.find({ verificationStatus: status });
     } else if (category === BusinessCategory.IMPLEMENTS) {
-        products = await ImplementProduct.find({ isVerified: true });
+        products = await ImplementProduct.find({ verificationStatus: status });
     } else if (category === BusinessCategory.MACHINES) {
-        products = await MachineProduct.find({ isVerified: true });
+        products = await MachineProduct.find({ verificationStatus: status });
     } else if (category === BusinessCategory.MECHANICS) {
-        products = await MechanicProduct.find({ isVerified: true });
+        products = await MechanicProduct.find({ verificationStatus: status });
     } else if (category === BusinessCategory.PADDY_TRANSPLANTORS) {
-        products = await PaddyTransplantorProduct.find({ isVerified: true });
+        products = await PaddyTransplantorProduct.find({ verificationStatus: status });
     } else if (category === BusinessCategory.AGRICULTURE_LABOR) {
-        products = await AgricultureLaborProduct.find({ isVerified: true });
+        products = await AgricultureLaborProduct.find({ verificationStatus: status });
     } else if (category === BusinessCategory.EARTH_MOVERS) {
-        products = await EarthMoverProduct.find({ isVerified: true });
+        products = await EarthMoverProduct.find({ verificationStatus: status });
     } else if (category === BusinessCategory.DRONES) {
-        products = await DroneProduct.find({ isVerified: true });
+        products = await DroneProduct.find({ verificationStatus: status });
+    } else {
+        throw createHttpError(400, "Invalid category");
     }
     return products;
 };
