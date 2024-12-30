@@ -11,6 +11,7 @@ import { logger } from '../..';
 import { uploadFileToS3 } from '../../utils/s3Upload';
 import { validateMobileNumber, validateName } from '../../utils/validation';
 import ServiceSeeker from '../../models/serviceSeeker.model';
+import { formateProviderImage } from '../../utils/formatImageUrl';
 
 // Onboarding
 // Step 1: Store mobile number and send OTP
@@ -130,22 +131,24 @@ export const updateProfile = expressAsyncHandler(async (req: Request, res: Respo
 
     if (!provider) {
         throw createHttpError(404, 'User not found');
-    } else if (!provider.status.endsWith(ServiceProviderStatus.OTP_VERIFIED)) {
+    } else if (provider.status !== ServiceProviderStatus.OTP_VERIFIED && provider.status !== ServiceProviderStatus.BUSINESS_DETAILS_REMAINING) {
         throw createHttpError(400, 'Please verify your OTP first');
     }
 
     // Upload profile picture to S3
-    const profilePictureUrl = await uploadFileToS3(req.file, 'profile-pictures');
+    const profilePicturePath = await uploadFileToS3(req.file, 'profile-pictures');
 
     provider = await ServiceProvider.findByIdAndUpdate(
         userId,
-        { $set: { firstName, lastName, profilePictureUrl, status: ServiceProviderStatus.BUSINESS_DETAILS_REMAINING } },
+        { $set: { firstName, lastName, profilePicturePath, status: ServiceProviderStatus.BUSINESS_DETAILS_REMAINING } },
         { new: true }
     );
 
     if (!provider) {
         throw createHttpError(404, 'User not found');
     }
+
+    await formateProviderImage(provider);
 
     res.status(200).json({
         message: 'Profile updated successfully',
@@ -182,6 +185,8 @@ export const verifyLoginOtp = expressAsyncHandler(async (req: Request, res: Resp
     await verifyOTP(mobileNumber, code);
 
     const token = generateJwt({ userId: provider._id }, process.env.PROVIDER_JWT_SECRET!);
+
+    formateProviderImage(provider);
 
     res.status(200).json({ message: "OTP verified successfully", token, provider });
 });

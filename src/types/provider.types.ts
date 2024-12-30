@@ -13,7 +13,7 @@ export interface IServiceProvider extends Document {
     password?: string;
     firstName?: string;
     lastName?: string;
-    profilePictureUrl?: string;
+    profilePicturePath?: string;
     business?: IBusiness['_id'];  // Reference to the businessDetails model
     status: ServiceProviderStatus;
 }
