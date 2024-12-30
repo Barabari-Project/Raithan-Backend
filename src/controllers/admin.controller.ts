@@ -5,10 +5,9 @@ import { validateEmail } from '../utils/validation';
 import { generateJwt } from '../utils/jwt';
 import ServiceProvider from '../models/serviceProvider.model';
 import { isValidObjectId } from 'mongoose';
-import { ServiceProviderStatus } from '../types/provider.types';
+import { IServiceProvider, ServiceProviderStatus } from '../types/provider.types';
 import ServiceSeeker from '../models/serviceSeeker.model';
 import { BusinessCategory } from '../types/business.types';
-import { Business } from '../models/business.model';
 import { HarvestorProduct } from '../models/products/harvestorProduct.model';
 import { ImplementProduct } from '../models/products/ImplementProduct.model';
 import { MachineProduct } from '../models/products/MachineProduct.model';
@@ -19,6 +18,8 @@ import { EarthMoverProduct } from '../models/products/earthMoverProduct.model';
 import { DroneProduct } from '../models/products/DroneProduct.model';
 import { ProductStatus } from '../types/product.types';
 import { findProductsByStatus } from './common.controller';
+import { formateProviderImage, formatProductImageUrls } from '../utils/formatImageUrl';
+import { formatWithOptions } from 'util';
 
 export const login = expressAsyncHandler(async (req: Request, res: Response) => {
     const { email, password } = req.body;
@@ -66,7 +67,11 @@ export const getServiceProvidersByStatus = expressAsyncHandler(async (req: Reque
 
 export const verifyServiceProvider = expressAsyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
-    // Validate the id parameter
+    const updatedServiceProvider = await updateServiceProviderStatus(id, ServiceProviderStatus.VERIFIED);
+    res.status(200).json({ serviceProvider: updatedServiceProvider });
+});
+
+const updateServiceProviderStatus = async (id: string, status: ServiceProviderStatus): Promise<IServiceProvider> => {
     if (!isValidObjectId(id)) {
         throw createHttpError(400, "Invalid service provider ID");
     }
@@ -78,22 +83,13 @@ export const verifyServiceProvider = expressAsyncHandler(async (req: Request, re
         throw createHttpError(400, "Service provider is not pending verification");
     }
     const updatedServiceProvider = await ServiceProvider.findByIdAndUpdate(id, { status: ServiceProviderStatus.VERIFIED }, { new: true });
-    res.status(200).json({ serviceProvider: updatedServiceProvider });
-});
+    await formateProviderImage(updatedServiceProvider!);
+    return updatedServiceProvider!;
+}
 
 export const rejectServiceProvider = expressAsyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
-    if (!isValidObjectId(id)) {
-        throw createHttpError(400, "Invalid service provider ID");
-    }
-    const serviceProvider = await ServiceProvider.findById(id);
-    if (!serviceProvider) {
-        throw createHttpError(404, "Service provider not found");
-    }
-    if (serviceProvider.status !== ServiceProviderStatus.COMPLETED) {
-        throw createHttpError(400, "Service provider is not pending verification");
-    }
-    const updatedServiceProvider = await ServiceProvider.findByIdAndUpdate(id, { status: ServiceProviderStatus.REJECTED }, { new: true });
+    const updatedServiceProvider = await updateServiceProviderStatus(id, ServiceProviderStatus.REJECTED);
     res.status(200).json({ serviceProvider: updatedServiceProvider });
 });
 
@@ -104,20 +100,18 @@ export const getServiceSeekers = expressAsyncHandler(async (req: Request, res: R
 
 export const verifyProduct = expressAsyncHandler(async (req: Request, res: Response) => {
     const { id: productId, category } = req.params;
-    const userId = req.userId;
-    const product = await updateProductStatus(category, productId, userId!, ProductStatus.VERIFIED);
+    const product = await updateProductStatus(category, productId, ProductStatus.VERIFIED);
 
     res.status(200).json({ product });
 });
 
 export const rejectProduct = expressAsyncHandler(async (req: Request, res: Response) => {
     const { id: productId, category } = req.params;
-    const userId = req.userId;
-    const product = await updateProductStatus(category, productId, userId!, ProductStatus.REJECTED);
+    const product = await updateProductStatus(category, productId, ProductStatus.REJECTED);
     res.status(200).json({ product });
 });
 
-export const updateProductStatus = async (category: String, productId: String, userId: String, status: ProductStatus) => {
+export const updateProductStatus = async (category: string, productId: string, status: ProductStatus) => {
     if (!Object.values(BusinessCategory).includes(category as BusinessCategory)) {
         throw createHttpError(400, "Invalid category");
     }
@@ -183,7 +177,10 @@ export const updateProductStatus = async (category: String, productId: String, u
         }
         product.verificationStatus = status;
         await product.save();
+    } else {
+        throw createHttpError(400, "Invalid category");
     }
+    await formatProductImageUrls(product);
     return product;
 }
 

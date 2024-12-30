@@ -1,17 +1,18 @@
 import mongoose, { Schema } from 'mongoose';
 import { BusinessCategory, IBusiness } from '../types/business.types';
 import createHttpError from 'http-errors';
+import { logger } from '..';
 
 const BusinessSchema: Schema = new Schema<IBusiness>(
     {
         businessName: {
             type: String,
-            required: true,
+            required: [true, "Business Name is required"],
             trim: true,
         },
         businessContactNo: {
             type: String,
-            required: true,
+            required: [true, "Business Contact No is required"],
             validate: {
                 validator: (v: string) => /^(\+91|91|0)?[6-9]\d{9}$/.test(v),
                 message: (props: any) => `${props.value} is not a valid contact number!`,
@@ -19,8 +20,8 @@ const BusinessSchema: Schema = new Schema<IBusiness>(
         },
         businessEmail: {
             type: String,
-            required: true,
-            unique: true,
+            required: [true, "Business Email Address is required"],
+            unique: [true, "email address is already exists"],
             trim: true,
             lowercase: true,
             validate: {
@@ -30,7 +31,7 @@ const BusinessSchema: Schema = new Schema<IBusiness>(
         },
         pincode: {
             type: String,
-            required: true,
+            required: [true, "Pincode is required"],
             validate: {
                 validator: (v: string) => /^\d{6}$/.test(v),
                 message: (props: any) => `${props.value} is not a valid pincode!`,
@@ -38,26 +39,26 @@ const BusinessSchema: Schema = new Schema<IBusiness>(
         },
         blockNumber: {
             type: String,
-            required: true,
+            required: [true, "block Number is required"],
         },
         street: {
             type: String,
-            required: true,
+            required: [true,"Street is required"],
         },
         area: {
             type: String,
-            required: true,
+            required: [true, "area is required"],
         },
         landmark: {
             type: String,
         },
         city: {
             type: String,
-            required: true,
+            required: [true,"city is required"],
         },
         state: {
             type: String,
-            required: true,
+            required: [true,"state is required"],
         },
         serviceProvider: {
             type: mongoose.Schema.Types.ObjectId,
@@ -67,7 +68,7 @@ const BusinessSchema: Schema = new Schema<IBusiness>(
         workingDays: {
             type: Map,
             of: Boolean,
-            required: true,
+            required: [true,"workingDays are required"],
             default: {
                 Monday: false,
                 Tuesday: false,
@@ -100,7 +101,7 @@ const BusinessSchema: Schema = new Schema<IBusiness>(
                 },
                 { _id: false }
             ),
-            required: true,
+            required: [true,"working time is required"],
         },
         category: {
             type: [String],
@@ -112,11 +113,14 @@ const BusinessSchema: Schema = new Schema<IBusiness>(
 );
 
 BusinessSchema.post('save', function (error: any, doc: any, next: Function) {
+    logger.debug(error.name)
     if (error.name === 'ValidationError') {
         const firstError = error.errors[Object.keys(error.errors)[0]];
         throw createHttpError(400, firstError.message);
+    } else if (error.name == 'MongooseError') {
+        throw createHttpError(400, `${error.message}`);
     } else {
-        next(error);
+        next(error); // Pass any other errors to the next middleware
     }
 });
 

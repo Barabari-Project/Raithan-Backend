@@ -17,6 +17,7 @@ import { PaddyTransplantorProduct } from "../models/products/PaddyTransplantorPr
 import { EarthMoverProduct } from "../models/products/earthMoverProduct.model";
 import { ProductStatus } from "../types/product.types";
 import { logger } from "..";
+import { formatProductImageUrls } from "../utils/formatImageUrl";
 
 export const getServiceProviderById = expressAsyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -85,30 +86,34 @@ export const getProductsByCategory = expressAsyncHandler(async (req: Request, re
     res.status(200).json({ products });
 });
 
-export const findProductsByStatus = async (category: String, status: ProductStatus): Promise<any> => {
+export const findProductsByStatus = async (category: string, status: ProductStatus): Promise<any> => {
     if (!Object.values(BusinessCategory).includes(category as BusinessCategory)) {
         throw createHttpError(400, "Invalid category");
     }
 
-    let products;
-    if (category === BusinessCategory.HARVESTORS) {
-        products = await HarvestorProduct.find({ verificationStatus: status });
-    } else if (category === BusinessCategory.IMPLEMENTS) {
-        products = await ImplementProduct.find({ verificationStatus: status });
-    } else if (category === BusinessCategory.MACHINES) {
-        products = await MachineProduct.find({ verificationStatus: status });
-    } else if (category === BusinessCategory.MECHANICS) {
-        products = await MechanicProduct.find({ verificationStatus: status });
-    } else if (category === BusinessCategory.PADDY_TRANSPLANTORS) {
-        products = await PaddyTransplantorProduct.find({ verificationStatus: status });
-    } else if (category === BusinessCategory.AGRICULTURE_LABOR) {
-        products = await AgricultureLaborProduct.find({ verificationStatus: status });
-    } else if (category === BusinessCategory.EARTH_MOVERS) {
-        products = await EarthMoverProduct.find({ verificationStatus: status });
-    } else if (category === BusinessCategory.DRONES) {
-        products = await DroneProduct.find({ verificationStatus: status });
-    } else {
+    const modelMapping: Record<BusinessCategory, any> = {
+        [BusinessCategory.HARVESTORS]: HarvestorProduct,
+        [BusinessCategory.IMPLEMENTS]: ImplementProduct,
+        [BusinessCategory.MACHINES]: MachineProduct,
+        [BusinessCategory.MECHANICS]: MechanicProduct,
+        [BusinessCategory.PADDY_TRANSPLANTORS]: PaddyTransplantorProduct,
+        [BusinessCategory.AGRICULTURE_LABOR]: AgricultureLaborProduct,
+        [BusinessCategory.EARTH_MOVERS]: EarthMoverProduct,
+        [BusinessCategory.DRONES]: DroneProduct,
+    };
+
+    const model = modelMapping[category as BusinessCategory];
+    if (!model) {
         throw createHttpError(400, "Invalid category");
     }
+    interface IProduct {
+        images: string[];
+    }
+    const products: IProduct[] = await model.find({ verificationStatus: status });
+
+    for (const product of products) {
+        await formatProductImageUrls(product);
+    }
+
     return products;
 };

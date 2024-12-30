@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import createHttpError from 'http-errors';
 import { Business } from '../../models/business.model';
-import { isValidObjectId } from 'mongoose';
 import ServiceProvider from '../../models/serviceProvider.model';
 import expressAsyncHandler from 'express-async-handler';
 import { ServiceProviderStatus } from '../../types/provider.types';
@@ -39,19 +38,21 @@ export const createBusiness = expressAsyncHandler(async (req: Request, res: Resp
 
 // Update a business by ID
 export const updateBusiness = expressAsyncHandler(async (req: Request, res: Response) => {
-    if (!isValidObjectId(req.params.id)) {
-        throw createHttpError(400, 'Invalid business ID');
+
+    const serviceProvider = await ServiceProvider.findById(req.userId);
+    if (!serviceProvider) {
+        throw createHttpError(404, 'Service Provider not found');
+    }
+    if ((serviceProvider.status !== ServiceProviderStatus.COMPLETED)) {
+        throw createHttpError(400, "You can not update a business details");
     }
 
     const updatedBusiness = await Business.findByIdAndUpdate(
-        req.params.id,
+        serviceProvider.business,
         { $set: { ...req.body, serviceProvider: req.userId } },
         { new: true, runValidators: true }
     );
 
-    if (!updatedBusiness) {
-        throw createHttpError(404, 'Business not found');
-    }
     res.status(200).json({
         success: true,
         message: 'Business updated successfully',

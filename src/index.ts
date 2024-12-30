@@ -5,8 +5,8 @@ import winston from 'winston';
 import moment from 'moment-timezone';
 import connectToDatabase from './database';
 import routes from './routes';
-import multer from 'multer';
 import { validateEnvVars } from './utils/validateEnvVars';
+import { getImageUrl } from './utils/s3Upload';
 dotenv.config();
 
 
@@ -38,6 +38,11 @@ export const logger = winston.createLogger({
         new winston.transports.File({ filename: `${process.env.LOG_FILE_PATH || 'logs/app.log'}` }),
     ],
 });
+
+app.post('/ghi', async (req: Request, res: Response) => {
+    const url = await getImageUrl(req.body.key);
+    res.status(200).json({ url });
+})
 
 app.get('/raithan/health', (req: Request, res: Response) => {
     res.sendStatus(200);
