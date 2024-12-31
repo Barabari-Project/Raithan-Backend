@@ -1,5 +1,5 @@
 import express from "express";
-import { getServiceProviders, getServiceProvidersByStatus, getServiceSeekers, getUnverifiedProducts, login, rejectProduct, rejectServiceProvider, verifyProduct, verifyServiceProvider } from "../controllers/admin.controller";
+import { getCallHistory, getServiceProviders, getServiceProvidersByStatus, getServiceSeekers, getUnverifiedProducts, login, rejectProduct, rejectServiceProvider, verifyProduct, verifyServiceProvider } from "../controllers/admin.controller";
 import { authMiddleware } from "../middlewares/authMiddleware";
 
 const router = express.Router();
@@ -20,5 +20,7 @@ router.get("/products/:category/unverified", authMiddleware(process.env.ADMIN_JW
 
 // admin service seeker routes
 router.get("/service-seekers", authMiddleware(process.env.ADMIN_JWT_SECRET!), getServiceSeekers);
+
+router.get('/call-history', authMiddleware(process.env.ADMIN_JWT_SECRET!), getCallHistory);
 
 export default router;

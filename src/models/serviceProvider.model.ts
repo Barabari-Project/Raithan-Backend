@@ -6,12 +6,12 @@ import createHttpError from 'http-errors';
 const serviceProviderSchema = new Schema<IServiceProvider>({
     mobileNumber: {
         type: String,
-        required: true,
-        unique: true
+        required: [true,'Mobile number is required'],
+        unique: [true,'Mobile number is already exists']
     },
     email: {
         type: String,
-        unique: true,
+        unique: [true, 'Email is already exists'],
         sparse: true,
     },
     password: {
@@ -34,7 +34,6 @@ const serviceProviderSchema = new Schema<IServiceProvider>({
     business: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'business',
-        // required: [true, 'Business details are required'],
     },
 }, {
     timestamps: true,

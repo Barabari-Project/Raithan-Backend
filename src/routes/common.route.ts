@@ -1,5 +1,5 @@
 import express from "express";
-import { getBusinessesByUserId, getServiceSeekerById, getServiceProviderById, getBusinessById, getProductsByCategory } from "../controllers/common.controller";
+import { getBusinessById, getBusinessesByUserId, getProductsByCategory, getServiceProviderById, getServiceSeekerById } from "../controllers/common.controller";
 
 const router = express.Router();
 

@@ -5,31 +5,35 @@ import createHttpError from "http-errors";
 const EarthMoverProductSchema: Schema = new Schema<IEarthMoverProduct>({
     images: {
         type: [String],
-        required: true,
+        required: [true, "Images are required."],
     },
     hp: {
         type: String,
-        required: true,
+        required: [true, "Horsepower (hp) is required."],
     },
     modelNo: {
         type: String,
-        required: true,
+        required: [true, "Model number is required."],
     },
     verificationStatus: {
         type: String,
-        enum: Object.values(ProductStatus),
+        enum: {
+            values: Object.values(ProductStatus),
+            message: "Verification status must be one of the valid options.",
+        },
         default: ProductStatus.UNVERIFIED,
     },
     type: {
         type: String,
-        required: true,
+        required: [true, "Earth mover type is required."],
     },
     business: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'business',
-        required: true,
+        required: [true, "Business reference is required."],
     },
 }, { timestamps: true });
+
 
 EarthMoverProductSchema.post('save', function (error: any, doc: any, next: Function) {
     if (error.name === 'ValidationError') {
