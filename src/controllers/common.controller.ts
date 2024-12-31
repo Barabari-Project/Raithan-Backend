@@ -17,7 +17,7 @@ import ServiceProvider from "../models/serviceProvider.model";
 import ServiceSeeker from "../models/serviceSeeker.model";
 import { BusinessCategory } from "../types/business.types";
 import { ProductStatus } from "../types/product.types";
-import { formatProductImageUrls } from "../utils/formatImageUrl";
+import { formateProviderImage, formatProductImageUrls } from "../utils/formatImageUrl";
 
 export const getServiceProviderById = expressAsyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -32,6 +32,7 @@ export const getServiceProviderById = expressAsyncHandler(async (req: Request, r
     if (!serviceProvider) {
         throw createHttpError(404, "Service provider not found");
     }
+    await formateProviderImage(serviceProvider);
     res.status(200).json({ serviceProvider });
 });
 

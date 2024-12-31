@@ -16,7 +16,7 @@ import ServiceSeeker from '../models/serviceSeeker.model';
 import { BusinessCategory } from '../types/business.types';
 import { ProductStatus } from '../types/product.types';
 import { IServiceProvider, ServiceProviderStatus } from '../types/provider.types';
-import { formatProductImageUrls } from '../utils/formatImageUrl';
+import { formateProviderImage, formatProductImageUrls } from '../utils/formatImageUrl';
 import { generateJwt } from '../utils/jwt';
 import { validateEmail } from '../utils/validation';
 import { findProductsByStatus } from './common.controller';
@@ -39,6 +39,9 @@ export const login = expressAsyncHandler(async (req: Request, res: Response) => 
 
 export const getServiceProviders = expressAsyncHandler(async (req: Request, res: Response) => {
     const serviceProviders = await ServiceProvider.find();
+    for (const serviceProvider of serviceProviders) {
+        await formateProviderImage(serviceProvider);
+    }
     res.status(200).json(serviceProviders);
 });
 
@@ -61,7 +64,9 @@ export const getServiceProvidersByStatus = expressAsyncHandler(async (req: Reque
     if (serviceProviders.length === 0) {
         throw createHttpError(404, "No service providers found with the given status.");
     }
-
+    for (const serviceProvider of serviceProviders) {
+        await formateProviderImage(serviceProvider);
+    }
     res.status(200).json(serviceProviders);
 });
 
@@ -82,7 +87,8 @@ const updateServiceProviderStatus = async (id: string, status: ServiceProviderSt
     if (serviceProvider.status !== ServiceProviderStatus.COMPLETED) {
         throw createHttpError(400, "Service provider is not pending verification");
     }
-    const updatedServiceProvider = await ServiceProvider.findByIdAndUpdate(id, { status: ServiceProviderStatus.VERIFIED }, { new: true });
+    const updatedServiceProvider: IServiceProvider | null = await ServiceProvider.findByIdAndUpdate(id, { status: ServiceProviderStatus.VERIFIED }, { new: true });
+    await formateProviderImage(updatedServiceProvider!);
     return updatedServiceProvider!;
 }
 
@@ -100,7 +106,6 @@ export const getServiceSeekers = expressAsyncHandler(async (req: Request, res: R
 export const verifyProduct = expressAsyncHandler(async (req: Request, res: Response) => {
     const { id: productId, category } = req.params;
     const product = await updateProductStatus(category, productId, ProductStatus.VERIFIED);
-
     res.status(200).json({ product });
 });
 
