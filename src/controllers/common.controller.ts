@@ -1,25 +1,23 @@
-import expressAsyncHandler from "express-async-handler";
 import { Request, Response } from "express";
-import mongoose, { isValidObjectId } from "mongoose";
+import expressAsyncHandler from "express-async-handler";
+import { isValidObjectId } from "mongoose";
 
 import createHttpError from "http-errors";
-import ServiceProvider from "../models/serviceProvider.model";
-import ServiceSeeker from "../models/serviceSeeker.model";
+import { logger } from "..";
 import { Business } from "../models/business.model";
-import { BusinessCategory } from "../types/business.types";
+import { AgricultureLaborProduct } from "../models/products/AgricultureLaborProduct.model";
+import { DroneProduct } from "../models/products/DroneProduct.model";
+import { EarthMoverProduct } from "../models/products/earthMoverProduct.model";
 import { HarvestorProduct } from "../models/products/harvestorProduct.model";
 import { ImplementProduct } from "../models/products/ImplementProduct.model";
 import { MachineProduct } from "../models/products/MachineProduct.model";
 import { MechanicProduct } from "../models/products/MechanicProduct.model";
-import { DroneProduct } from "../models/products/DroneProduct.model";
-import { AgricultureLaborProduct } from "../models/products/AgricultureLaborProduct.model";
 import { PaddyTransplantorProduct } from "../models/products/PaddyTransplantorProduct.model";
-import { EarthMoverProduct } from "../models/products/earthMoverProduct.model";
+import ServiceProvider from "../models/serviceProvider.model";
+import ServiceSeeker from "../models/serviceSeeker.model";
+import { BusinessCategory } from "../types/business.types";
 import { ProductStatus } from "../types/product.types";
-import { logger } from "..";
 import { formatProductImageUrls } from "../utils/formatImageUrl";
-import { ServiceProviderStatus } from "../types/provider.types";
-import CallHistory from "../models/callHistory.model";
 
 export const getServiceProviderById = expressAsyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;

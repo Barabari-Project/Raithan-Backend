@@ -7,8 +7,14 @@ import connectToDatabase from './database';
 import routes from './routes';
 import { validateEnvVars } from './utils/validateEnvVars';
 import { getImageUrl } from './utils/s3Upload';
-dotenv.config();
+import { fileURLToPath } from 'url';
+import path from 'path';
 
+const __filename = fileURLToPath(import.meta.url);
+
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 validateEnvVars();
 connectToDatabase();
@@ -59,6 +65,6 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     res.status(err.statusCode ? err.statusCode : 500).json({ error: err.statusCode ? err.message : 'Internal Server Error.Please try again later.' });
 });
 
-app.listen(process.env.PORT || 3002, () => {
-    console.log(`Server is running on http://localhost:${process.env.PORT || 3002}`);
+app.listen(process.env.PORT ?? 3002, () => {
+    logger.info(`Server is running on http://localhost:${process.env.PORT ?? 3002}`);
 });

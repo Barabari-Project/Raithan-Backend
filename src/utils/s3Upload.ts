@@ -13,7 +13,6 @@ const s3 = new S3Client({
 });
 
 export const uploadFileToS3 = async (file: Express.Multer.File, folder: string): Promise<string> => {
-    // console.log('from here')
     const fileName = `${uuidv4()}-${file.originalname}`; // Unique file name
     const params: PutObjectCommandInput = {
         Bucket: process.env.AWS_BUCKET_NAME!,
@@ -26,7 +25,6 @@ export const uploadFileToS3 = async (file: Express.Multer.File, folder: string):
 
     // Upload the file using the S3 client
     await s3.send(command);
-    console.log('uploadFileToS3')
     return `${folder}/${fileName}`;
 };
 

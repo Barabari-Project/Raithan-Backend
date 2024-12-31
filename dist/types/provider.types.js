@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ServiceProviderStatus = void 0;
-var ServiceProviderStatus;
+export var ServiceProviderStatus;
 (function (ServiceProviderStatus) {
     ServiceProviderStatus["PENDING"] = "pending";
     ServiceProviderStatus["OTP_VERIFIED"] = "otp_verified";
@@ -10,4 +7,4 @@ var ServiceProviderStatus;
     ServiceProviderStatus["COMPLETED"] = "completed";
     ServiceProviderStatus["VERIFIED"] = "verified";
     ServiceProviderStatus["REJECTED"] = "rejected";
-})(ServiceProviderStatus || (exports.ServiceProviderStatus = ServiceProviderStatus = {}));
+})(ServiceProviderStatus || (ServiceProviderStatus = {}));

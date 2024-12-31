@@ -1,20 +1,17 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.AgricultureLaborServiceType = exports.MechanicServiceType = exports.ProductStatus = void 0;
-var ProductStatus;
+export var ProductStatus;
 (function (ProductStatus) {
     ProductStatus["VERIFIED"] = "Verified";
     ProductStatus["UNVERIFIED"] = "Unverified";
     ProductStatus["REJECTED"] = "Rejected";
-})(ProductStatus || (exports.ProductStatus = ProductStatus = {}));
-var MechanicServiceType;
+})(ProductStatus || (ProductStatus = {}));
+export var MechanicServiceType;
 (function (MechanicServiceType) {
     MechanicServiceType["ELECTRIC_WATER_PUMP"] = "Electric Water Pump";
     MechanicServiceType["DIESEL_WATER_PUMP"] = "Diesel Water Pump";
     MechanicServiceType["SOLAR_WATER_PUMP"] = "Solar Water Pump";
     MechanicServiceType["TRACTOR_REPAIR"] = "Tractor Repair";
-})(MechanicServiceType || (exports.MechanicServiceType = MechanicServiceType = {}));
-var AgricultureLaborServiceType;
+})(MechanicServiceType || (MechanicServiceType = {}));
+export var AgricultureLaborServiceType;
 (function (AgricultureLaborServiceType) {
     AgricultureLaborServiceType["SOWING_DRYLANDS"] = "Sowing Drylands";
     AgricultureLaborServiceType["TRANSPLANTATION_WETLANDS"] = "Transplantation Wetlands";
@@ -32,4 +29,4 @@ var AgricultureLaborServiceType;
     AgricultureLaborServiceType["HARVESTING_FRUITS_CROPS"] = "Harvesting Fruits Crops";
     AgricultureLaborServiceType["HARVESTING_VEGETABLES_CROPS"] = "Harvesting Vegetables Crops";
     AgricultureLaborServiceType["HARVESTING_CROPS"] = "Harvesting Crops";
-})(AgricultureLaborServiceType || (exports.AgricultureLaborServiceType = AgricultureLaborServiceType = {}));
+})(AgricultureLaborServiceType || (AgricultureLaborServiceType = {}));

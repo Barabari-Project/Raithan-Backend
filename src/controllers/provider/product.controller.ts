@@ -48,11 +48,8 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
             // 4 photos from 4 directions, driving license and rc book
             throw createHttpError(400, 'You need to upload 6 images');
         }
-        console.log("img uplodad stared")
         const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data'));
-        console.log('img uploading')
         const uploadedImages = await Promise.all(images);
-        console.log('img upload completed') 
         product = await HarvestorProduct.create({
             images: uploadedImages,
             hp,
