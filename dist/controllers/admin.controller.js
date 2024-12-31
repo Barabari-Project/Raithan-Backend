@@ -49,6 +49,9 @@ exports.login = (0, express_async_handler_1.default)((req, res) => __awaiter(voi
 }));
 exports.getServiceProviders = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const serviceProviders = yield serviceProvider_model_1.default.find();
+    for (const serviceProvider of serviceProviders) {
+        yield (0, formatImageUrl_1.formateProviderImage)(serviceProvider);
+    }
     res.status(200).json(serviceProviders);
 }));
 exports.getServiceProvidersByStatus = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -65,6 +68,9 @@ exports.getServiceProvidersByStatus = (0, express_async_handler_1.default)((req,
     const serviceProviders = yield serviceProvider_model_1.default.find({ status: { $eq: status } });
     if (serviceProviders.length === 0) {
         throw (0, http_errors_1.default)(404, "No service providers found with the given status.");
+    }
+    for (const serviceProvider of serviceProviders) {
+        yield (0, formatImageUrl_1.formateProviderImage)(serviceProvider);
     }
     res.status(200).json(serviceProviders);
 }));

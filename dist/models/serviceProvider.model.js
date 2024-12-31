@@ -45,10 +45,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = __importStar(require("mongoose"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
-const provider_types_1 = require("../types/provider.types");
 const http_errors_1 = __importDefault(require("http-errors"));
+const mongoose_1 = __importStar(require("mongoose"));
+const provider_types_1 = require("../types/provider.types");
 const serviceProviderSchema = new mongoose_1.Schema({
     mobileNumber: {
         type: String,

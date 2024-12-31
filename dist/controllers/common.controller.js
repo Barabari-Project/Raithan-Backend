@@ -41,6 +41,7 @@ exports.getServiceProviderById = (0, express_async_handler_1.default)((req, res)
     if (!serviceProvider) {
         throw (0, http_errors_1.default)(404, "Service provider not found");
     }
+    yield (0, formatImageUrl_1.formateProviderImage)(serviceProvider);
     res.status(200).json({ serviceProvider });
 }));
 // Get a business by ID

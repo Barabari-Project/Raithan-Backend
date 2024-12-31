@@ -72,7 +72,29 @@ exports.verifyOtp = (0, express_async_handler_1.default)((req, res) => __awaiter
         token,
     });
 }));
-
+// Step 3: Store email and password and send verification link
+// export const addEmailAndPassword = expressAsyncHandler(async (req: Request, res: Response) => {
+//     const { email, password } = req.body;
+//     const userId = req.userId;
+//     try {
+//         const provider = await ServiceProvider.findByIdAndUpdate(
+//             userId,
+//             { email, password, status: ServiceProviderStatus.EMAIL_VERIFIED },
+//             { new: true }
+//         );
+//         if (!provider) {
+//             throw createHttpError(404, "User not found");
+//         }
+//         // Trigger email verification (integration assumed)
+//         // await sendEmailVerificationLink(email);
+//         res.status(200).json({
+//             success: true,
+//             message: "Email verification link sent",
+//         });
+//     } catch (error: any) {
+//         throw createHttpError(500, error);
+//     }
+// });
 // Step 4: Update profile details
 exports.updateProfile = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { firstName, lastName } = req.body;
