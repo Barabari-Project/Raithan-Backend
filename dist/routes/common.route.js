@@ -10,4 +10,5 @@ router.get("/service-providers/:id", common_controller_1.getServiceProviderById)
 router.get("/service-seekers/:id", common_controller_1.getServiceSeekerById);
 router.get("/business/user/:userId", common_controller_1.getBusinessesByUserId);
 router.get("/business/:id", common_controller_1.getBusinessById);
+router.get("/products/:category", common_controller_1.getProductsByCategory);
 exports.default = router;

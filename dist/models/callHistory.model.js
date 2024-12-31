@@ -36,42 +36,31 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.EarthMoverProduct = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const product_types_1 = require("../../types/product.types");
 const http_errors_1 = __importDefault(require("http-errors"));
-const EarthMoverProductSchema = new mongoose_1.Schema({
-    images: {
-        type: [String],
-        required: [true, "Images are required."],
-    },
-    hp: {
+const callHistorySchema = new mongoose_1.Schema({
+    serviceSeekerMobileNumber: {
         type: String,
-        required: [true, "Horsepower (hp) is required."],
+        required: [true, 'Service Seeker Mobile Number is required'],
     },
-    modelNo: {
+    serviceProviderMobileNumber: {
         type: String,
-        required: [true, "Model number is required."],
+        required: [true, 'Service Provider Mobile Number is required'],
     },
-    verificationStatus: {
-        type: String,
-        enum: {
-            values: Object.values(product_types_1.ProductStatus),
-            message: "Verification status must be one of the valid options.",
-        },
-        default: product_types_1.ProductStatus.UNVERIFIED,
-    },
-    type: {
-        type: String,
-        required: [true, "Earth mover type is required."],
-    },
-    business: {
+    serviceSeeker: {
         type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: 'business',
-        required: [true, "Business reference is required."],
+        ref: 'serviceSeeker',
+        required: [true, 'Service Seeker id is required'],
     },
-}, { timestamps: true });
-EarthMoverProductSchema.post('save', function (error, doc, next) {
+    serviceProvider: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: 'serviceProvider',
+        required: [true, 'Service Provider id is required'],
+    }
+}, {
+    timestamps: true,
+});
+callHistorySchema.post('save', function (error, doc, next) {
     if (error.name === 'ValidationError') {
         const firstError = error.errors[Object.keys(error.errors)[0]];
         throw (0, http_errors_1.default)(400, firstError.message);
@@ -83,4 +72,6 @@ EarthMoverProductSchema.post('save', function (error, doc, next) {
         next(error); // Pass any other errors to the next middleware
     }
 });
-exports.EarthMoverProduct = mongoose_1.default.model('earthMoverProduct', EarthMoverProductSchema, 'earthMoverProduct');
+// Create and export the ServiceProvider model
+const CallHistory = mongoose_1.default.model('callHistory', callHistorySchema, 'callHistory');
+exports.default = CallHistory;

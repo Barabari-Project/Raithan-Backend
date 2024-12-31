@@ -52,12 +52,12 @@ const http_errors_1 = __importDefault(require("http-errors"));
 const serviceProviderSchema = new mongoose_1.Schema({
     mobileNumber: {
         type: String,
-        required: true,
-        unique: true
+        required: [true, 'Mobile number is required'],
+        unique: [true, 'Mobile number is already exists']
     },
     email: {
         type: String,
-        unique: true,
+        unique: [true, 'Email is already exists'],
         sparse: true,
     },
     password: {
@@ -69,7 +69,7 @@ const serviceProviderSchema = new mongoose_1.Schema({
     lastName: {
         type: String,
     },
-    profilePictureUrl: {
+    profilePicturePath: {
         type: String,
     },
     status: {
@@ -80,7 +80,6 @@ const serviceProviderSchema = new mongoose_1.Schema({
     business: {
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: 'business',
-        // required: [true, 'Business details are required'],
     },
 }, {
     timestamps: true,
@@ -107,8 +106,11 @@ serviceProviderSchema.post('save', function (error, doc, next) {
         const firstError = error.errors[Object.keys(error.errors)[0]];
         throw (0, http_errors_1.default)(400, firstError.message);
     }
+    else if (error.name == 'MongooseError') {
+        throw (0, http_errors_1.default)(400, `${error.message}`);
+    }
     else {
-        next(error);
+        next(error); // Pass any other errors to the next middleware
     }
 });
 // Create and export the ServiceProvider model

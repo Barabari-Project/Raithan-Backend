@@ -43,38 +43,44 @@ const http_errors_1 = __importDefault(require("http-errors"));
 const MechanicProductSchema = new mongoose_1.Schema({
     images: {
         type: [String],
-        required: true,
+        required: [true, "Images are required."],
     },
     services: {
         type: [String],
-        enum: Object.values(product_types_1.MechanicServiceType),
+        enum: {
+            values: Object.values(product_types_1.MechanicServiceType),
+            message: "Services must be one of the valid types.",
+        },
         default: [],
-        required: true,
     },
     eShramCardNumber: {
         type: String,
-        required: true,
+        required: [true, "eShram Card Number is required."],
     },
-    isVerified: {
-        type: Boolean,
-        default: false,
+    verificationStatus: {
+        type: String,
+        enum: {
+            values: Object.values(product_types_1.ProductStatus),
+            message: "Verification status must be one of the valid options.",
+        },
+        default: product_types_1.ProductStatus.UNVERIFIED,
     },
     readyToTravelIn10Km: {
         type: Boolean,
-        required: true,
+        required: [true, "Please specify if ready to travel within 10 km."],
     },
     isIndividual: {
         type: Boolean,
-        required: true,
+        required: [true, "Please specify if this is an individual mechanic or a group."],
     },
     numberOfWorkers: {
         type: Number,
-        required: true,
+        required: [true, "Number of workers is required."],
     },
     business: {
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: 'business',
-        required: true,
+        required: [true, "Business reference is required."],
     },
 }, { timestamps: true });
 MechanicProductSchema.post('save', function (error, doc, next) {
@@ -82,8 +88,11 @@ MechanicProductSchema.post('save', function (error, doc, next) {
         const firstError = error.errors[Object.keys(error.errors)[0]];
         throw (0, http_errors_1.default)(400, firstError.message);
     }
+    else if (error.name == 'MongooseError') {
+        throw (0, http_errors_1.default)(400, `${error.message}`);
+    }
     else {
-        next(error);
+        next(error); // Pass any other errors to the next middleware
     }
 });
 exports.MechanicProduct = mongoose_1.default.model('mechanicProduct', MechanicProductSchema, 'mechanicProduct');

@@ -1,26 +1,25 @@
 import { Request, Response } from 'express';
 import expressAsyncHandler from 'express-async-handler';
 import createHttpError from 'http-errors';
-import { validateEmail } from '../utils/validation';
-import { generateJwt } from '../utils/jwt';
-import ServiceProvider from '../models/serviceProvider.model';
 import { isValidObjectId } from 'mongoose';
-import { IServiceProvider, ServiceProviderStatus } from '../types/provider.types';
-import ServiceSeeker from '../models/serviceSeeker.model';
-import { BusinessCategory } from '../types/business.types';
+import CallHistory from '../models/callHistory.model';
+import { AgricultureLaborProduct } from '../models/products/AgricultureLaborProduct.model';
+import { DroneProduct } from '../models/products/DroneProduct.model';
+import { EarthMoverProduct } from '../models/products/earthMoverProduct.model';
 import { HarvestorProduct } from '../models/products/harvestorProduct.model';
 import { ImplementProduct } from '../models/products/ImplementProduct.model';
 import { MachineProduct } from '../models/products/MachineProduct.model';
 import { MechanicProduct } from '../models/products/MechanicProduct.model';
 import { PaddyTransplantorProduct } from '../models/products/PaddyTransplantorProduct.model';
-import { AgricultureLaborProduct } from '../models/products/AgricultureLaborProduct.model';
-import { EarthMoverProduct } from '../models/products/earthMoverProduct.model';
-import { DroneProduct } from '../models/products/DroneProduct.model';
+import ServiceProvider from '../models/serviceProvider.model';
+import ServiceSeeker from '../models/serviceSeeker.model';
+import { BusinessCategory } from '../types/business.types';
 import { ProductStatus } from '../types/product.types';
-import { findProductsByStatus } from './common.controller';
+import { IServiceProvider, ServiceProviderStatus } from '../types/provider.types';
 import { formateProviderImage, formatProductImageUrls } from '../utils/formatImageUrl';
-import { formatWithOptions } from 'util';
-import CallHistory from '../models/callHistory.model';
+import { generateJwt } from '../utils/jwt';
+import { validateEmail } from '../utils/validation';
+import { findProductsByStatus } from './common.controller';
 
 export const login = expressAsyncHandler(async (req: Request, res: Response) => {
     const { email, password } = req.body;

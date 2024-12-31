@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyProduct = exports.getServiceSeekers = exports.rejectServiceProvider = exports.verifyServiceProvider = exports.getServiceProvidersByStatus = exports.getServiceProviders = exports.login = void 0;
+exports.getCallHistoryByServiceProviderId = exports.getCallHistoryByServiceSeekerId = exports.getCallHistory = exports.getUnverifiedProducts = exports.updateProductStatus = exports.rejectProduct = exports.verifyProduct = exports.getServiceSeekers = exports.rejectServiceProvider = exports.verifyServiceProvider = exports.getServiceProvidersByStatus = exports.getServiceProviders = exports.login = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const http_errors_1 = __importDefault(require("http-errors"));
 const validation_1 = require("../utils/validation");
@@ -22,7 +22,6 @@ const mongoose_1 = require("mongoose");
 const provider_types_1 = require("../types/provider.types");
 const serviceSeeker_model_1 = __importDefault(require("../models/serviceSeeker.model"));
 const business_types_1 = require("../types/business.types");
-const business_model_1 = require("../models/business.model");
 const harvestorProduct_model_1 = require("../models/products/harvestorProduct.model");
 const ImplementProduct_model_1 = require("../models/products/ImplementProduct.model");
 const MachineProduct_model_1 = require("../models/products/MachineProduct.model");
@@ -31,6 +30,10 @@ const PaddyTransplantorProduct_model_1 = require("../models/products/PaddyTransp
 const AgricultureLaborProduct_model_1 = require("../models/products/AgricultureLaborProduct.model");
 const earthMoverProduct_model_1 = require("../models/products/earthMoverProduct.model");
 const DroneProduct_model_1 = require("../models/products/DroneProduct.model");
+const product_types_1 = require("../types/product.types");
+const common_controller_1 = require("./common.controller");
+const formatImageUrl_1 = require("../utils/formatImageUrl");
+const callHistory_model_1 = __importDefault(require("../models/callHistory.model"));
 exports.login = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     if (!(0, validation_1.validateEmail)(email)) {
@@ -67,7 +70,10 @@ exports.getServiceProvidersByStatus = (0, express_async_handler_1.default)((req,
 }));
 exports.verifyServiceProvider = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    // Validate the id parameter
+    const updatedServiceProvider = yield updateServiceProviderStatus(id, provider_types_1.ServiceProviderStatus.VERIFIED);
+    res.status(200).json({ serviceProvider: updatedServiceProvider });
+}));
+const updateServiceProviderStatus = (id, status) => __awaiter(void 0, void 0, void 0, function* () {
     if (!(0, mongoose_1.isValidObjectId)(id)) {
         throw (0, http_errors_1.default)(400, "Invalid service provider ID");
     }
@@ -79,21 +85,12 @@ exports.verifyServiceProvider = (0, express_async_handler_1.default)((req, res) 
         throw (0, http_errors_1.default)(400, "Service provider is not pending verification");
     }
     const updatedServiceProvider = yield serviceProvider_model_1.default.findByIdAndUpdate(id, { status: provider_types_1.ServiceProviderStatus.VERIFIED }, { new: true });
-    res.status(200).json({ serviceProvider: updatedServiceProvider });
-}));
+    yield (0, formatImageUrl_1.formateProviderImage)(updatedServiceProvider);
+    return updatedServiceProvider;
+});
 exports.rejectServiceProvider = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    if (!(0, mongoose_1.isValidObjectId)(id)) {
-        throw (0, http_errors_1.default)(400, "Invalid service provider ID");
-    }
-    const serviceProvider = yield serviceProvider_model_1.default.findById(id);
-    if (!serviceProvider) {
-        throw (0, http_errors_1.default)(404, "Service provider not found");
-    }
-    if (serviceProvider.status !== provider_types_1.ServiceProviderStatus.COMPLETED) {
-        throw (0, http_errors_1.default)(400, "Service provider is not pending verification");
-    }
-    const updatedServiceProvider = yield serviceProvider_model_1.default.findByIdAndUpdate(id, { status: provider_types_1.ServiceProviderStatus.REJECTED }, { new: true });
+    const updatedServiceProvider = yield updateServiceProviderStatus(id, provider_types_1.ServiceProviderStatus.REJECTED);
     res.status(200).json({ serviceProvider: updatedServiceProvider });
 }));
 exports.getServiceSeekers = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -101,90 +98,116 @@ exports.getServiceSeekers = (0, express_async_handler_1.default)((req, res) => _
     res.status(200).json(serviceSeekers);
 }));
 exports.verifyProduct = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id } = req.params;
-    const { category } = req.body;
-    if (!(0, mongoose_1.isValidObjectId)(id)) {
+    const { id: productId, category } = req.params;
+    const product = yield (0, exports.updateProductStatus)(category, productId, product_types_1.ProductStatus.VERIFIED);
+    res.status(200).json({ product });
+}));
+exports.rejectProduct = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id: productId, category } = req.params;
+    const product = yield (0, exports.updateProductStatus)(category, productId, product_types_1.ProductStatus.REJECTED);
+    res.status(200).json({ product });
+}));
+const updateProductStatus = (category, productId, status) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!Object.values(business_types_1.BusinessCategory).includes(category)) {
+        throw (0, http_errors_1.default)(400, "Invalid category");
+    }
+    if (!(0, mongoose_1.isValidObjectId)(productId)) {
         throw (0, http_errors_1.default)(400, "Invalid product ID");
     }
-    const userId = req.userId;
-    const serviceProvider = yield serviceProvider_model_1.default.findById(userId);
     let product;
-    if (!serviceProvider) {
-        throw (0, http_errors_1.default)(404, "Service provider not found");
-    }
-    if (serviceProvider.status !== provider_types_1.ServiceProviderStatus.VERIFIED) {
-        throw (0, http_errors_1.default)(400, "Service provider is not verified");
-    }
-    const business = yield business_model_1.Business.findOne({ serviceProvider: serviceProvider._id });
-    if (!business) {
-        throw (0, http_errors_1.default)(404, "Business not found");
-    }
-    if (!business.category.includes(category)) {
-        throw (0, http_errors_1.default)(400, "Business does not offer this category");
-    }
     if (category === business_types_1.BusinessCategory.HARVESTORS) {
-        product = yield harvestorProduct_model_1.HarvestorProduct.findById(id);
+        product = yield harvestorProduct_model_1.HarvestorProduct.findById(productId);
         if (!product) {
             throw (0, http_errors_1.default)(404, "Product not found");
         }
-        product.isVerified = true;
+        product.verificationStatus = status;
         yield product.save();
     }
     else if (category === business_types_1.BusinessCategory.IMPLEMENTS) {
-        product = yield ImplementProduct_model_1.ImplementProduct.findById(id);
+        product = yield ImplementProduct_model_1.ImplementProduct.findById(productId);
         if (!product) {
             throw (0, http_errors_1.default)(404, "Product not found");
         }
-        product.isVerified = true;
+        product.verificationStatus = status;
         yield product.save();
     }
     else if (category === business_types_1.BusinessCategory.MACHINES) {
-        product = yield MachineProduct_model_1.MachineProduct.findById(id);
+        product = yield MachineProduct_model_1.MachineProduct.findById(productId);
         if (!product) {
             throw (0, http_errors_1.default)(404, "Product not found");
         }
-        product.isVerified = true;
+        product.verificationStatus = status;
         yield product.save();
     }
     else if (category === business_types_1.BusinessCategory.MECHANICS) {
-        product = yield MechanicProduct_model_1.MechanicProduct.findById(id);
+        product = yield MechanicProduct_model_1.MechanicProduct.findById(productId);
         if (!product) {
             throw (0, http_errors_1.default)(404, "Product not found");
         }
-        product.isVerified = true;
+        product.verificationStatus = status;
         yield product.save();
     }
     else if (category === business_types_1.BusinessCategory.PADDY_TRANSPLANTORS) {
-        product = yield PaddyTransplantorProduct_model_1.PaddyTransplantorProduct.findById(id);
+        product = yield PaddyTransplantorProduct_model_1.PaddyTransplantorProduct.findById(productId);
         if (!product) {
             throw (0, http_errors_1.default)(404, "Product not found");
         }
-        product.isVerified = true;
+        product.verificationStatus = status;
         yield product.save();
     }
     else if (category === business_types_1.BusinessCategory.AGRICULTURE_LABOR) {
-        product = yield AgricultureLaborProduct_model_1.AgricultureLaborProduct.findById(id);
+        product = yield AgricultureLaborProduct_model_1.AgricultureLaborProduct.findById(productId);
         if (!product) {
             throw (0, http_errors_1.default)(404, "Product not found");
         }
-        product.isVerified = true;
+        product.verificationStatus = status;
         yield product.save();
     }
     else if (category === business_types_1.BusinessCategory.EARTH_MOVERS) {
-        product = yield earthMoverProduct_model_1.EarthMoverProduct.findById(id);
+        product = yield earthMoverProduct_model_1.EarthMoverProduct.findById(productId);
         if (!product) {
             throw (0, http_errors_1.default)(404, "Product not found");
         }
-        product.isVerified = true;
+        product.verificationStatus = status;
         yield product.save();
     }
     else if (category === business_types_1.BusinessCategory.DRONES) {
-        product = yield DroneProduct_model_1.DroneProduct.findById(id);
+        product = yield DroneProduct_model_1.DroneProduct.findById(productId);
         if (!product) {
             throw (0, http_errors_1.default)(404, "Product not found");
         }
-        product.isVerified = true;
+        product.verificationStatus = status;
         yield product.save();
     }
-    res.status(200).json({ product });
+    else {
+        throw (0, http_errors_1.default)(400, "Invalid category");
+    }
+    yield (0, formatImageUrl_1.formatProductImageUrls)(product);
+    return product;
+});
+exports.updateProductStatus = updateProductStatus;
+exports.getUnverifiedProducts = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { category } = req.params;
+    const products = yield (0, common_controller_1.findProductsByStatus)(category, product_types_1.ProductStatus.UNVERIFIED);
+    res.status(200).json({ products });
+}));
+exports.getCallHistory = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const callHistory = yield callHistory_model_1.default.find();
+    res.status(200).json({ callHistory });
+}));
+exports.getCallHistoryByServiceSeekerId = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    if (!(0, mongoose_1.isValidObjectId)(id)) {
+        throw (0, http_errors_1.default)(400, "Invalid service seeker ID");
+    }
+    const callHistory = yield callHistory_model_1.default.find({ serviceSeeker: { $eq: id } });
+    res.status(200).json({ callHistory });
+}));
+exports.getCallHistoryByServiceProviderId = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    if (!(0, mongoose_1.isValidObjectId)(id)) {
+        throw (0, http_errors_1.default)(400, "Invalid service provider ID");
+    }
+    const callHistory = yield callHistory_model_1.default.find({ serviceProvider: { $eq: id } });
+    res.status(200).json({ callHistory });
 }));

@@ -24,6 +24,7 @@ const __1 = require("../..");
 const s3Upload_1 = require("../../utils/s3Upload");
 const validation_1 = require("../../utils/validation");
 const serviceSeeker_model_1 = __importDefault(require("../../models/serviceSeeker.model"));
+const formatImageUrl_1 = require("../../utils/formatImageUrl");
 // Onboarding
 // Step 1: Store mobile number and send OTP
 exports.initiateOnboarding = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -109,15 +110,16 @@ exports.updateProfile = (0, express_async_handler_1.default)((req, res) => __awa
     if (!provider) {
         throw (0, http_errors_1.default)(404, 'User not found');
     }
-    else if (!provider.status.endsWith(provider_types_1.ServiceProviderStatus.OTP_VERIFIED)) {
+    else if (provider.status !== provider_types_1.ServiceProviderStatus.OTP_VERIFIED && provider.status !== provider_types_1.ServiceProviderStatus.BUSINESS_DETAILS_REMAINING) {
         throw (0, http_errors_1.default)(400, 'Please verify your OTP first');
     }
     // Upload profile picture to S3
-    const profilePictureUrl = yield (0, s3Upload_1.uploadFileToS3)(req.file, 'profile-pictures');
-    provider = yield serviceProvider_model_1.default.findByIdAndUpdate(userId, { $set: { firstName, lastName, profilePictureUrl, status: provider_types_1.ServiceProviderStatus.BUSINESS_DETAILS_REMAINING } }, { new: true });
+    const profilePicturePath = yield (0, s3Upload_1.uploadFileToS3)(req.file, 'profile-pictures');
+    provider = yield serviceProvider_model_1.default.findByIdAndUpdate(userId, { $set: { firstName, lastName, profilePicturePath, status: provider_types_1.ServiceProviderStatus.BUSINESS_DETAILS_REMAINING } }, { new: true });
     if (!provider) {
         throw (0, http_errors_1.default)(404, 'User not found');
     }
+    yield (0, formatImageUrl_1.formateProviderImage)(provider);
     res.status(200).json({
         message: 'Profile updated successfully',
         provider,
@@ -142,5 +144,6 @@ exports.verifyLoginOtp = (0, express_async_handler_1.default)((req, res) => __aw
     }
     yield (0, twilioService_1.verifyOTP)(mobileNumber, code);
     const token = (0, jwt_1.generateJwt)({ userId: provider._id }, process.env.PROVIDER_JWT_SECRET);
+    (0, formatImageUrl_1.formateProviderImage)(provider);
     res.status(200).json({ message: "OTP verified successfully", token, provider });
 }));

@@ -40,15 +40,16 @@ exports.Business = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const business_types_1 = require("../types/business.types");
 const http_errors_1 = __importDefault(require("http-errors"));
+const __1 = require("..");
 const BusinessSchema = new mongoose_1.Schema({
     businessName: {
         type: String,
-        required: true,
+        required: [true, "Business Name is required"],
         trim: true,
     },
     businessContactNo: {
         type: String,
-        required: true,
+        required: [true, "Business Contact No is required"],
         validate: {
             validator: (v) => /^(\+91|91|0)?[6-9]\d{9}$/.test(v),
             message: (props) => `${props.value} is not a valid contact number!`,
@@ -56,8 +57,8 @@ const BusinessSchema = new mongoose_1.Schema({
     },
     businessEmail: {
         type: String,
-        required: true,
-        unique: true,
+        required: [true, "Business Email Address is required"],
+        unique: [true, "email address is already exists"],
         trim: true,
         lowercase: true,
         validate: {
@@ -67,7 +68,7 @@ const BusinessSchema = new mongoose_1.Schema({
     },
     pincode: {
         type: String,
-        required: true,
+        required: [true, "Pincode is required"],
         validate: {
             validator: (v) => /^\d{6}$/.test(v),
             message: (props) => `${props.value} is not a valid pincode!`,
@@ -75,36 +76,36 @@ const BusinessSchema = new mongoose_1.Schema({
     },
     blockNumber: {
         type: String,
-        required: true,
+        required: [true, "block Number is required"],
     },
     street: {
         type: String,
-        required: true,
+        required: [true, "Street is required"],
     },
     area: {
         type: String,
-        required: true,
+        required: [true, "area is required"],
     },
     landmark: {
         type: String,
     },
     city: {
         type: String,
-        required: true,
+        required: [true, "city is required"],
     },
     state: {
         type: String,
-        required: true,
+        required: [true, "state is required"],
     },
     serviceProvider: {
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: 'serviceProvider',
-        required: true,
+        required: [true, 'serviceProvider is required'],
     },
     workingDays: {
         type: Map,
         of: Boolean,
-        required: true,
+        required: [true, "workingDays are required"],
         default: {
             Monday: false,
             Tuesday: false,
@@ -134,7 +135,7 @@ const BusinessSchema = new mongoose_1.Schema({
                 },
             },
         }, { _id: false }),
-        required: true,
+        required: [true, "working time is required"],
     },
     category: {
         type: [String],
@@ -143,12 +144,16 @@ const BusinessSchema = new mongoose_1.Schema({
     },
 }, { timestamps: true });
 BusinessSchema.post('save', function (error, doc, next) {
+    __1.logger.debug(error.name);
     if (error.name === 'ValidationError') {
         const firstError = error.errors[Object.keys(error.errors)[0]];
         throw (0, http_errors_1.default)(400, firstError.message);
     }
+    else if (error.name == 'MongooseError') {
+        throw (0, http_errors_1.default)(400, `${error.message}`);
+    }
     else {
-        next(error);
+        next(error); // Pass any other errors to the next middleware
     }
 });
 // Export the model

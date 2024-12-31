@@ -1,6 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AgricultureLaborServiceType = exports.MechanicServiceType = void 0;
+exports.AgricultureLaborServiceType = exports.MechanicServiceType = exports.ProductStatus = void 0;
+var ProductStatus;
+(function (ProductStatus) {
+    ProductStatus["VERIFIED"] = "Verified";
+    ProductStatus["UNVERIFIED"] = "Unverified";
+    ProductStatus["REJECTED"] = "Rejected";
+})(ProductStatus || (exports.ProductStatus = ProductStatus = {}));
 var MechanicServiceType;
 (function (MechanicServiceType) {
     MechanicServiceType["ELECTRIC_WATER_PUMP"] = "Electric Water Pump";

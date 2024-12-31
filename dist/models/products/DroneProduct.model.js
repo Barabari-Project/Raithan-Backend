@@ -38,28 +38,33 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DroneProduct = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
+const product_types_1 = require("../../types/product.types");
 const http_errors_1 = __importDefault(require("http-errors"));
 const DroneProductSchema = new mongoose_1.Schema({
     images: {
         type: [String],
-        required: true,
+        required: [true, "Images are required."],
     },
     modelNo: {
         type: String,
-        required: true,
+        required: [true, "Model number is required."],
     },
-    isVerified: {
-        type: Boolean,
-        default: false,
+    verificationStatus: {
+        type: String,
+        enum: {
+            values: Object.values(product_types_1.ProductStatus),
+            message: "Verification status must be one of the valid options.",
+        },
+        default: product_types_1.ProductStatus.UNVERIFIED,
     },
     type: {
         type: String,
-        required: true,
+        required: [true, "Drone type is required."],
     },
     business: {
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: 'business',
-        required: true,
+        required: [true, "Business reference is required."],
     },
 }, { timestamps: true });
 DroneProductSchema.post('save', function (error, doc, next) {
@@ -67,8 +72,11 @@ DroneProductSchema.post('save', function (error, doc, next) {
         const firstError = error.errors[Object.keys(error.errors)[0]];
         throw (0, http_errors_1.default)(400, firstError.message);
     }
+    else if (error.name == 'MongooseError') {
+        throw (0, http_errors_1.default)(400, `${error.message}`);
+    }
     else {
-        next(error);
+        next(error); // Pass any other errors to the next middleware
     }
 });
 exports.DroneProduct = mongoose_1.default.model('droneProduct', DroneProductSchema, 'droneProduct');

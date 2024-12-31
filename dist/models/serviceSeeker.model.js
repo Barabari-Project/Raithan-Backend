@@ -41,8 +41,8 @@ const http_errors_1 = __importDefault(require("http-errors"));
 const serviceSeekerSchema = new mongoose_1.Schema({
     mobileNumber: {
         type: String,
-        required: true,
-        unique: true
+        required: [true, 'Mobile Number is required.'],
+        unique: [true, 'Mobile Number is already Exists.']
     },
 }, {
     timestamps: true,
@@ -52,8 +52,11 @@ serviceSeekerSchema.post('save', function (error, doc, next) {
         const firstError = error.errors[Object.keys(error.errors)[0]];
         throw (0, http_errors_1.default)(400, firstError.message);
     }
+    else if (error.name == 'MongooseError') {
+        throw (0, http_errors_1.default)(400, `${error.message}`);
+    }
     else {
-        next(error);
+        next(error); // Pass any other errors to the next middleware
     }
 });
 // Create and export the ServiceProvider model

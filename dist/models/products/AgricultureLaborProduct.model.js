@@ -43,38 +43,44 @@ const http_errors_1 = __importDefault(require("http-errors"));
 const AgricultureLaborProductSchema = new mongoose_1.Schema({
     images: {
         type: [String],
-        required: true,
+        required: [true, "Images are required."],
     },
     eShramCardNumber: {
         type: String,
-        required: true,
+        required: [true, "eShram Card Number is required."],
     },
     readyToTravelIn10Km: {
         type: Boolean,
-        required: true,
+        required: [true, "Please specify if the person is ready to travel within 10 km."],
     },
     isIndividual: {
         type: Boolean,
-        required: true,
+        required: [true, "Please specify if this is an individual labor or a group."],
     },
-    isVerified: {
-        type: Boolean,
-        default: false,
+    verificationStatus: {
+        type: String,
+        enum: {
+            values: Object.values(product_types_1.ProductStatus),
+            message: "Verification status must be one of the valid options.",
+        },
+        default: product_types_1.ProductStatus.UNVERIFIED,
     },
     services: {
         type: [String],
-        enum: Object.values(product_types_1.AgricultureLaborServiceType),
+        enum: {
+            values: Object.values(product_types_1.AgricultureLaborServiceType),
+            message: "Services must be one of the valid types.",
+        },
         default: [],
-        required: true,
     },
     numberOfWorkers: {
         type: Number,
-        required: true,
+        required: [true, "Number of workers is required."],
     },
     business: {
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: 'business',
-        required: true,
+        required: [true, "Business reference is required."],
     },
 }, { timestamps: true });
 AgricultureLaborProductSchema.post('save', function (error, doc, next) {
@@ -82,8 +88,11 @@ AgricultureLaborProductSchema.post('save', function (error, doc, next) {
         const firstError = error.errors[Object.keys(error.errors)[0]];
         throw (0, http_errors_1.default)(400, firstError.message);
     }
+    else if (error.name == 'MongooseError') {
+        throw (0, http_errors_1.default)(400, `${error.message}`);
+    }
     else {
-        next(error);
+        next(error); // Pass any other errors to the next middleware
     }
 });
 exports.AgricultureLaborProduct = mongoose_1.default.model('agricultureLaborProduct', AgricultureLaborProductSchema, 'agricultureLaborProduct');
