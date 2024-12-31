@@ -195,3 +195,21 @@ export const getCallHistory = expressAsyncHandler(async (req: Request, res: Resp
     const callHistory = await CallHistory.find();
     res.status(200).json({ callHistory });
 });
+
+export const getCallHistoryByServiceSeekerId = expressAsyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    if (!isValidObjectId(id)) {
+        throw createHttpError(400, "Invalid service seeker ID");
+    }
+    const callHistory = await CallHistory.find({ serviceSeeker: { $eq: id } });
+    res.status(200).json({ callHistory });
+});
+
+export const getCallHistoryByServiceProviderId = expressAsyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    if (!isValidObjectId(id)) {
+        throw createHttpError(400, "Invalid service provider ID");
+    }
+    const callHistory = await CallHistory.find({ serviceProvider: { $eq: id } });
+    res.status(200).json({ callHistory });
+});

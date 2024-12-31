@@ -16,15 +16,11 @@ export const login = expressAsyncHandler(async (req: Request, res: Response, nex
 
     const seeker = await ServiceSeeker.findOne({ mobileNumber: { $eq: mobileNumber } });
 
-    if (!seeker) {
-        throw createHttpError(404, "User not found");
-    }
-
     const provider = await ServiceProvider.exists({ mobileNumber: { $eq: mobileNumber } });
 
     if (provider) {
         throw createHttpError(400, "Please login as service provider");
-    } else {
+    } else if (!seeker) {
         const newSeeker = new ServiceSeeker({ mobileNumber });
         await newSeeker.save();
     }
@@ -42,6 +38,10 @@ export const verifyLoginOtp = expressAsyncHandler(async (req: Request, res: Resp
 
     if (!seeker) {
         throw createHttpError(404, "User not found");
+    }
+
+    if (code == '') {
+        throw createHttpError(400, "Invalid OTP");
     }
 
     await verifyOTP(mobileNumber, code);
