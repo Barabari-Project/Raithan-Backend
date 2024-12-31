@@ -1,21 +1,26 @@
-import express from "express";
-import { getCallHistory, getCallHistoryByServiceProviderId, getCallHistoryByServiceSeekerId, getServiceProviders, getServiceProvidersByStatus, getServiceSeekers, getUnverifiedProducts, login, rejectProduct, rejectServiceProvider, verifyProduct, verifyServiceProvider } from "../controllers/admin.controller";
-import { authMiddleware } from "../middlewares/authMiddleware";
-const router = express.Router();
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const admin_controller_1 = require("../controllers/admin.controller");
+const authMiddleware_1 = require("../middlewares/authMiddleware");
+const router = express_1.default.Router();
 // admin auth routes
-router.post("/auth/login", login);
+router.post("/auth/login", admin_controller_1.login);
 // admin service provider routes
-router.get("/service-providers", authMiddleware(process.env.ADMIN_JWT_SECRET), getServiceProviders);
-router.get("/service-providers/:status", authMiddleware(process.env.ADMIN_JWT_SECRET), getServiceProvidersByStatus);
-router.post("/service-providers/:id/verify", authMiddleware(process.env.ADMIN_JWT_SECRET), verifyServiceProvider);
-router.post("/service-providers/:id/reject", authMiddleware(process.env.ADMIN_JWT_SECRET), rejectServiceProvider);
+router.get("/service-providers", (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.getServiceProviders);
+router.get("/service-providers/:status", (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.getServiceProvidersByStatus);
+router.post("/service-providers/:id/verify", (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.verifyServiceProvider);
+router.post("/service-providers/:id/reject", (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.rejectServiceProvider);
 // verify product
-router.post("/products/:category/:id/verify", authMiddleware(process.env.ADMIN_JWT_SECRET), verifyProduct);
-router.post("/products/:category/:id/reject", authMiddleware(process.env.ADMIN_JWT_SECRET), rejectProduct);
-router.get("/products/:category/unverified", authMiddleware(process.env.ADMIN_JWT_SECRET), getUnverifiedProducts);
+router.post("/products/:category/:id/verify", (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.verifyProduct);
+router.post("/products/:category/:id/reject", (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.rejectProduct);
+router.get("/products/:category/unverified", (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.getUnverifiedProducts);
 // admin service seeker routes
-router.get("/service-seekers", authMiddleware(process.env.ADMIN_JWT_SECRET), getServiceSeekers);
-router.get('/call-history', authMiddleware(process.env.ADMIN_JWT_SECRET), getCallHistory);
-router.get('/call-history/service-seeker/:id', authMiddleware(process.env.ADMIN_JWT_SECRET), getCallHistoryByServiceSeekerId);
-router.get('/call-history/service-provider/:id', authMiddleware(process.env.ADMIN_JWT_SECRET), getCallHistoryByServiceProviderId);
-export default router;
+router.get("/service-seekers", (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.getServiceSeekers);
+router.get('/call-history', (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.getCallHistory);
+router.get('/call-history/service-seeker/:id', (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.getCallHistoryByServiceSeekerId);
+router.get('/call-history/service-provider/:id', (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.getCallHistoryByServiceProviderId);
+exports.default = router;

@@ -1,4 +1,7 @@
-export var BusinessCategory;
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BusinessCategory = void 0;
+var BusinessCategory;
 (function (BusinessCategory) {
     BusinessCategory["MECHANICS"] = "Mechanics";
     BusinessCategory["PADDY_TRANSPLANTORS"] = "Paddy Transplantors";
@@ -8,4 +11,4 @@ export var BusinessCategory;
     BusinessCategory["EARTH_MOVERS"] = "Earth Movers";
     BusinessCategory["IMPLEMENTS"] = "Implements";
     BusinessCategory["MACHINES"] = "Machines";
-})(BusinessCategory || (BusinessCategory = {}));
+})(BusinessCategory || (exports.BusinessCategory = BusinessCategory = {}));

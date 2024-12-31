@@ -1,30 +1,14 @@
-import express, { Request, Response, NextFunction } from 'express';
-import dotenv from 'dotenv';
 import cors from 'cors';
-import winston from 'winston';
+import dotenv from 'dotenv';
+import express, { NextFunction, Request, Response } from 'express';
 import moment from 'moment-timezone';
-import connectToDatabase from './database';
-import routes from './routes';
-import { validateEnvVars } from './utils/validateEnvVars';
-import { getImageUrl } from './utils/s3Upload';
-import { fileURLToPath } from 'url';
 import path from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-
-const __dirname = path.dirname(__filename);
-
+import winston from 'winston';
+import connectToDatabase from './database.js';
+import routes from './routes';
+import { getImageUrl } from './utils/s3Upload';
+import { validateEnvVars } from './utils/validateEnvVars';
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
-
-validateEnvVars();
-connectToDatabase();
-
-const app = express();
-
-app.use(express.json());
-app.use(cors({
-    origin: '*',
-}));
 
 export const logger = winston.createLogger({
     // Log only if level is less than (meaning more severe) or equal to this
@@ -44,6 +28,16 @@ export const logger = winston.createLogger({
         new winston.transports.File({ filename: `${process.env.LOG_FILE_PATH || 'logs/app.log'}` }),
     ],
 });
+
+validateEnvVars();
+connectToDatabase();
+
+const app = express();
+
+app.use(express.json());
+app.use(cors({
+    origin: '*',
+}));
 
 app.post('/ghi', async (req: Request, res: Response) => {
     const url = await getImageUrl(req.body.key);

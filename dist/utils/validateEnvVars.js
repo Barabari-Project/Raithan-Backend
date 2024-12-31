@@ -1,4 +1,7 @@
-import { logger } from "..";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.validateEnvVars = validateEnvVars;
+const __1 = require("..");
 const requiredEnvVars = [
     'PORT',
     'MONGO_URI',
@@ -20,11 +23,14 @@ const requiredEnvVars = [
     'PROVIDER_JWT_SECRET',
     'SEEKER_JWT_SECRET',
 ];
-export function validateEnvVars() {
+function validateEnvVars() {
     const missingVars = requiredEnvVars.filter((varName) => !process.env[varName]);
     if (missingVars.length > 0) {
         const errorMessage = `Missing environment variables: ${missingVars.join(', ')}`;
-        logger.error(errorMessage); // Log the error
+        __1.logger.error(errorMessage); // Log the error
         process.exit(1);
+    }
+    else {
+        __1.logger.info('All required environment variables are set.');
     }
 }

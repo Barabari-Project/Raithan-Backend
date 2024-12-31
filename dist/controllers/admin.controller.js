@@ -1,197 +1,213 @@
-import expressAsyncHandler from 'express-async-handler';
-import createHttpError from 'http-errors';
-import { isValidObjectId } from 'mongoose';
-import CallHistory from '../models/callHistory.model';
-import { AgricultureLaborProduct } from '../models/products/AgricultureLaborProduct.model';
-import { DroneProduct } from '../models/products/DroneProduct.model';
-import { EarthMoverProduct } from '../models/products/earthMoverProduct.model';
-import { HarvestorProduct } from '../models/products/harvestorProduct.model';
-import { ImplementProduct } from '../models/products/ImplementProduct.model';
-import { MachineProduct } from '../models/products/MachineProduct.model';
-import { MechanicProduct } from '../models/products/MechanicProduct.model';
-import { PaddyTransplantorProduct } from '../models/products/PaddyTransplantorProduct.model';
-import ServiceProvider from '../models/serviceProvider.model';
-import ServiceSeeker from '../models/serviceSeeker.model';
-import { BusinessCategory } from '../types/business.types';
-import { ProductStatus } from '../types/product.types';
-import { ServiceProviderStatus } from '../types/provider.types';
-import { formateProviderImage, formatProductImageUrls } from '../utils/formatImageUrl';
-import { generateJwt } from '../utils/jwt';
-import { validateEmail } from '../utils/validation';
-import { findProductsByStatus } from './common.controller';
-export const login = expressAsyncHandler(async (req, res) => {
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getCallHistoryByServiceProviderId = exports.getCallHistoryByServiceSeekerId = exports.getCallHistory = exports.getUnverifiedProducts = exports.updateProductStatus = exports.rejectProduct = exports.verifyProduct = exports.getServiceSeekers = exports.rejectServiceProvider = exports.verifyServiceProvider = exports.getServiceProvidersByStatus = exports.getServiceProviders = exports.login = void 0;
+const express_async_handler_1 = __importDefault(require("express-async-handler"));
+const http_errors_1 = __importDefault(require("http-errors"));
+const mongoose_1 = require("mongoose");
+const callHistory_model_1 = __importDefault(require("../models/callHistory.model"));
+const AgricultureLaborProduct_model_1 = require("../models/products/AgricultureLaborProduct.model");
+const DroneProduct_model_1 = require("../models/products/DroneProduct.model");
+const earthMoverProduct_model_1 = require("../models/products/earthMoverProduct.model");
+const harvestorProduct_model_1 = require("../models/products/harvestorProduct.model");
+const ImplementProduct_model_1 = require("../models/products/ImplementProduct.model");
+const MachineProduct_model_1 = require("../models/products/MachineProduct.model");
+const MechanicProduct_model_1 = require("../models/products/MechanicProduct.model");
+const PaddyTransplantorProduct_model_1 = require("../models/products/PaddyTransplantorProduct.model");
+const serviceProvider_model_1 = __importDefault(require("../models/serviceProvider.model"));
+const serviceSeeker_model_1 = __importDefault(require("../models/serviceSeeker.model"));
+const business_types_1 = require("../types/business.types");
+const product_types_1 = require("../types/product.types");
+const provider_types_1 = require("../types/provider.types");
+const formatImageUrl_1 = require("../utils/formatImageUrl");
+const jwt_1 = require("../utils/jwt");
+const validation_1 = require("../utils/validation");
+const common_controller_1 = require("./common.controller");
+exports.login = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
-    if (!validateEmail(email)) {
-        throw createHttpError(400, "Invalid email format");
+    if (!(0, validation_1.validateEmail)(email)) {
+        throw (0, http_errors_1.default)(400, "Invalid email format");
     }
     if (email == process.env.EMAIL && password == process.env.PASSWORD) {
-        const token = generateJwt({ userId: process.env.ADMIN_ID }, process.env.ADMIN_JWT_SECRET);
+        const token = (0, jwt_1.generateJwt)({ userId: process.env.ADMIN_ID }, process.env.ADMIN_JWT_SECRET);
         res.status(200).json({ token });
     }
     else {
-        throw createHttpError(401, "Invalid credentials");
+        throw (0, http_errors_1.default)(401, "Invalid credentials");
     }
-});
-export const getServiceProviders = expressAsyncHandler(async (req, res) => {
-    const serviceProviders = await ServiceProvider.find();
+}));
+exports.getServiceProviders = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const serviceProviders = yield serviceProvider_model_1.default.find();
     res.status(200).json(serviceProviders);
-});
-export const getServiceProvidersByStatus = expressAsyncHandler(async (req, res) => {
+}));
+exports.getServiceProvidersByStatus = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { status } = req.params;
     // Check if the status is provided
     if (!status) {
-        throw createHttpError(400, "Status query parameter is required.");
+        throw (0, http_errors_1.default)(400, "Status query parameter is required.");
     }
     // Validate if the status is a valid value from ServiceProviderStatus enum
-    if (!Object.values(ServiceProviderStatus).includes(status)) {
-        throw createHttpError(400, "Invalid status provided.");
+    if (!Object.values(provider_types_1.ServiceProviderStatus).includes(status)) {
+        throw (0, http_errors_1.default)(400, "Invalid status provided.");
     }
     // Fetch service providers with the valid status
-    const serviceProviders = await ServiceProvider.find({ status: { $eq: status } });
+    const serviceProviders = yield serviceProvider_model_1.default.find({ status: { $eq: status } });
     if (serviceProviders.length === 0) {
-        throw createHttpError(404, "No service providers found with the given status.");
+        throw (0, http_errors_1.default)(404, "No service providers found with the given status.");
     }
     res.status(200).json(serviceProviders);
-});
-export const verifyServiceProvider = expressAsyncHandler(async (req, res) => {
+}));
+exports.verifyServiceProvider = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const updatedServiceProvider = await updateServiceProviderStatus(id, ServiceProviderStatus.VERIFIED);
+    const updatedServiceProvider = yield updateServiceProviderStatus(id, provider_types_1.ServiceProviderStatus.VERIFIED);
     res.status(200).json({ serviceProvider: updatedServiceProvider });
-});
-const updateServiceProviderStatus = async (id, status) => {
-    if (!isValidObjectId(id)) {
-        throw createHttpError(400, "Invalid service provider ID");
+}));
+const updateServiceProviderStatus = (id, status) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!(0, mongoose_1.isValidObjectId)(id)) {
+        throw (0, http_errors_1.default)(400, "Invalid service provider ID");
     }
-    const serviceProvider = await ServiceProvider.findById(id);
+    const serviceProvider = yield serviceProvider_model_1.default.findById(id);
     if (!serviceProvider) {
-        throw createHttpError(404, "Service provider not found");
+        throw (0, http_errors_1.default)(404, "Service provider not found");
     }
-    if (serviceProvider.status !== ServiceProviderStatus.COMPLETED) {
-        throw createHttpError(400, "Service provider is not pending verification");
+    if (serviceProvider.status !== provider_types_1.ServiceProviderStatus.COMPLETED) {
+        throw (0, http_errors_1.default)(400, "Service provider is not pending verification");
     }
-    const updatedServiceProvider = await ServiceProvider.findByIdAndUpdate(id, { status: ServiceProviderStatus.VERIFIED }, { new: true });
-    await formateProviderImage(updatedServiceProvider);
+    const updatedServiceProvider = yield serviceProvider_model_1.default.findByIdAndUpdate(id, { status: provider_types_1.ServiceProviderStatus.VERIFIED }, { new: true });
+    yield (0, formatImageUrl_1.formateProviderImage)(updatedServiceProvider);
     return updatedServiceProvider;
-};
-export const rejectServiceProvider = expressAsyncHandler(async (req, res) => {
+});
+exports.rejectServiceProvider = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const updatedServiceProvider = await updateServiceProviderStatus(id, ServiceProviderStatus.REJECTED);
+    const updatedServiceProvider = yield updateServiceProviderStatus(id, provider_types_1.ServiceProviderStatus.REJECTED);
     res.status(200).json({ serviceProvider: updatedServiceProvider });
-});
-export const getServiceSeekers = expressAsyncHandler(async (req, res) => {
-    const serviceSeekers = await ServiceSeeker.find();
+}));
+exports.getServiceSeekers = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const serviceSeekers = yield serviceSeeker_model_1.default.find();
     res.status(200).json(serviceSeekers);
-});
-export const verifyProduct = expressAsyncHandler(async (req, res) => {
+}));
+exports.verifyProduct = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id: productId, category } = req.params;
-    const product = await updateProductStatus(category, productId, ProductStatus.VERIFIED);
+    const product = yield (0, exports.updateProductStatus)(category, productId, product_types_1.ProductStatus.VERIFIED);
     res.status(200).json({ product });
-});
-export const rejectProduct = expressAsyncHandler(async (req, res) => {
+}));
+exports.rejectProduct = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id: productId, category } = req.params;
-    const product = await updateProductStatus(category, productId, ProductStatus.REJECTED);
+    const product = yield (0, exports.updateProductStatus)(category, productId, product_types_1.ProductStatus.REJECTED);
     res.status(200).json({ product });
-});
-export const updateProductStatus = async (category, productId, status) => {
-    if (!Object.values(BusinessCategory).includes(category)) {
-        throw createHttpError(400, "Invalid category");
+}));
+const updateProductStatus = (category, productId, status) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!Object.values(business_types_1.BusinessCategory).includes(category)) {
+        throw (0, http_errors_1.default)(400, "Invalid category");
     }
-    if (!isValidObjectId(productId)) {
-        throw createHttpError(400, "Invalid product ID");
+    if (!(0, mongoose_1.isValidObjectId)(productId)) {
+        throw (0, http_errors_1.default)(400, "Invalid product ID");
     }
     let product;
-    if (category === BusinessCategory.HARVESTORS) {
-        product = await HarvestorProduct.findById(productId);
+    if (category === business_types_1.BusinessCategory.HARVESTORS) {
+        product = yield harvestorProduct_model_1.HarvestorProduct.findById(productId);
         if (!product) {
-            throw createHttpError(404, "Product not found");
+            throw (0, http_errors_1.default)(404, "Product not found");
         }
         product.verificationStatus = status;
-        await product.save();
+        yield product.save();
     }
-    else if (category === BusinessCategory.IMPLEMENTS) {
-        product = await ImplementProduct.findById(productId);
+    else if (category === business_types_1.BusinessCategory.IMPLEMENTS) {
+        product = yield ImplementProduct_model_1.ImplementProduct.findById(productId);
         if (!product) {
-            throw createHttpError(404, "Product not found");
+            throw (0, http_errors_1.default)(404, "Product not found");
         }
         product.verificationStatus = status;
-        await product.save();
+        yield product.save();
     }
-    else if (category === BusinessCategory.MACHINES) {
-        product = await MachineProduct.findById(productId);
+    else if (category === business_types_1.BusinessCategory.MACHINES) {
+        product = yield MachineProduct_model_1.MachineProduct.findById(productId);
         if (!product) {
-            throw createHttpError(404, "Product not found");
+            throw (0, http_errors_1.default)(404, "Product not found");
         }
         product.verificationStatus = status;
-        await product.save();
+        yield product.save();
     }
-    else if (category === BusinessCategory.MECHANICS) {
-        product = await MechanicProduct.findById(productId);
+    else if (category === business_types_1.BusinessCategory.MECHANICS) {
+        product = yield MechanicProduct_model_1.MechanicProduct.findById(productId);
         if (!product) {
-            throw createHttpError(404, "Product not found");
+            throw (0, http_errors_1.default)(404, "Product not found");
         }
         product.verificationStatus = status;
-        await product.save();
+        yield product.save();
     }
-    else if (category === BusinessCategory.PADDY_TRANSPLANTORS) {
-        product = await PaddyTransplantorProduct.findById(productId);
+    else if (category === business_types_1.BusinessCategory.PADDY_TRANSPLANTORS) {
+        product = yield PaddyTransplantorProduct_model_1.PaddyTransplantorProduct.findById(productId);
         if (!product) {
-            throw createHttpError(404, "Product not found");
+            throw (0, http_errors_1.default)(404, "Product not found");
         }
         product.verificationStatus = status;
-        await product.save();
+        yield product.save();
     }
-    else if (category === BusinessCategory.AGRICULTURE_LABOR) {
-        product = await AgricultureLaborProduct.findById(productId);
+    else if (category === business_types_1.BusinessCategory.AGRICULTURE_LABOR) {
+        product = yield AgricultureLaborProduct_model_1.AgricultureLaborProduct.findById(productId);
         if (!product) {
-            throw createHttpError(404, "Product not found");
+            throw (0, http_errors_1.default)(404, "Product not found");
         }
         product.verificationStatus = status;
-        await product.save();
+        yield product.save();
     }
-    else if (category === BusinessCategory.EARTH_MOVERS) {
-        product = await EarthMoverProduct.findById(productId);
+    else if (category === business_types_1.BusinessCategory.EARTH_MOVERS) {
+        product = yield earthMoverProduct_model_1.EarthMoverProduct.findById(productId);
         if (!product) {
-            throw createHttpError(404, "Product not found");
+            throw (0, http_errors_1.default)(404, "Product not found");
         }
         product.verificationStatus = status;
-        await product.save();
+        yield product.save();
     }
-    else if (category === BusinessCategory.DRONES) {
-        product = await DroneProduct.findById(productId);
+    else if (category === business_types_1.BusinessCategory.DRONES) {
+        product = yield DroneProduct_model_1.DroneProduct.findById(productId);
         if (!product) {
-            throw createHttpError(404, "Product not found");
+            throw (0, http_errors_1.default)(404, "Product not found");
         }
         product.verificationStatus = status;
-        await product.save();
+        yield product.save();
     }
     else {
-        throw createHttpError(400, "Invalid category");
+        throw (0, http_errors_1.default)(400, "Invalid category");
     }
-    await formatProductImageUrls(product);
+    yield (0, formatImageUrl_1.formatProductImageUrls)(product);
     return product;
-};
-export const getUnverifiedProducts = expressAsyncHandler(async (req, res) => {
+});
+exports.updateProductStatus = updateProductStatus;
+exports.getUnverifiedProducts = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { category } = req.params;
-    const products = await findProductsByStatus(category, ProductStatus.UNVERIFIED);
+    const products = yield (0, common_controller_1.findProductsByStatus)(category, product_types_1.ProductStatus.UNVERIFIED);
     res.status(200).json({ products });
-});
-export const getCallHistory = expressAsyncHandler(async (req, res) => {
-    const callHistory = await CallHistory.find();
+}));
+exports.getCallHistory = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const callHistory = yield callHistory_model_1.default.find();
     res.status(200).json({ callHistory });
-});
-export const getCallHistoryByServiceSeekerId = expressAsyncHandler(async (req, res) => {
+}));
+exports.getCallHistoryByServiceSeekerId = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    if (!isValidObjectId(id)) {
-        throw createHttpError(400, "Invalid service seeker ID");
+    if (!(0, mongoose_1.isValidObjectId)(id)) {
+        throw (0, http_errors_1.default)(400, "Invalid service seeker ID");
     }
-    const callHistory = await CallHistory.find({ serviceSeeker: { $eq: id } });
+    const callHistory = yield callHistory_model_1.default.find({ serviceSeeker: { $eq: id } });
     res.status(200).json({ callHistory });
-});
-export const getCallHistoryByServiceProviderId = expressAsyncHandler(async (req, res) => {
+}));
+exports.getCallHistoryByServiceProviderId = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    if (!isValidObjectId(id)) {
-        throw createHttpError(400, "Invalid service provider ID");
+    if (!(0, mongoose_1.isValidObjectId)(id)) {
+        throw (0, http_errors_1.default)(400, "Invalid service provider ID");
     }
-    const callHistory = await CallHistory.find({ serviceProvider: { $eq: id } });
+    const callHistory = yield callHistory_model_1.default.find({ serviceProvider: { $eq: id } });
     res.status(200).json({ callHistory });
-});
+}));

@@ -29,5 +29,7 @@ export function validateEnvVars() {
         const errorMessage = `Missing environment variables: ${missingVars.join(', ')}`;
         logger.error(errorMessage); // Log the error
         process.exit(1);
+    }else{
+        logger.info('All required environment variables are set.')
     }
 }
