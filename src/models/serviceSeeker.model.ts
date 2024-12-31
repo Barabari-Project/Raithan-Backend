@@ -1,13 +1,12 @@
-import mongoose, { Schema, CallbackError } from 'mongoose';
-import bcrypt from 'bcryptjs';
+import mongoose, { Schema } from 'mongoose';
 import { IServiceSeeker } from '../types/seeker.types';
 import createHttpError from 'http-errors';
 
 const serviceSeekerSchema = new Schema<IServiceSeeker>({
     mobileNumber: {
         type: String,
-        required: true,
-        unique: true
+        required: [true, 'Mobile Number is required.'],
+        unique: [true, 'Mobile Number is already Exists.']
     },
 }, {
     timestamps: true,

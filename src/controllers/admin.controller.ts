@@ -20,6 +20,7 @@ import { ProductStatus } from '../types/product.types';
 import { findProductsByStatus } from './common.controller';
 import { formateProviderImage, formatProductImageUrls } from '../utils/formatImageUrl';
 import { formatWithOptions } from 'util';
+import CallHistory from '../models/callHistory.model';
 
 export const login = expressAsyncHandler(async (req: Request, res: Response) => {
     const { email, password } = req.body;
@@ -188,4 +189,27 @@ export const getUnverifiedProducts = expressAsyncHandler(async (req: Request, re
     const { category } = req.params;
     const products = await findProductsByStatus(category, ProductStatus.UNVERIFIED);
     res.status(200).json({ products });
+});
+
+export const getCallHistory = expressAsyncHandler(async (req: Request, res: Response) => {
+    const callHistory = await CallHistory.find();
+    res.status(200).json({ callHistory });
+});
+
+export const getCallHistoryByServiceSeekerId = expressAsyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    if (!isValidObjectId(id)) {
+        throw createHttpError(400, "Invalid service seeker ID");
+    }
+    const callHistory = await CallHistory.find({ serviceSeeker: { $eq: id } });
+    res.status(200).json({ callHistory });
+});
+
+export const getCallHistoryByServiceProviderId = expressAsyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    if (!isValidObjectId(id)) {
+        throw createHttpError(400, "Invalid service provider ID");
+    }
+    const callHistory = await CallHistory.find({ serviceProvider: { $eq: id } });
+    res.status(200).json({ callHistory });
 });

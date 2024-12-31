@@ -43,7 +43,7 @@ const BusinessSchema: Schema = new Schema<IBusiness>(
         },
         street: {
             type: String,
-            required: [true,"Street is required"],
+            required: [true, "Street is required"],
         },
         area: {
             type: String,
@@ -54,21 +54,21 @@ const BusinessSchema: Schema = new Schema<IBusiness>(
         },
         city: {
             type: String,
-            required: [true,"city is required"],
+            required: [true, "city is required"],
         },
         state: {
             type: String,
-            required: [true,"state is required"],
+            required: [true, "state is required"],
         },
         serviceProvider: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'serviceProvider',
-            required: true,
+            required: [true, 'serviceProvider is required'],
         },
         workingDays: {
             type: Map,
             of: Boolean,
-            required: [true,"workingDays are required"],
+            required: [true, "workingDays are required"],
             default: {
                 Monday: false,
                 Tuesday: false,
@@ -101,7 +101,7 @@ const BusinessSchema: Schema = new Schema<IBusiness>(
                 },
                 { _id: false }
             ),
-            required: [true,"working time is required"],
+            required: [true, "working time is required"],
         },
         category: {
             type: [String],

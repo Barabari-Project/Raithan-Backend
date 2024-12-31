@@ -5,39 +5,44 @@ import createHttpError from "http-errors";
 const MechanicProductSchema: Schema = new Schema<IMechanicProduct>({
     images: {
         type: [String],
-        required: true,
+        required: [true, "Images are required."],
     },
     services: {
         type: [String],
-        enum: Object.values(MechanicServiceType),
+        enum: {
+            values: Object.values(MechanicServiceType),
+            message: "Services must be one of the valid types.",
+        },
         default: [],
-        required: true,
     },
     eShramCardNumber: {
         type: String,
-        required: true,
+        required: [true, "eShram Card Number is required."],
     },
     verificationStatus: {
         type: String,
-        enum: Object.values(ProductStatus),
+        enum: {
+            values: Object.values(ProductStatus),
+            message: "Verification status must be one of the valid options.",
+        },
         default: ProductStatus.UNVERIFIED,
     },
     readyToTravelIn10Km: {
         type: Boolean,
-        required: true,
+        required: [true, "Please specify if ready to travel within 10 km."],
     },
     isIndividual: {
         type: Boolean,
-        required: true,
+        required: [true, "Please specify if this is an individual mechanic or a group."],
     },
     numberOfWorkers: {
         type: Number,
-        required: true,
+        required: [true, "Number of workers is required."],
     },
     business: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'business',
-        required: true,
+        required: [true, "Business reference is required."],
     },
 }, { timestamps: true });
 

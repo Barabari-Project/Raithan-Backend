@@ -5,25 +5,28 @@ import createHttpError from "http-errors";
 const ImplementProductSchema: Schema = new Schema<IImplementProduct>({
     images: {
         type: [String],
-        required: true,
+        required: [true, "Images are required."],
     },
     hp: {
         type: String,
-        required: true,
+        required: [true, "Horsepower (hp) is required."],
     },
     modelNo: {
         type: String,
-        required: true,
+        required: [true, "Model number is required."],
     },
     verificationStatus: {
         type: String,
-        enum: Object.values(ProductStatus),
+        enum: {
+            values: Object.values(ProductStatus),
+            message: "Verification status must be one of the valid options.",
+        },
         default: ProductStatus.UNVERIFIED,
     },
     business: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'business',
-        required: true,
+        required: [true, "Business reference is required."],
     },
 }, { timestamps: true });
 

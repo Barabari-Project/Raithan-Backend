@@ -5,41 +5,47 @@ import createHttpError from "http-errors";
 const AgricultureLaborProductSchema: Schema = new Schema<IAgricultureLaborProduct>({
     images: {
         type: [String],
-        required: true,
+        required: [true, "Images are required."],
     },
     eShramCardNumber: {
         type: String,
-        required: true,
+        required: [true, "eShram Card Number is required."],
     },
     readyToTravelIn10Km: {
         type: Boolean,
-        required: true,
+        required: [true, "Please specify if the person is ready to travel within 10 km."],
     },
     isIndividual: {
         type: Boolean,
-        required: true,
+        required: [true, "Please specify if this is an individual labor or a group."],
     },
     verificationStatus: {
         type: String,
-        enum: Object.values(ProductStatus),
+        enum: {
+            values: Object.values(ProductStatus),
+            message: "Verification status must be one of the valid options.",
+        },
         default: ProductStatus.UNVERIFIED,
     },
     services: {
         type: [String],
-        enum: Object.values(AgricultureLaborServiceType),
+        enum: {
+            values: Object.values(AgricultureLaborServiceType),
+            message: "Services must be one of the valid types.",
+        },
         default: [],
-        required: true,
     },
     numberOfWorkers: {
         type: Number,
-        required: true,
+        required: [true, "Number of workers is required."],
     },
     business: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'business',
-        required: true,
+        required: [true, "Business reference is required."],
     },
 }, { timestamps: true });
+
 
 AgricultureLaborProductSchema.post('save', function (error: any, doc: any, next: Function) {
     if (error.name === 'ValidationError') {

@@ -1,6 +1,6 @@
 import expressAsyncHandler from "express-async-handler";
 import { Request, Response } from "express";
-import { isValidObjectId } from "mongoose";
+import mongoose, { isValidObjectId } from "mongoose";
 
 import createHttpError from "http-errors";
 import ServiceProvider from "../models/serviceProvider.model";
@@ -18,6 +18,8 @@ import { EarthMoverProduct } from "../models/products/earthMoverProduct.model";
 import { ProductStatus } from "../types/product.types";
 import { logger } from "..";
 import { formatProductImageUrls } from "../utils/formatImageUrl";
+import { ServiceProviderStatus } from "../types/provider.types";
+import CallHistory from "../models/callHistory.model";
 
 export const getServiceProviderById = expressAsyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
