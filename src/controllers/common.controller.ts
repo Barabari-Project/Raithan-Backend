@@ -32,7 +32,6 @@ export const getServiceProviderById = expressAsyncHandler(async (req: Request, r
     if (!serviceProvider) {
         throw createHttpError(404, "Service provider not found");
     }
-
     res.status(200).json({ serviceProvider });
 });
 

@@ -16,7 +16,7 @@ import ServiceSeeker from '../models/serviceSeeker.model';
 import { BusinessCategory } from '../types/business.types';
 import { ProductStatus } from '../types/product.types';
 import { IServiceProvider, ServiceProviderStatus } from '../types/provider.types';
-import { formateProviderImage, formatProductImageUrls } from '../utils/formatImageUrl';
+import { formatProductImageUrls } from '../utils/formatImageUrl';
 import { generateJwt } from '../utils/jwt';
 import { validateEmail } from '../utils/validation';
 import { findProductsByStatus } from './common.controller';
@@ -83,7 +83,6 @@ const updateServiceProviderStatus = async (id: string, status: ServiceProviderSt
         throw createHttpError(400, "Service provider is not pending verification");
     }
     const updatedServiceProvider = await ServiceProvider.findByIdAndUpdate(id, { status: ServiceProviderStatus.VERIFIED }, { new: true });
-    await formateProviderImage(updatedServiceProvider!);
     return updatedServiceProvider!;
 }
 

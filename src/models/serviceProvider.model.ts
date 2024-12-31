@@ -2,6 +2,7 @@ import mongoose, { Schema, CallbackError } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import { IServiceProvider, ServiceProviderStatus } from '../types/provider.types';
 import createHttpError from 'http-errors';
+import { formateProviderImage } from '../utils/formatImageUrl';
 
 const serviceProviderSchema = new Schema<IServiceProvider>({
     mobileNumber: {
