@@ -84,7 +84,7 @@ const updateServiceProviderStatus = async (id: string, status: ServiceProviderSt
     if (!serviceProvider) {
         throw createHttpError(404, "Service provider not found");
     }
-    if (serviceProvider.status !== ServiceProviderStatus.COMPLETED) {
+    if (serviceProvider.status !== ServiceProviderStatus.VERIFICATION_REQUIRED) {
         throw createHttpError(400, "Service provider is not pending verification");
     }
     const updatedServiceProvider: IServiceProvider | null = await ServiceProvider.findByIdAndUpdate(id, { status: ServiceProviderStatus.VERIFIED }, { new: true });

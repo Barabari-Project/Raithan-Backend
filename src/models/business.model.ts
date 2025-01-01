@@ -10,25 +10,6 @@ const BusinessSchema: Schema = new Schema<IBusiness>(
             required: [true, "Business Name is required"],
             trim: true,
         },
-        businessContactNo: {
-            type: String,
-            required: [true, "Business Contact No is required"],
-            validate: {
-                validator: (v: string) => /^(\+91|91|0)?[6-9]\d{9}$/.test(v),
-                message: (props: any) => `${props.value} is not a valid contact number!`,
-            },
-        },
-        businessEmail: {
-            type: String,
-            required: [true, "Business Email Address is required"],
-            unique: [true, "email address is already exists"],
-            trim: true,
-            lowercase: true,
-            validate: {
-                validator: (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
-                message: (props: any) => `${props.value} is not a valid email!`,
-            },
-        },
         pincode: {
             type: String,
             required: [true, "Pincode is required"],

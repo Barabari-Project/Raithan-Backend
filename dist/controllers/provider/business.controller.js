@@ -34,7 +34,7 @@ exports.createBusiness = (0, express_async_handler_1.default)((req, res) => __aw
     const newBusiness = new business_model_1.Business(Object.assign(Object.assign({}, req.body), { serviceProvider: serviceProvider._id }));
     yield newBusiness.save();
     serviceProvider.business = newBusiness._id;
-    serviceProvider.status = provider_types_1.ServiceProviderStatus.COMPLETED;
+    serviceProvider.status = provider_types_1.ServiceProviderStatus.VERIFICATION_REQUIRED;
     yield serviceProvider.save();
     res.status(201).json({
         success: true,
@@ -48,10 +48,17 @@ exports.updateBusiness = (0, express_async_handler_1.default)((req, res) => __aw
     if (!serviceProvider) {
         throw (0, http_errors_1.default)(404, 'Service Provider not found');
     }
-    if ((serviceProvider.status !== provider_types_1.ServiceProviderStatus.COMPLETED)) {
+    if ((serviceProvider.status !== provider_types_1.ServiceProviderStatus.VERIFICATION_REQUIRED &&
+        serviceProvider.status !== provider_types_1.ServiceProviderStatus.MODIFICATION_REQUIRED &&
+        serviceProvider.status !== provider_types_1.ServiceProviderStatus.VERIFIED &&
+        serviceProvider.status !== provider_types_1.ServiceProviderStatus.RE_VERIFICATION_REQUIRED)) {
         throw (0, http_errors_1.default)(400, "You can not update a business details");
     }
     const updatedBusiness = yield business_model_1.Business.findByIdAndUpdate(serviceProvider.business, { $set: Object.assign(Object.assign({}, req.body), { serviceProvider: req.userId }) }, { new: true, runValidators: true });
+    if (serviceProvider.status == provider_types_1.ServiceProviderStatus.VERIFIED || serviceProvider.status == provider_types_1.ServiceProviderStatus.MODIFICATION_REQUIRED) {
+        serviceProvider.status = provider_types_1.ServiceProviderStatus.RE_VERIFICATION_REQUIRED;
+        yield serviceProvider.save();
+    }
     res.status(200).json({
         success: true,
         message: 'Business updated successfully',
