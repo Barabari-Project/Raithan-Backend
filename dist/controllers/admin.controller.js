@@ -87,7 +87,7 @@ const updateServiceProviderStatus = (id, status) => __awaiter(void 0, void 0, vo
     if (!serviceProvider) {
         throw (0, http_errors_1.default)(404, "Service provider not found");
     }
-    if (serviceProvider.status !== provider_types_1.ServiceProviderStatus.COMPLETED) {
+    if (serviceProvider.status !== provider_types_1.ServiceProviderStatus.VERIFICATION_REQUIRED) {
         throw (0, http_errors_1.default)(400, "Service provider is not pending verification");
     }
     const updatedServiceProvider = yield serviceProvider_model_1.default.findByIdAndUpdate(id, { status: provider_types_1.ServiceProviderStatus.VERIFIED }, { new: true });

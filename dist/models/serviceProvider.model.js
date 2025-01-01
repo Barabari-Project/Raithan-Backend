@@ -32,20 +32,10 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const http_errors_1 = __importDefault(require("http-errors"));
 const mongoose_1 = __importStar(require("mongoose"));
 const provider_types_1 = require("../types/provider.types");
@@ -54,14 +44,6 @@ const serviceProviderSchema = new mongoose_1.Schema({
         type: String,
         required: [true, 'Mobile number is required'],
         unique: [true, 'Mobile number is already exists']
-    },
-    email: {
-        type: String,
-        unique: [true, 'Email is already exists'],
-        sparse: true,
-    },
-    password: {
-        type: String,
     },
     firstName: {
         type: String,
@@ -74,8 +56,21 @@ const serviceProviderSchema = new mongoose_1.Schema({
     },
     status: {
         type: String,
-        enum: Object.values(provider_types_1.ServiceProviderStatus),
+        enum: {
+            values: Object.values(provider_types_1.ServiceProviderStatus),
+            message: "Status must be one of the valid options.",
+        },
         default: provider_types_1.ServiceProviderStatus.PENDING,
+    },
+    yearOfBirth: {
+        type: Number
+    },
+    gender: {
+        type: String,
+        enum: {
+            values: Object.values(provider_types_1.Gender),
+            message: "Gender must be one of the valid options.",
+        }
     },
     business: {
         type: mongoose_1.default.Schema.Types.ObjectId,
@@ -83,23 +78,6 @@ const serviceProviderSchema = new mongoose_1.Schema({
     },
 }, {
     timestamps: true,
-});
-// Pre-save middleware to hash the password
-serviceProviderSchema.pre('save', function (next) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (!this.isModified('password') || !this.password)
-            return next();
-        try {
-            // Generate a salt
-            const salt = yield bcryptjs_1.default.genSalt(10);
-            // Hash the password with the salt
-            this.password = yield bcryptjs_1.default.hash(this.password, salt);
-            next();
-        }
-        catch (error) {
-            next(error);
-        }
-    });
 });
 serviceProviderSchema.post('save', function (error, doc, next) {
     if (error.name === 'ValidationError') {

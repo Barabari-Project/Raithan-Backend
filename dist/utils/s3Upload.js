@@ -8,12 +8,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getImageUrl = exports.uploadFileToS3 = void 0;
 const client_s3_1 = require("@aws-sdk/client-s3");
 const s3_request_presigner_1 = require("@aws-sdk/s3-request-presigner");
-const uuid_1 = require("uuid");
 const __1 = require("..");
+const http_errors_1 = __importDefault(require("http-errors"));
 // Create an S3 client
 const s3 = new client_s3_1.S3Client({
     region: process.env.AWS_REGION, // Define region here
@@ -22,8 +25,12 @@ const s3 = new client_s3_1.S3Client({
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     },
 });
-const uploadFileToS3 = (file, folder) => __awaiter(void 0, void 0, void 0, function* () {
-    const fileName = `${(0, uuid_1.v4)()}-${file.originalname}`; // Unique file name
+const uploadFileToS3 = (file, folder, fileName) => __awaiter(void 0, void 0, void 0, function* () {
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+    const contentType = file.mimetype;
+    if (!allowedMimeTypes.includes(contentType)) {
+        throw (0, http_errors_1.default)(400, 'Unsupported file type');
+    }
     const params = {
         Bucket: process.env.AWS_BUCKET_NAME,
         Key: `${folder}/${fileName}`, // File name in the bucket

@@ -14,8 +14,6 @@ export enum BusinessCategory {
 export interface IBusiness extends Document {
     _id: mongoose.Types.ObjectId;
     businessName: string;
-    businessContactNo: string;
-    businessEmail: string;
     pincode: string;
     blockNumber: string;
     street: string;

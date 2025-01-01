@@ -34,16 +34,16 @@ exports.initiateOnboarding = (0, express_async_handler_1.default)((req, res) => 
     }
     const existingProvider = yield serviceProvider_model_1.default.findOne({ mobileNumber: { $eq: mobileNumber } });
     if (existingProvider) {
-        if (!existingProvider.status.endsWith(provider_types_1.ServiceProviderStatus.PENDING)) {
-            __1.logger.debug(`User ${existingProvider._id} otp is already verified`);
-            throw (0, http_errors_1.default)(400, "User is already in onboarding process");
-        }
+        throw (0, http_errors_1.default)(400, "User is already in onboarding process");
     }
     const seeker = yield serviceSeeker_model_1.default.exists({ mobileNumber: { $eq: mobileNumber } });
     if (seeker) {
         throw (0, http_errors_1.default)(400, "User already exists");
     }
-    yield serviceProvider_model_1.default.findOneAndUpdate({ mobileNumber: { $eq: mobileNumber } }, { $set: { mobileNumber, status: provider_types_1.ServiceProviderStatus.PENDING } }, { upsert: true, new: true });
+    yield serviceProvider_model_1.default.create({
+        mobileNumber,
+        status: provider_types_1.ServiceProviderStatus.PENDING
+    });
     yield (0, twilioService_1.sendOTP)(mobileNumber);
     res.status(200).json({ message: "OTP sent successfully" });
 }));
@@ -59,7 +59,7 @@ exports.verifyOtp = (0, express_async_handler_1.default)((req, res) => __awaiter
     }
     else if (!existingProvider.status.endsWith(provider_types_1.ServiceProviderStatus.PENDING)) {
         __1.logger.debug(`User ${existingProvider._id} otp is already verified`);
-        throw (0, http_errors_1.default)(400, "User is already in onboarding process");
+        throw (0, http_errors_1.default)(400, "Your Mobile Number is already verified.");
     }
     yield (0, twilioService_1.verifyOTP)(mobileNumber, code);
     const provider = yield serviceProvider_model_1.default.findOneAndUpdate({ mobileNumber: { $eq: mobileNumber } }, { status: provider_types_1.ServiceProviderStatus.OTP_VERIFIED }, { new: true });
@@ -72,37 +72,14 @@ exports.verifyOtp = (0, express_async_handler_1.default)((req, res) => __awaiter
         token,
     });
 }));
-// Step 3: Store email and password and send verification link
-// export const addEmailAndPassword = expressAsyncHandler(async (req: Request, res: Response) => {
-//     const { email, password } = req.body;
-//     const userId = req.userId;
-//     try {
-//         const provider = await ServiceProvider.findByIdAndUpdate(
-//             userId,
-//             { email, password, status: ServiceProviderStatus.EMAIL_VERIFIED },
-//             { new: true }
-//         );
-//         if (!provider) {
-//             throw createHttpError(404, "User not found");
-//         }
-//         // Trigger email verification (integration assumed)
-//         // await sendEmailVerificationLink(email);
-//         res.status(200).json({
-//             success: true,
-//             message: "Email verification link sent",
-//         });
-//     } catch (error: any) {
-//         throw createHttpError(500, error);
-//     }
-// });
 // Step 4: Update profile details
 exports.updateProfile = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { firstName, lastName } = req.body;
-    if (!(0, validation_1.validateName)(firstName) || !(0, validation_1.validateName)(lastName)) {
-        throw (0, http_errors_1.default)(400, "Invalid name format");
+    let { firstName, lastName, yearOfBirth, gender } = req.body;
+    yearOfBirth = parseInt(yearOfBirth, 10);
+    if (!(0, validation_1.validateName)(firstName) || !(0, validation_1.validateName)(lastName) || isNaN(yearOfBirth) || !Object.values(provider_types_1.Gender).includes(gender)) {
+        throw (0, http_errors_1.default)(400, "Invalid Inputs");
     }
     const userId = req.userId;
-    __1.logger.debug(`req.file: ${req.file}`);
     if (!req.file) {
         throw (0, http_errors_1.default)(400, 'Profile picture is required');
     }
@@ -110,15 +87,26 @@ exports.updateProfile = (0, express_async_handler_1.default)((req, res) => __awa
     if (!provider) {
         throw (0, http_errors_1.default)(404, 'User not found');
     }
-    else if (provider.status !== provider_types_1.ServiceProviderStatus.OTP_VERIFIED && provider.status !== provider_types_1.ServiceProviderStatus.BUSINESS_DETAILS_REMAINING) {
-        throw (0, http_errors_1.default)(400, 'Please verify your OTP first');
+    else if (provider.status !== provider_types_1.ServiceProviderStatus.OTP_VERIFIED &&
+        provider.status !== provider_types_1.ServiceProviderStatus.VERIFICATION_REQUIRED &&
+        provider.status !== provider_types_1.ServiceProviderStatus.MODIFICATION_REQUIRED &&
+        provider.status !== provider_types_1.ServiceProviderStatus.RE_VERIFICATION_REQUIRED &&
+        provider.status !== provider_types_1.ServiceProviderStatus.VERIFIED) {
+        throw (0, http_errors_1.default)(400, 'You can not update profile.');
     }
     // Upload profile picture to S3
-    const profilePicturePath = yield (0, s3Upload_1.uploadFileToS3)(req.file, 'profile-pictures');
-    provider = yield serviceProvider_model_1.default.findByIdAndUpdate(userId, { $set: { firstName, lastName, profilePicturePath, status: provider_types_1.ServiceProviderStatus.BUSINESS_DETAILS_REMAINING } }, { new: true });
-    if (!provider) {
-        throw (0, http_errors_1.default)(404, 'User not found');
+    const profilePicturePath = yield (0, s3Upload_1.uploadFileToS3)(req.file, 'profile-pictures', provider._id);
+    let status;
+    if (provider.status == provider_types_1.ServiceProviderStatus.OTP_VERIFIED) {
+        status = provider_types_1.ServiceProviderStatus.BUSINESS_DETAILS_REMAINING;
     }
+    else if (provider.status == provider_types_1.ServiceProviderStatus.VERIFIED || provider.status == provider_types_1.ServiceProviderStatus.MODIFICATION_REQUIRED) {
+        status = provider_types_1.ServiceProviderStatus.RE_VERIFICATION_REQUIRED;
+    }
+    else {
+        status = provider.status;
+    }
+    provider = yield serviceProvider_model_1.default.findByIdAndUpdate(userId, { $set: { firstName, lastName, profilePicturePath, gender, yearOfBirth, status } }, { new: true });
     yield (0, formatImageUrl_1.formateProviderImage)(provider);
     res.status(200).json({
         message: 'Profile updated successfully',

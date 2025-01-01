@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createProduct = void 0;
+const mongodb_1 = require("mongodb");
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const http_errors_1 = __importDefault(require("http-errors"));
 const business_model_1 = require("../../models/business.model");
@@ -51,6 +52,7 @@ exports.createProduct = (0, express_async_handler_1.default)((req, res) => __awa
         business.category.push(category);
         yield business.save();
     }
+    const _id = new mongodb_1.ObjectId();
     if (category === business_types_1.BusinessCategory.HARVESTORS) {
         const { hp, modelNo, type } = req.body;
         if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
@@ -60,11 +62,12 @@ exports.createProduct = (0, express_async_handler_1.default)((req, res) => __awa
             // 4 photos from 4 directions, driving license and rc book
             throw (0, http_errors_1.default)(400, 'You need to upload 6 images');
         }
-        const images = req.files.map((file, index) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, s3Upload_1.uploadFileToS3)(file, index < 4 ? 'product/product-images' : 'product/secured/user-data'); }));
+        const images = req.files.map((file, index) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, s3Upload_1.uploadFileToS3)(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', _id.toString() + index); }));
         const uploadedImages = yield Promise.all(images);
         product = yield harvestorProduct_model_1.HarvestorProduct.create({
             images: uploadedImages,
             hp,
+            _id,
             modelNo,
             business: business._id,
             type: type
@@ -78,13 +81,14 @@ exports.createProduct = (0, express_async_handler_1.default)((req, res) => __awa
             // 4 photos from 4 directions, driving license and rc book
             throw (0, http_errors_1.default)(400, 'You need to upload 6 images');
         }
-        const images = req.files.map((file, index) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, s3Upload_1.uploadFileToS3)(file, index < 4 ? 'product/product-images' : 'product/secured/user-data'); }));
+        const images = req.files.map((file, index) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, s3Upload_1.uploadFileToS3)(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', _id.toString() + index); }));
         const uploadedImages = yield Promise.all(images);
         const { modelNo, hp, type } = req.body;
         product = yield earthMoverProduct_model_1.EarthMoverProduct.create({
             images: uploadedImages,
             modelNo,
             hp,
+            _id,
             business: business._id,
             type: type
         });
@@ -97,13 +101,14 @@ exports.createProduct = (0, express_async_handler_1.default)((req, res) => __awa
             // 4 photos from 4 directions, driving license and rc book
             throw (0, http_errors_1.default)(400, 'You need to upload 6 images');
         }
-        const images = req.files.map((file, index) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, s3Upload_1.uploadFileToS3)(file, index < 4 ? 'product/product-images' : 'product/secured/user-data'); }));
+        const images = req.files.map((file, index) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, s3Upload_1.uploadFileToS3)(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', _id.toString() + index); }));
         const uploadedImages = yield Promise.all(images);
         const { modelNo, hp } = req.body;
         product = yield ImplementProduct_model_1.ImplementProduct.create({
             images: uploadedImages,
             modelNo,
             hp,
+            _id,
             business: business._id
         });
     }
@@ -115,13 +120,14 @@ exports.createProduct = (0, express_async_handler_1.default)((req, res) => __awa
             // 4 photos from 4 directions, driving license and rc book
             throw (0, http_errors_1.default)(400, 'You need to upload 6 images');
         }
-        const images = req.files.map((file, index) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, s3Upload_1.uploadFileToS3)(file, index < 4 ? 'product/product-images' : 'product/secured/user-data'); }));
+        const images = req.files.map((file, index) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, s3Upload_1.uploadFileToS3)(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', _id.toString() + index); }));
         const uploadedImages = yield Promise.all(images);
         const { modelNo, hp } = req.body;
         product = yield MachineProduct_model_1.MachineProduct.create({
             images: uploadedImages,
             modelNo,
             hp,
+            _id,
             business: business._id,
         });
     }
@@ -133,13 +139,14 @@ exports.createProduct = (0, express_async_handler_1.default)((req, res) => __awa
             // 4 photos from 4 directions, driving license and rc book
             throw (0, http_errors_1.default)(400, 'You need to upload 6 images');
         }
-        const images = req.files.map((file, index) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, s3Upload_1.uploadFileToS3)(file, index < 4 ? 'product/product-images' : 'product/secured/user-data'); }));
+        const images = req.files.map((file, index) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, s3Upload_1.uploadFileToS3)(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', _id.toString() + index); }));
         const uploadedImages = yield Promise.all(images);
         const { modelNo, hp } = req.body;
         product = yield PaddyTransplantorProduct_model_1.PaddyTransplantorProduct.create({
             images: uploadedImages,
             modelNo,
             hp,
+            _id,
             business: business._id,
         });
     }
@@ -151,12 +158,13 @@ exports.createProduct = (0, express_async_handler_1.default)((req, res) => __awa
             // 4 photos from 4 directions and 1 bill
             throw (0, http_errors_1.default)(400, 'You need to upload 5 images');
         }
-        const images = req.files.map((file, index) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, s3Upload_1.uploadFileToS3)(file, index < 4 ? 'product/product-images' : 'product/secured/user-data'); }));
+        const images = req.files.map((file, index) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, s3Upload_1.uploadFileToS3)(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', _id.toString() + index); }));
         const uploadedImages = yield Promise.all(images);
         const { type, modelNo } = req.body;
         product = yield DroneProduct_model_1.DroneProduct.create({
             images: uploadedImages,
             type,
+            _id,
             modelNo,
             business: business._id,
         });
@@ -169,7 +177,7 @@ exports.createProduct = (0, express_async_handler_1.default)((req, res) => __awa
         if (req.files.length !== 1) {
             throw (0, http_errors_1.default)(400, 'You need to upload 1 image');
         }
-        const images = req.files.map((file) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, s3Upload_1.uploadFileToS3)(file, 'product/secured/user-data'); }));
+        const images = req.files.map((file, index) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, s3Upload_1.uploadFileToS3)(file, 'product/secured/user-data', _id.toString() + index); }));
         const uploadedImages = yield Promise.all(images);
         let { eShramCardNumber, readyToTravelIn10Km, isIndividual, services, numberOfWorkers } = req.body;
         if (isIndividual) {
@@ -179,6 +187,7 @@ exports.createProduct = (0, express_async_handler_1.default)((req, res) => __awa
             images: uploadedImages,
             eShramCardNumber,
             readyToTravelIn10Km,
+            _id,
             isIndividual,
             services,
             numberOfWorkers,
@@ -197,7 +206,7 @@ exports.createProduct = (0, express_async_handler_1.default)((req, res) => __awa
         if (req.files.length !== 1) {
             throw (0, http_errors_1.default)(400, 'You need to upload 1 image');
         }
-        const images = req.files.map((file) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, s3Upload_1.uploadFileToS3)(file, 'product/secured/user-data'); }));
+        const images = req.files.map((file, index) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, s3Upload_1.uploadFileToS3)(file, 'product/secured/user-data', _id.toString() + index); }));
         const uploadedImages = yield Promise.all(images);
         product = yield AgricultureLaborProduct_model_1.AgricultureLaborProduct.create({
             images: uploadedImages,
@@ -205,6 +214,7 @@ exports.createProduct = (0, express_async_handler_1.default)((req, res) => __awa
             readyToTravelIn10Km,
             isIndividual,
             services,
+            _id,
             numberOfWorkers,
             business: business._id,
         });

@@ -1,7 +1,7 @@
 import { S3Client, PutObjectCommand, GetObjectCommand, PutObjectCommandInput, } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { v4 as uuidv4 } from 'uuid';
 import { logger } from '..';
+import createHttpError from 'http-errors';
 
 // Create an S3 client
 const s3 = new S3Client({
@@ -12,8 +12,12 @@ const s3 = new S3Client({
     },
 });
 
-export const uploadFileToS3 = async (file: Express.Multer.File, folder: string): Promise<string> => {
-    const fileName = `${uuidv4()}-${file.originalname}`; // Unique file name
+export const uploadFileToS3 = async (file: Express.Multer.File, folder: string, fileName: string): Promise<string> => {
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+    const contentType = file.mimetype;
+    if (!allowedMimeTypes.includes(contentType)) {
+        throw createHttpError(400, 'Unsupported file type');
+    }
     const params: PutObjectCommandInput = {
         Bucket: process.env.AWS_BUCKET_NAME!,
         Key: `${folder}/${fileName}`, // File name in the bucket
