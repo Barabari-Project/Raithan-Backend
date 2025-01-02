@@ -43,14 +43,14 @@ export const verifyLoginOtp = expressAsyncHandler(async (req: Request, res: Resp
 
     if (code == '') {
         throw createHttpError(400, "Invalid OTP");
-    } else if (seeker.status !== ServiceSeekerStatus.PENDING) {
-        throw createHttpError(400, "OTP is already verified");
     }
 
     await verifyOTP(mobileNumber, code);
 
-    seeker.status = ServiceSeekerStatus.VERIFIED;
-    await seeker.save();
+    if (seeker.status == ServiceSeekerStatus.PENDING) {
+        seeker.status = ServiceSeekerStatus.VERIFIED;
+        await seeker.save();
+    }
 
     const token = generateJwt({ userId: seeker._id }, process.env.SEEKER_JWT_SECRET!);
 

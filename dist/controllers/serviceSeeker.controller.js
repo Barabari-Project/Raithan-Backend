@@ -48,12 +48,11 @@ exports.verifyLoginOtp = (0, express_async_handler_1.default)((req, res) => __aw
     if (code == '') {
         throw (0, http_errors_1.default)(400, "Invalid OTP");
     }
-    else if (seeker.status !== seeker_types_1.ServiceSeekerStatus.PENDING) {
-        throw (0, http_errors_1.default)(400, "OTP is already verified");
-    }
     yield (0, twilioService_1.verifyOTP)(mobileNumber, code);
-    seeker.status = seeker_types_1.ServiceSeekerStatus.VERIFIED;
-    yield seeker.save();
+    if (seeker.status == seeker_types_1.ServiceSeekerStatus.PENDING) {
+        seeker.status = seeker_types_1.ServiceSeekerStatus.VERIFIED;
+        yield seeker.save();
+    }
     const token = (0, jwt_1.generateJwt)({ userId: seeker._id }, process.env.SEEKER_JWT_SECRET);
     res.status(200).json({ success: true, message: "OTP verified successfully", token, seeker });
 }));
