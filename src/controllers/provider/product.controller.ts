@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { ObjectId } from 'mongodb';
 import expressAsyncHandler from "express-async-handler";
 import createHttpError from "http-errors";
 import { Business } from "../../models/business.model";
@@ -39,6 +40,7 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
         business.category.push(category);
         await business.save();
     }
+    const _id = new ObjectId();
 
     if (category === BusinessCategory.HARVESTORS) {
         const { hp, modelNo, type } = req.body;
@@ -48,11 +50,12 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
             // 4 photos from 4 directions, driving license and rc book
             throw createHttpError(400, 'You need to upload 6 images');
         }
-        const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data'));
+        const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', _id.toString() + index));
         const uploadedImages = await Promise.all(images);
         product = await HarvestorProduct.create({
             images: uploadedImages,
             hp,
+            _id,
             modelNo,
             business: business._id,
             type: type
@@ -64,13 +67,14 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
             // 4 photos from 4 directions, driving license and rc book
             throw createHttpError(400, 'You need to upload 6 images');
         }
-        const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data'));
+        const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', _id.toString() + index));
         const uploadedImages = await Promise.all(images);
         const { modelNo, hp, type } = req.body;
         product = await EarthMoverProduct.create({
             images: uploadedImages,
             modelNo,
             hp,
+            _id,
             business: business._id,
             type: type
         });
@@ -81,13 +85,14 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
             // 4 photos from 4 directions, driving license and rc book
             throw createHttpError(400, 'You need to upload 6 images');
         }
-        const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data'));
+        const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', _id.toString() + index));
         const uploadedImages = await Promise.all(images);
         const { modelNo, hp } = req.body;
         product = await ImplementProduct.create({
             images: uploadedImages,
             modelNo,
             hp,
+            _id,
             business: business._id
         });
     } else if (category === BusinessCategory.MACHINES) {
@@ -97,13 +102,14 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
             // 4 photos from 4 directions, driving license and rc book
             throw createHttpError(400, 'You need to upload 6 images');
         }
-        const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data'));
+        const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', _id.toString() + index));
         const uploadedImages = await Promise.all(images);
         const { modelNo, hp } = req.body;
         product = await MachineProduct.create({
             images: uploadedImages,
             modelNo,
             hp,
+            _id,
             business: business._id,
         });
     } else if (category === BusinessCategory.PADDY_TRANSPLANTORS) {
@@ -113,13 +119,14 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
             // 4 photos from 4 directions, driving license and rc book
             throw createHttpError(400, 'You need to upload 6 images');
         }
-        const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data'));
+        const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', _id.toString() + index));
         const uploadedImages = await Promise.all(images);
         const { modelNo, hp } = req.body;
         product = await PaddyTransplantorProduct.create({
             images: uploadedImages,
             modelNo,
             hp,
+            _id,
             business: business._id,
         });
     } else if (category === BusinessCategory.DRONES) {
@@ -129,12 +136,13 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
             // 4 photos from 4 directions and 1 bill
             throw createHttpError(400, 'You need to upload 5 images');
         }
-        const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data'));
+        const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', _id.toString() + index));
         const uploadedImages = await Promise.all(images);
         const { type, modelNo } = req.body;
         product = await DroneProduct.create({
             images: uploadedImages,
             type,
+            _id,
             modelNo,
             business: business._id,
         });
@@ -146,7 +154,7 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
         if (req.files.length !== 1) {
             throw createHttpError(400, 'You need to upload 1 image');
         }
-        const images = req.files.map(async (file) => await uploadFileToS3(file, 'product/secured/user-data'));
+        const images = req.files.map(async (file, index) => await uploadFileToS3(file, 'product/secured/user-data', _id.toString() + index));
         const uploadedImages = await Promise.all(images);
         let { eShramCardNumber, readyToTravelIn10Km, isIndividual, services, numberOfWorkers } = req.body;
         if (isIndividual) {
@@ -156,6 +164,7 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
             images: uploadedImages,
             eShramCardNumber,
             readyToTravelIn10Km,
+            _id,
             isIndividual,
             services,
             numberOfWorkers,
@@ -173,7 +182,7 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
         if (req.files.length !== 1) {
             throw createHttpError(400, 'You need to upload 1 image');
         }
-        const images = req.files.map(async (file) => await uploadFileToS3(file, 'product/secured/user-data'));
+        const images = req.files.map(async (file, index) => await uploadFileToS3(file, 'product/secured/user-data', _id.toString() + index));
         const uploadedImages = await Promise.all(images);
         product = await AgricultureLaborProduct.create({
             images: uploadedImages,
@@ -181,6 +190,7 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
             readyToTravelIn10Km,
             isIndividual,
             services,
+            _id,
             numberOfWorkers,
             business: business._id,
         });

@@ -5,7 +5,7 @@ import expressAsyncHandler from 'express-async-handler';
 import ServiceProvider from '../../models/serviceProvider.model';
 import createHttpError from 'http-errors';
 import { generateJwt } from "../../utils/jwt";
-import { ServiceProviderStatus } from '../../types/provider.types';
+import { Gender, ServiceProviderStatus } from '../../types/provider.types';
 import { sendOTP, verifyOTP } from '../../utils/twilioService';
 import { logger } from '../..';
 import { uploadFileToS3 } from '../../utils/s3Upload';
@@ -24,10 +24,7 @@ export const initiateOnboarding = expressAsyncHandler(async (req: Request, res: 
 
     const existingProvider = await ServiceProvider.findOne({ mobileNumber: { $eq: mobileNumber } });
     if (existingProvider) {
-        if (!existingProvider.status.endsWith(ServiceProviderStatus.PENDING)) {
-            logger.debug(`User ${existingProvider._id} otp is already verified`);
-            throw createHttpError(400, "User is already in onboarding process");
-        }
+        throw createHttpError(400, "User is already in onboarding process");
     }
 
     const seeker = await ServiceSeeker.exists({ mobileNumber: { $eq: mobileNumber } });
@@ -36,11 +33,10 @@ export const initiateOnboarding = expressAsyncHandler(async (req: Request, res: 
         throw createHttpError(400, "User already exists");
     }
 
-    await ServiceProvider.findOneAndUpdate(
-        { mobileNumber: { $eq: mobileNumber } },
-        { $set: { mobileNumber, status: ServiceProviderStatus.PENDING } },
-        { upsert: true, new: true }
-    );
+    await ServiceProvider.create({
+        mobileNumber,
+        status: ServiceProviderStatus.PENDING
+    });
 
     await sendOTP(mobileNumber);
 
@@ -61,7 +57,7 @@ export const verifyOtp = expressAsyncHandler(async (req: Request, res: Response)
         throw createHttpError(404, "User not found");
     } else if (!existingProvider.status.endsWith(ServiceProviderStatus.PENDING)) {
         logger.debug(`User ${existingProvider._id} otp is already verified`);
-        throw createHttpError(400, "User is already in onboarding process");
+        throw createHttpError(400, "Your Mobile Number is already verified.");
     }
 
     await verifyOTP(mobileNumber, code);
@@ -84,45 +80,16 @@ export const verifyOtp = expressAsyncHandler(async (req: Request, res: Response)
     });
 });
 
-// Step 3: Store email and password and send verification link
-// export const addEmailAndPassword = expressAsyncHandler(async (req: Request, res: Response) => {
-//     const { email, password } = req.body;
-//     const userId = req.userId;
-
-//     try {
-//         const provider = await ServiceProvider.findByIdAndUpdate(
-//             userId,
-//             { email, password, status: ServiceProviderStatus.EMAIL_VERIFIED },
-//             { new: true }
-//         );
-
-//         if (!provider) {
-//             throw createHttpError(404, "User not found");
-//         }
-
-//         // Trigger email verification (integration assumed)
-//         // await sendEmailVerificationLink(email);
-
-//         res.status(200).json({
-//             success: true,
-//             message: "Email verification link sent",
-//         });
-//     } catch (error: any) {
-//         throw createHttpError(500, error);
-//     }
-// });
-
 // Step 4: Update profile details
-
 export const updateProfile = expressAsyncHandler(async (req: Request, res: Response) => {
-    const { firstName, lastName } = req.body;
-
-    if (!validateName(firstName) || !validateName(lastName)) {
-        throw createHttpError(400, "Invalid name format");
+    let { firstName, lastName, yearOfBirth, gender } = req.body;
+    yearOfBirth = parseInt(yearOfBirth, 10);
+    if (!validateName(firstName) || !validateName(lastName) || isNaN(yearOfBirth) || !Object.values(Gender).includes(gender)) {
+        throw createHttpError(400, "Invalid Inputs");
     }
 
     const userId = req.userId;
-    logger.debug(`req.file: ${req.file}`);
+
     if (!req.file) {
         throw createHttpError(400, 'Profile picture is required');
     }
@@ -131,31 +98,38 @@ export const updateProfile = expressAsyncHandler(async (req: Request, res: Respo
 
     if (!provider) {
         throw createHttpError(404, 'User not found');
-    } else if (provider.status !== ServiceProviderStatus.OTP_VERIFIED && provider.status !== ServiceProviderStatus.BUSINESS_DETAILS_REMAINING) {
-        throw createHttpError(400, 'Please verify your OTP first');
+    } else if (provider.status !== ServiceProviderStatus.OTP_VERIFIED &&
+        provider.status !== ServiceProviderStatus.VERIFICATION_REQUIRED &&
+        provider.status !== ServiceProviderStatus.MODIFICATION_REQUIRED &&
+        provider.status !== ServiceProviderStatus.RE_VERIFICATION_REQUIRED &&
+        provider.status !== ServiceProviderStatus.VERIFIED) {
+        throw createHttpError(400, 'You can not update profile.');
     }
 
     // Upload profile picture to S3
-    const profilePicturePath = await uploadFileToS3(req.file, 'profile-pictures');
+    const profilePicturePath = await uploadFileToS3(req.file, 'profile-pictures',provider._id);
+    let status;
+    if (provider.status == ServiceProviderStatus.OTP_VERIFIED) {
+        status = ServiceProviderStatus.BUSINESS_DETAILS_REMAINING;
+    } else if (provider.status == ServiceProviderStatus.VERIFIED || provider.status == ServiceProviderStatus.MODIFICATION_REQUIRED) {
+        status = ServiceProviderStatus.RE_VERIFICATION_REQUIRED;
+    } else {
+        status = provider.status;
+    }
 
     provider = await ServiceProvider.findByIdAndUpdate(
         userId,
-        { $set: { firstName, lastName, profilePicturePath, status: ServiceProviderStatus.BUSINESS_DETAILS_REMAINING } },
+        { $set: { firstName, lastName, profilePicturePath, gender, yearOfBirth, status } },
         { new: true }
     );
 
-    if (!provider) {
-        throw createHttpError(404, 'User not found');
-    }
-
-    await formateProviderImage(provider);
+    await formateProviderImage(provider!);
 
     res.status(200).json({
         message: 'Profile updated successfully',
         provider,
     });
 });
-
 
 // Login
 export const login = expressAsyncHandler(async (req: Request, res: Response) => {

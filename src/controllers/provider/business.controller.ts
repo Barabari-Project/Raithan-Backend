@@ -26,7 +26,7 @@ export const createBusiness = expressAsyncHandler(async (req: Request, res: Resp
     await newBusiness.save();
 
     serviceProvider.business = newBusiness._id;
-    serviceProvider.status = ServiceProviderStatus.COMPLETED;
+    serviceProvider.status = ServiceProviderStatus.VERIFICATION_REQUIRED;
     await serviceProvider.save();
 
     res.status(201).json({
@@ -43,7 +43,11 @@ export const updateBusiness = expressAsyncHandler(async (req: Request, res: Resp
     if (!serviceProvider) {
         throw createHttpError(404, 'Service Provider not found');
     }
-    if ((serviceProvider.status !== ServiceProviderStatus.COMPLETED)) {
+    if ((serviceProvider.status !== ServiceProviderStatus.VERIFICATION_REQUIRED &&
+        serviceProvider.status !== ServiceProviderStatus.MODIFICATION_REQUIRED &&
+        serviceProvider.status !== ServiceProviderStatus.VERIFIED &&
+        serviceProvider.status !== ServiceProviderStatus.RE_VERIFICATION_REQUIRED
+    )) {
         throw createHttpError(400, "You can not update a business details");
     }
 
@@ -52,6 +56,11 @@ export const updateBusiness = expressAsyncHandler(async (req: Request, res: Resp
         { $set: { ...req.body, serviceProvider: req.userId } },
         { new: true, runValidators: true }
     );
+
+    if (serviceProvider.status == ServiceProviderStatus.VERIFIED || serviceProvider.status == ServiceProviderStatus.MODIFICATION_REQUIRED) {
+        serviceProvider.status = ServiceProviderStatus.RE_VERIFICATION_REQUIRED;
+        await serviceProvider.save();
+    }
 
     res.status(200).json({
         success: true,

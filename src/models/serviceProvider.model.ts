@@ -1,21 +1,12 @@
-import bcrypt from 'bcryptjs';
 import createHttpError from 'http-errors';
-import mongoose, { CallbackError, Schema } from 'mongoose';
-import { IServiceProvider, ServiceProviderStatus } from '../types/provider.types';
+import mongoose, { Schema } from 'mongoose';
+import { Gender, IServiceProvider, ServiceProviderStatus } from '../types/provider.types';
 
 const serviceProviderSchema = new Schema<IServiceProvider>({
     mobileNumber: {
         type: String,
-        required: [true,'Mobile number is required'],
-        unique: [true,'Mobile number is already exists']
-    },
-    email: {
-        type: String,
-        unique: [true, 'Email is already exists'],
-        sparse: true,
-    },
-    password: {
-        type: String,
+        required: [true, 'Mobile number is required'],
+        unique: [true, 'Mobile number is already exists']
     },
     firstName: {
         type: String,
@@ -28,8 +19,21 @@ const serviceProviderSchema = new Schema<IServiceProvider>({
     },
     status: {
         type: String,
-        enum: Object.values(ServiceProviderStatus),
+        enum: {
+            values: Object.values(ServiceProviderStatus),
+            message: "Status must be one of the valid options.",
+        },
         default: ServiceProviderStatus.PENDING,
+    },
+    yearOfBirth: {
+        type: Number
+    },
+    gender: {
+        type: String,
+        enum: {
+            values: Object.values(Gender),
+            message: "Gender must be one of the valid options.",
+        }
     },
     business: {
         type: mongoose.Schema.Types.ObjectId,
@@ -37,20 +41,6 @@ const serviceProviderSchema = new Schema<IServiceProvider>({
     },
 }, {
     timestamps: true,
-});
-
-// Pre-save middleware to hash the password
-serviceProviderSchema.pre<IServiceProvider>('save', async function (next) {
-    if (!this.isModified('password') || !this.password) return next();
-    try {
-        // Generate a salt
-        const salt = await bcrypt.genSalt(10);
-        // Hash the password with the salt
-        this.password = await bcrypt.hash(this.password, salt);
-        next();
-    } catch (error) {
-        next(error as CallbackError);
-    }
 });
 
 serviceProviderSchema.post('save', function (error: any, doc: any, next: Function) {
