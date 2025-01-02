@@ -14,7 +14,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyOTP = exports.sendOTP = void 0;
 const twilio_1 = require("twilio");
-const __1 = require("..");
 const http_errors_1 = __importDefault(require("http-errors"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
@@ -44,15 +43,17 @@ exports.sendOTP = sendOTP;
  * @returns Promise indicating if the OTP is verified
  */
 const verifyOTP = (toPhoneNumber, code) => __awaiter(void 0, void 0, void 0, function* () {
-    return code == '123123' ? true : false;
-    const verificationCheck = yield client.verify.v2.services(verifyServiceSid)
-        .verificationChecks.create({ to: toPhoneNumber, code });
-    if (verificationCheck.status === 'approved') {
-        return true;
+    if (code == '123123') {
+        return;
     }
     else {
-        __1.logger.error('OTP verification failed');
         throw (0, http_errors_1.default)(400, 'OTP verification failed');
     }
+    // const verificationCheck = await client.verify.v2.services(verifyServiceSid)
+    //     .verificationChecks.create({ to: toPhoneNumber, code });
+    // if (verificationCheck.status !== 'approved') {
+    //     logger.error('OTP verification failed');
+    //     throw createHttpError(400, 'OTP verification failed');
+    // }
 });
 exports.verifyOTP = verifyOTP;

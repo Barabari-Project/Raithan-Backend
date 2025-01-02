@@ -70,31 +70,37 @@ export const getServiceProvidersByStatus = expressAsyncHandler(async (req: Reque
     res.status(200).json(serviceProviders);
 });
 
-export const verifyServiceProvider = expressAsyncHandler(async (req: Request, res: Response) => {
+export const updateServiceProviderStatus = expressAsyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const updatedServiceProvider = await updateServiceProviderStatus(id, ServiceProviderStatus.VERIFIED);
-    res.status(200).json({ serviceProvider: updatedServiceProvider });
-});
+    const { status } = req.body;
 
-const updateServiceProviderStatus = async (id: string, status: ServiceProviderStatus): Promise<IServiceProvider> => {
+    if (status !== ServiceProviderStatus.MODIFICATION_REQUIRED &&
+        status !== ServiceProviderStatus.VERIFIED &&
+        status !== ServiceProviderStatus.REJECTED) {
+        throw createHttpError(400, "Invalid Status");
+    }
+
     if (!isValidObjectId(id)) {
         throw createHttpError(400, "Invalid service provider ID");
     }
+
     const serviceProvider = await ServiceProvider.findById(id);
+
     if (!serviceProvider) {
         throw createHttpError(404, "Service provider not found");
     }
-    if (serviceProvider.status !== ServiceProviderStatus.VERIFICATION_REQUIRED) {
+
+    if (serviceProvider.status !== ServiceProviderStatus.VERIFICATION_REQUIRED &&
+        serviceProvider.status !== ServiceProviderStatus.RE_VERIFICATION_REQUIRED) {
         throw createHttpError(400, "Service provider is not pending verification");
     }
-    const updatedServiceProvider: IServiceProvider | null = await ServiceProvider.findByIdAndUpdate(id, { status: ServiceProviderStatus.VERIFIED }, { new: true });
-    await formateProviderImage(updatedServiceProvider!);
-    return updatedServiceProvider!;
-}
 
-export const rejectServiceProvider = expressAsyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const updatedServiceProvider = await updateServiceProviderStatus(id, ServiceProviderStatus.REJECTED);
+    const updatedServiceProvider: IServiceProvider | null = await ServiceProvider.findByIdAndUpdate(id,
+        { $set: { status } },
+        { new: true }
+    );
+    await formateProviderImage(updatedServiceProvider!);
+    // return updatedServiceProvider!;
     res.status(200).json({ serviceProvider: updatedServiceProvider });
 });
 

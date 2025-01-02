@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { IServiceSeeker } from '../types/seeker.types';
+import { IServiceSeeker, ServiceSeekerStatus } from '../types/seeker.types';
 import createHttpError from 'http-errors';
 
 const serviceSeekerSchema = new Schema<IServiceSeeker>({
@@ -8,6 +8,14 @@ const serviceSeekerSchema = new Schema<IServiceSeeker>({
         required: [true, 'Mobile Number is required.'],
         unique: [true, 'Mobile Number is already Exists.']
     },
+    status: {
+        type: String,
+        enum: {
+            values: Object.values(ServiceSeekerStatus),
+            message: "Status must be one of the valid options.",
+        },
+        default: ServiceSeekerStatus.PENDING,
+    }
 }, {
     timestamps: true,
 });

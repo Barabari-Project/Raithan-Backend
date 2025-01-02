@@ -76,6 +76,7 @@ exports.verifyOtp = (0, express_async_handler_1.default)((req, res) => __awaiter
 exports.updateProfile = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let { firstName, lastName, yearOfBirth, gender } = req.body;
     yearOfBirth = parseInt(yearOfBirth, 10);
+    __1.logger.debug(yearOfBirth);
     if (!(0, validation_1.validateName)(firstName) || !(0, validation_1.validateName)(lastName) || isNaN(yearOfBirth) || !Object.values(provider_types_1.Gender).includes(gender)) {
         throw (0, http_errors_1.default)(400, "Invalid Inputs");
     }

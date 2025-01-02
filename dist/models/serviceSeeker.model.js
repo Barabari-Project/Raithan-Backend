@@ -37,6 +37,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
+const seeker_types_1 = require("../types/seeker.types");
 const http_errors_1 = __importDefault(require("http-errors"));
 const serviceSeekerSchema = new mongoose_1.Schema({
     mobileNumber: {
@@ -44,6 +45,14 @@ const serviceSeekerSchema = new mongoose_1.Schema({
         required: [true, 'Mobile Number is required.'],
         unique: [true, 'Mobile Number is already Exists.']
     },
+    status: {
+        type: String,
+        enum: {
+            values: Object.values(seeker_types_1.ServiceSeekerStatus),
+            message: "Status must be one of the valid options.",
+        },
+        default: seeker_types_1.ServiceSeekerStatus.PENDING,
+    }
 }, {
     timestamps: true,
 });

@@ -22,6 +22,7 @@ const jwt_1 = require("../utils/jwt");
 const mongoose_1 = require("mongoose");
 const provider_types_1 = require("../types/provider.types");
 const callHistory_model_1 = __importDefault(require("../models/callHistory.model"));
+const seeker_types_1 = require("../types/seeker.types");
 // Login
 exports.login = (0, express_async_handler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { mobileNumber } = req.body;
@@ -31,7 +32,7 @@ exports.login = (0, express_async_handler_1.default)((req, res, next) => __await
         throw (0, http_errors_1.default)(400, "Please login as service provider");
     }
     else if (!seeker) {
-        const newSeeker = new serviceSeeker_model_1.default({ mobileNumber });
+        const newSeeker = new serviceSeeker_model_1.default({ mobileNumber, status: seeker_types_1.ServiceSeekerStatus.PENDING });
         yield newSeeker.save();
     }
     yield (0, twilioService_1.sendOTP)(mobileNumber);
@@ -47,7 +48,12 @@ exports.verifyLoginOtp = (0, express_async_handler_1.default)((req, res) => __aw
     if (code == '') {
         throw (0, http_errors_1.default)(400, "Invalid OTP");
     }
+    else if (seeker.status !== seeker_types_1.ServiceSeekerStatus.PENDING) {
+        throw (0, http_errors_1.default)(400, "OTP is already verified");
+    }
     yield (0, twilioService_1.verifyOTP)(mobileNumber, code);
+    seeker.status = seeker_types_1.ServiceSeekerStatus.VERIFIED;
+    yield seeker.save();
     const token = (0, jwt_1.generateJwt)({ userId: seeker._id }, process.env.SEEKER_JWT_SECRET);
     res.status(200).json({ success: true, message: "OTP verified successfully", token, seeker });
 }));
