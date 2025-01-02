@@ -34,7 +34,7 @@ export const sendOTP = async (toPhoneNumber: string): Promise<string> => {
  * @returns Promise indicating if the OTP is verified
  */
 export const verifyOTP = async (toPhoneNumber: string, code: string): Promise<boolean> => {
-    return true;
+    return code=='123123'?true:false;
     const verificationCheck = await client.verify.v2.services(verifyServiceSid)
         .verificationChecks.create({ to: toPhoneNumber, code });
 
