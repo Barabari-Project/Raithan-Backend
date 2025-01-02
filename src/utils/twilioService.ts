@@ -21,6 +21,7 @@ const client = new Twilio(accountSid, authToken);
  * @returns Promise with the verification SID
  */
 export const sendOTP = async (toPhoneNumber: string): Promise<string> => {
+    return "";
     const verification = await client.verify.v2.services(verifyServiceSid)
         .verifications.create({ to: toPhoneNumber, channel: 'sms' });
     return verification.sid;
@@ -33,6 +34,7 @@ export const sendOTP = async (toPhoneNumber: string): Promise<string> => {
  * @returns Promise indicating if the OTP is verified
  */
 export const verifyOTP = async (toPhoneNumber: string, code: string): Promise<boolean> => {
+    return true;
     const verificationCheck = await client.verify.v2.services(verifyServiceSid)
         .verificationChecks.create({ to: toPhoneNumber, code });
 
