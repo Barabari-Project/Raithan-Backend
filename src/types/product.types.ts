@@ -24,6 +24,8 @@ export enum ProductStatus {
     VERIFIED = 'Verified',
     UNVERIFIED = 'Unverified',
     REJECTED = 'Rejected',
+    RE_VERIFICATION_REQUIRED = 'Reverification Required',
+    MODIFICATION_REQUIRED = 'Modification Required',
 }
 
 export interface IImplementProduct extends Document {
