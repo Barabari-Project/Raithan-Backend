@@ -1,5 +1,5 @@
 import express from "express";
-import { createProduct, updateProduct } from "../../controllers/provider/product.controller";
+import { createProduct, rateProduct, updateProduct } from "../../controllers/provider/product.controller";
 import { authMiddleware } from "../../middlewares/authMiddleware";
 import { handleMulterError, multerMiddleware } from "../../middlewares/multerMiddleware";
 
@@ -17,6 +17,11 @@ router.put('/update',
     multerMiddleware.array('images', 6),
     handleMulterError,
     updateProduct
-)
+);
+
+router.post('/rating',
+    authMiddleware(process.env.SEEKER_JWT_SECRET!),
+    rateProduct
+);
 
 export default router;

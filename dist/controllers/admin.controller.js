@@ -193,7 +193,11 @@ const updateProductStatus = (category, productId, status) => __awaiter(void 0, v
 exports.updateProductStatus = updateProductStatus;
 exports.getUnverifiedProducts = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { category } = req.params;
-    const products = yield (0, common_controller_1.findProductsByStatus)(category, product_types_1.ProductStatus.UNVERIFIED);
+    const { status } = req.params;
+    if (!Object.values(product_types_1.ProductStatus).includes(status)) {
+        throw (0, http_errors_1.default)(400, "Invalid status");
+    }
+    const products = yield (0, common_controller_1.findProductsByStatus)(category, status);
     res.status(200).json({ products });
 }));
 exports.getCallHistory = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {

@@ -16,7 +16,7 @@ import { BusinessCategory } from "../../types/business.types";
 import { ServiceProviderStatus } from "../../types/provider.types";
 import { uploadFileToS3 } from "../../utils/s3Upload";
 import { formatProductImageUrls } from "../../utils/formatImageUrl";
-import { isValidObjectId } from "mongoose";
+import mongoose, { isValidObjectId } from "mongoose";
 import { IAgricultureLaborProduct, IDroneProduct, IEarthMoverProduct, IHarvestorProduct, IImplementProduct, IMachineProduct, IMechanicProduct, IPaddyTransplantorProduct, ProductStatus } from "../../types/product.types";
 
 export const createProduct = expressAsyncHandler(async (req: Request, res: Response) => {
@@ -47,7 +47,7 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
     if (category === BusinessCategory.HARVESTORS) {
         const { hp, modelNo, type } = req.body;
         if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Profile picture is required');
+            throw createHttpError(400, 'Product  picture is required');
         } else if (req.files.length !== 6) {
             // 4 photos from 4 directions, driving license and rc book
             throw createHttpError(400, 'You need to upload 6 images');
@@ -64,7 +64,7 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
         });
     } else if (category === BusinessCategory.EARTH_MOVERS) {
         if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Profile picture is required');
+            throw createHttpError(400, 'Product  picture is required');
         } else if (req.files.length !== 6) {
             // 4 photos from 4 directions, driving license and rc book
             throw createHttpError(400, 'You need to upload 6 images');
@@ -82,7 +82,7 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
         });
     } else if (category === BusinessCategory.IMPLEMENTS) {
         if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Profile picture is required');
+            throw createHttpError(400, 'Product  picture is required');
         } else if (req.files.length !== 6) {
             // 4 photos from 4 directions, driving license and rc book
             throw createHttpError(400, 'You need to upload 6 images');
@@ -99,7 +99,7 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
         });
     } else if (category === BusinessCategory.MACHINES) {
         if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Profile picture is required');
+            throw createHttpError(400, 'Product  picture is required');
         } else if (req.files.length !== 6) {
             // 4 photos from 4 directions, driving license and rc book
             throw createHttpError(400, 'You need to upload 6 images');
@@ -116,7 +116,7 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
         });
     } else if (category === BusinessCategory.PADDY_TRANSPLANTORS) {
         if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Profile picture is required');
+            throw createHttpError(400, 'Product  picture is required');
         } else if (req.files.length !== 6) {
             // 4 photos from 4 directions, driving license and rc book
             throw createHttpError(400, 'You need to upload 6 images');
@@ -133,7 +133,7 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
         });
     } else if (category === BusinessCategory.DRONES) {
         if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Profile picture is required');
+            throw createHttpError(400, 'Product  picture is required');
         } else if (req.files.length !== 5) {
             // 4 photos from 4 directions and 1 bill
             throw createHttpError(400, 'You need to upload 5 images');
@@ -150,7 +150,7 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
         });
     } else if (category === BusinessCategory.MECHANICS) {
         if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Profile picture is required');
+            throw createHttpError(400, 'Product  picture is required');
         }
         // eShram card 
         if (req.files.length !== 1) {
@@ -178,7 +178,7 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
             numberOfWorkers = 1;
         }
         if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Profile picture is required');
+            throw createHttpError(400, 'Product  picture is required');
         }
         // eShram card 
         if (req.files.length !== 1) {
@@ -234,9 +234,11 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
         product = await HarvestorProduct.findById(id);
         if (!product) {
             throw createHttpError(404, "Product not found");
+        } else if (product.verificationStatus == ProductStatus.REJECTED) {
+            throw createHttpError(400, "Product is rejected");
         }
         if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Profile picture is required');
+            throw createHttpError(400, 'Product  picture is required');
         } else if (req.files.length !== 6) {
             // 4 photos from 4 directions, driving license and rc book
             throw createHttpError(400, 'You need to upload 6 images');
@@ -247,7 +249,7 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
             images: uploadedImages,
             hp,
             modelNo,
-            verificationStatus: ProductStatus.RE_VERIFICATION_REQUIRED,
+            verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
             business: business._id,
             type: type
         }, { new: true });
@@ -259,9 +261,11 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
         product = await EarthMoverProduct.findById(id);
         if (!product) {
             throw createHttpError(404, "Product not found");
+        } else if (product.verificationStatus == ProductStatus.REJECTED) {
+            throw createHttpError(400, "Product is rejected");
         }
         if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Profile picture is required');
+            throw createHttpError(400, 'Product  picture is required');
         } else if (req.files.length !== 6) {
             // 4 photos from 4 directions, driving license and rc book
             throw createHttpError(400, 'You need to upload 6 images');
@@ -272,7 +276,7 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
             images: uploadedImages,
             modelNo,
             hp,
-            verificationStatus: ProductStatus.RE_VERIFICATION_REQUIRED,
+            verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
             business: business._id,
             type: type
         }, { new: true });
@@ -284,9 +288,11 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
         product = await ImplementProduct.findById(id);
         if (!product) {
             throw createHttpError(404, "Product not found");
+        } else if (product.verificationStatus == ProductStatus.REJECTED) {
+            throw createHttpError(400, "Product is rejected");
         }
         if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Profile picture is required');
+            throw createHttpError(400, 'Product  picture is required');
         } else if (req.files.length !== 6) {
             // 4 photos from 4 directions, driving license and rc book
             throw createHttpError(400, 'You need to upload 6 images');
@@ -297,7 +303,7 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
             images: uploadedImages,
             modelNo,
             hp,
-            verificationStatus: ProductStatus.RE_VERIFICATION_REQUIRED,
+            verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
             business: business._id
         }, { new: true });
     } else if (category === BusinessCategory.MACHINES) {
@@ -308,9 +314,11 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
         product = await MachineProduct.findById(id);
         if (!product) {
             throw createHttpError(404, "Product not found");
+        } else if (product.verificationStatus == ProductStatus.REJECTED) {
+            throw createHttpError(400, "Product is rejected");
         }
         if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Profile picture is required');
+            throw createHttpError(400, 'Product  picture is required');
         } else if (req.files.length !== 6) {
             // 4 photos from 4 directions, driving license and rc book
             throw createHttpError(400, 'You need to upload 6 images');
@@ -321,7 +329,7 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
             images: uploadedImages,
             modelNo,
             hp,
-            verificationStatus: ProductStatus.RE_VERIFICATION_REQUIRED,
+            verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
             business: business._id,
         }, { new: true });
     } else if (category === BusinessCategory.PADDY_TRANSPLANTORS) {
@@ -332,9 +340,11 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
         product = await PaddyTransplantorProduct.findById(id);
         if (!product) {
             throw createHttpError(404, "Product not found");
+        } else if (product.verificationStatus == ProductStatus.REJECTED) {
+            throw createHttpError(400, "Product is rejected");
         }
         if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Profile picture is required');
+            throw createHttpError(400, 'Product  picture is required');
         } else if (req.files.length !== 6) {
             // 4 photos from 4 directions, driving license and rc book
             throw createHttpError(400, 'You need to upload 6 images');
@@ -345,7 +355,7 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
             images: uploadedImages,
             modelNo,
             hp,
-            verificationStatus: ProductStatus.RE_VERIFICATION_REQUIRED,
+            verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
             business: business._id,
         }, { new: true });
     } else if (category === BusinessCategory.DRONES) {
@@ -356,9 +366,11 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
         product = await DroneProduct.findById(id);
         if (!product) {
             throw createHttpError(404, "Product not found");
+        } else if (product.verificationStatus == ProductStatus.REJECTED) {
+            throw createHttpError(400, "Product is rejected");
         }
         if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Profile picture is required');
+            throw createHttpError(400, 'Product  picture is required');
         } else if (req.files.length !== 5) {
             // 4 photos from 4 directions and 1 bill
             throw createHttpError(400, 'You need to upload 5 images');
@@ -369,7 +381,7 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
             images: uploadedImages,
             type,
             modelNo,
-            verificationStatus: ProductStatus.RE_VERIFICATION_REQUIRED,
+            verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
             business: business._id,
         }, { new: true });
     } else if (category === BusinessCategory.MECHANICS) {
@@ -380,9 +392,11 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
         product = await MechanicProduct.findById(id);
         if (!product) {
             throw createHttpError(404, "Product not found");
+        } else if (product.verificationStatus == ProductStatus.REJECTED) {
+            throw createHttpError(400, "Product is rejected");
         }
         if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Profile picture is required');
+            throw createHttpError(400, 'Product  picture is required');
         }
         // eShram card 
         if (req.files.length !== 1) {
@@ -400,7 +414,7 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
             isIndividual,
             services,
             numberOfWorkers,
-            verificationStatus: ProductStatus.RE_VERIFICATION_REQUIRED,
+            verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
             business: business._id,
         }, { new: true });
     } else if (category === BusinessCategory.AGRICULTURE_LABOR) {
@@ -411,12 +425,14 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
         product = await AgricultureLaborProduct.findById(id);
         if (!product) {
             throw createHttpError(404, "Product not found");
+        } else if (product.verificationStatus == ProductStatus.REJECTED) {
+            throw createHttpError(400, "Product is rejected");
         }
         if (isIndividual) {
             numberOfWorkers = 1;
         }
         if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Profile picture is required');
+            throw createHttpError(400, 'Product  picture is required');
         }
         // eShram card 
         if (req.files.length !== 1) {
@@ -430,7 +446,7 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
             readyToTravelIn10Km,
             isIndividual,
             services,
-            verificationStatus: ProductStatus.RE_VERIFICATION_REQUIRED,
+            verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
             numberOfWorkers,
             business: business._id,
         }, { new: true });
@@ -439,4 +455,51 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
     }
     await formatProductImageUrls(product!);
     res.status(201).json({ message: 'Product created successfully', product });
-})
+});
+
+export const rateProduct = expressAsyncHandler(async (req: Request, res: Response) => {
+    let { productId, rating, category } = req.body;
+    rating = parseInt(rating);
+    if( isNaN(rating) ){
+        throw createHttpError(400, 'Rating must be a number');
+    }
+    const userId = req.userId;
+    if (!isValidObjectId(productId)) {
+        throw createHttpError(400, 'Invalid product id');
+    }
+    if (!Object.values(BusinessCategory).includes(category)) {
+        throw createHttpError(400, "Invalid category");
+    }
+    let product: IAgricultureLaborProduct | IDroneProduct | IEarthMoverProduct | IHarvestorProduct | IImplementProduct | IMachineProduct | IMechanicProduct | IPaddyTransplantorProduct | null;
+    if (category === BusinessCategory.HARVESTORS) {
+        product = await HarvestorProduct.findById(productId);
+    } else if (category === BusinessCategory.EARTH_MOVERS) {
+        product = await EarthMoverProduct.findById(productId);
+    } else if (category === BusinessCategory.IMPLEMENTS) {
+        product = await ImplementProduct.findById(productId);
+    } else if (category === BusinessCategory.MACHINES) {
+        product = await MachineProduct.findById(productId);
+    } else if (category === BusinessCategory.MECHANICS) {
+        product = await MechanicProduct.findById(productId);
+    } else if (category === BusinessCategory.AGRICULTURE_LABOR) {
+        product = await AgricultureLaborProduct.findById(productId);
+    } else if (category === BusinessCategory.PADDY_TRANSPLANTORS) {
+        product = await PaddyTransplantorProduct.findById(productId);
+    } else if (category === BusinessCategory.DRONES) {
+        product = await DroneProduct.findById(productId);
+    } else {
+        throw createHttpError(400, "Invalid category");
+    }
+    if (!product) {
+        throw createHttpError(404, 'Product not found');
+    } else if( product.verificationStatus != ProductStatus.VERIFIED ){
+        throw createHttpError(400, 'Product is not verified');
+    }
+    if (product.ratings.find(r => r.userId.toString() == userId)) {
+        throw createHttpError(400, 'You have already rated this product');
+    }
+    product.avgRating = (product.avgRating * product.ratings.length + rating) / (product.ratings.length + 1);
+    product.ratings.push({ userId: new mongoose.Types.ObjectId(userId), rating });
+    await product.save();
+    res.status(200).json({ message: 'Product rated successfully', product });
+});

@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
-import { IHarvestorProduct, ProductStatus } from "../../types/product.types";
+import { IHarvestorProduct, IRating, ProductStatus } from "../../types/product.types";
 import createHttpError from "http-errors";
+import { RatingSchema } from "../Rating.model";
 
 const HarvestorProductSchema: Schema = new Schema<IHarvestorProduct>({
     images: {
@@ -31,6 +32,14 @@ const HarvestorProductSchema: Schema = new Schema<IHarvestorProduct>({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'business',
         required: [true, "Business reference is required."],
+    },
+    avgRating: {
+        type: Number,
+        default: 0
+    },
+    ratings: {
+        type: [RatingSchema],
+        default: []
     },
 }, { timestamps: true });
 

@@ -196,7 +196,11 @@ export const updateProductStatus = async (category: string, productId: string, s
 
 export const getUnverifiedProducts = expressAsyncHandler(async (req: Request, res: Response) => {
     const { category } = req.params;
-    const products = await findProductsByStatus(category, ProductStatus.UNVERIFIED);
+    const { status } = req.params;
+    if (!Object.values(ProductStatus).includes(status as ProductStatus)) {
+        throw createHttpError(400, "Invalid status");
+    }
+    const products = await findProductsByStatus(category, status as ProductStatus);
     res.status(200).json({ products });
 });
 

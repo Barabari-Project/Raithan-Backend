@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import { IEarthMoverProduct, ProductStatus } from "../../types/product.types";
 import createHttpError from "http-errors";
+import { RatingSchema } from "../Rating.model";
 
 const EarthMoverProductSchema: Schema = new Schema<IEarthMoverProduct>({
     images: {
@@ -31,6 +32,14 @@ const EarthMoverProductSchema: Schema = new Schema<IEarthMoverProduct>({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'business',
         required: [true, "Business reference is required."],
+    },
+    avgRating: {
+        type: Number,
+        default: 0
+    },
+    ratings: {
+        type: [RatingSchema],
+        default: []
     },
 }, { timestamps: true });
 

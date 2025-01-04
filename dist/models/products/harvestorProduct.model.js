@@ -40,6 +40,7 @@ exports.HarvestorProduct = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const product_types_1 = require("../../types/product.types");
 const http_errors_1 = __importDefault(require("http-errors"));
+const Rating_model_1 = require("../Rating.model");
 const HarvestorProductSchema = new mongoose_1.Schema({
     images: {
         type: [String],
@@ -69,6 +70,14 @@ const HarvestorProductSchema = new mongoose_1.Schema({
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: 'business',
         required: [true, "Business reference is required."],
+    },
+    avgRating: {
+        type: Number,
+        default: 0
+    },
+    ratings: {
+        type: [Rating_model_1.RatingSchema],
+        default: []
     },
 }, { timestamps: true });
 HarvestorProductSchema.post('save', function (error, doc, next) {
