@@ -7,6 +7,9 @@ const validateMobileNumber = (mobileNumber) => {
 };
 exports.validateMobileNumber = validateMobileNumber;
 const validateName = (name) => {
+    if (!name) {
+        return false; // Invalid if name is undefined, null, or an empty string
+    }
     const nameRegex = /^[A-Za-z\s]+$/; // Only letters and spaces allowed
     return nameRegex.test(name) && name.length >= 2 && name.length <= 50; // Length should be between 2 and 50 characters
 };

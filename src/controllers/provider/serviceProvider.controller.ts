@@ -84,7 +84,6 @@ export const verifyOtp = expressAsyncHandler(async (req: Request, res: Response)
 export const updateProfile = expressAsyncHandler(async (req: Request, res: Response) => {
     let { firstName, lastName, yearOfBirth, gender } = req.body;
     yearOfBirth = parseInt(yearOfBirth, 10);
-    logger.debug(yearOfBirth)
     if (!validateName(firstName) || !validateName(lastName) || isNaN(yearOfBirth) || !Object.values(Gender).includes(gender)) {
         throw createHttpError(400, "Invalid Inputs");
     }
