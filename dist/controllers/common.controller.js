@@ -87,9 +87,18 @@ exports.getProductsByCategory = (0, express_async_handler_1.default)((req, res) 
     const products = yield (0, exports.findProductsByStatus)(category, product_types_1.ProductStatus.VERIFIED);
     res.status(200).json({ products });
 }));
-const findProductsByStatus = (category, status) => __awaiter(void 0, void 0, void 0, function* () {
+const findProductsByStatus = (category, status, business) => __awaiter(void 0, void 0, void 0, function* () {
     if (!Object.values(business_types_1.BusinessCategory).includes(category)) {
         throw (0, http_errors_1.default)(400, "Invalid category");
+    }
+    if (!(0, mongoose_1.isValidObjectId)(business)) {
+        throw (0, http_errors_1.default)(400, "Invalid business ID");
+    }
+    if (business) {
+        const data = yield business_model_1.Business.findById(business);
+        if (!data) {
+            throw (0, http_errors_1.default)(404, "Business not found");
+        }
     }
     const modelMapping = {
         [business_types_1.BusinessCategory.HARVESTORS]: harvestorProduct_model_1.HarvestorProduct,
@@ -105,7 +114,13 @@ const findProductsByStatus = (category, status) => __awaiter(void 0, void 0, voi
     if (!model) {
         throw (0, http_errors_1.default)(400, "Invalid category");
     }
-    const products = yield model.find({ verificationStatus: status });
+    let products;
+    if (business) {
+        products = yield model.find({ verificationStatus: status, business });
+    }
+    else {
+        products = yield model.find({ verificationStatus: status });
+    }
     for (const product of products) {
         yield (0, formatImageUrl_1.formatProductImageUrls)(product);
     }

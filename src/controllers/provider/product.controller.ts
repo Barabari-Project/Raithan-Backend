@@ -246,12 +246,14 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
         const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', product!._id.toString() + index));
         const uploadedImages = await Promise.all(images);
         product = await HarvestorProduct.findByIdAndUpdate(product!._id, {
-            images: uploadedImages,
-            hp,
-            modelNo,
-            verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
-            business: business._id,
-            type: type
+            $set: {
+                images: uploadedImages,
+                hp,
+                modelNo,
+                verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
+                business: business._id,
+                type: type
+            }
         }, { new: true });
     } else if (category === BusinessCategory.EARTH_MOVERS) {
         const { modelNo, hp, type, id } = req.body;
@@ -273,12 +275,14 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
         const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', product!._id.toString() + index));
         const uploadedImages = await Promise.all(images);
         product = await EarthMoverProduct.findByIdAndUpdate(product!._id, {
-            images: uploadedImages,
-            modelNo,
-            hp,
-            verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
-            business: business._id,
-            type: type
+            $set: {
+                images: uploadedImages,
+                modelNo,
+                hp,
+                verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
+                business: business._id,
+                type: type
+            }
         }, { new: true });
     } else if (category === BusinessCategory.IMPLEMENTS) {
         const { modelNo, hp, id } = req.body;
@@ -300,11 +304,13 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
         const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', product!._id.toString() + index));
         const uploadedImages = await Promise.all(images);
         product = await ImplementProduct.findByIdAndUpdate(product!._id, {
-            images: uploadedImages,
-            modelNo,
-            hp,
-            verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
-            business: business._id
+            $set: {
+                images: uploadedImages,
+                modelNo,
+                hp,
+                verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
+                business: business._id
+            }
         }, { new: true });
     } else if (category === BusinessCategory.MACHINES) {
         const { modelNo, hp, id } = req.body;
@@ -326,11 +332,13 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
         const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', product!._id.toString() + index));
         const uploadedImages = await Promise.all(images);
         product = await MachineProduct.findByIdAndUpdate(product!._id, {
-            images: uploadedImages,
-            modelNo,
-            hp,
-            verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
-            business: business._id,
+            $set: {
+                images: uploadedImages,
+                modelNo,
+                hp,
+                verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
+                business: business._id,
+            }
         }, { new: true });
     } else if (category === BusinessCategory.PADDY_TRANSPLANTORS) {
         const { modelNo, hp, id } = req.body;
@@ -352,11 +360,13 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
         const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', product!._id.toString() + index));
         const uploadedImages = await Promise.all(images);
         product = await PaddyTransplantorProduct.findByIdAndUpdate(product._id, {
-            images: uploadedImages,
-            modelNo,
-            hp,
-            verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
-            business: business._id,
+            $set: {
+                images: uploadedImages,
+                modelNo,
+                hp,
+                verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
+                business: business._id,
+            }
         }, { new: true });
     } else if (category === BusinessCategory.DRONES) {
         const { type, modelNo, id } = req.body;
@@ -378,11 +388,13 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
         const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', product!._id.toString() + index));
         const uploadedImages = await Promise.all(images);
         product = await DroneProduct.findByIdAndUpdate(product._id, {
-            images: uploadedImages,
-            type,
-            modelNo,
-            verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
-            business: business._id,
+            $set: {
+                images: uploadedImages,
+                type,
+                modelNo,
+                verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
+                business: business._id,
+            }
         }, { new: true });
     } else if (category === BusinessCategory.MECHANICS) {
         let { eShramCardNumber, readyToTravelIn10Km, isIndividual, services, numberOfWorkers, id } = req.body;
@@ -408,14 +420,16 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
             numberOfWorkers = 1;
         }
         product = await MechanicProduct.findByIdAndUpdate(product._id, {
-            images: uploadedImages,
-            eShramCardNumber,
-            readyToTravelIn10Km,
-            isIndividual,
-            services,
-            numberOfWorkers,
-            verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
-            business: business._id,
+            $set: {
+                images: uploadedImages,
+                eShramCardNumber,
+                readyToTravelIn10Km,
+                isIndividual,
+                services,
+                numberOfWorkers,
+                verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
+                business: business._id,
+            }
         }, { new: true });
     } else if (category === BusinessCategory.AGRICULTURE_LABOR) {
         let { eShramCardNumber, readyToTravelIn10Km, isIndividual, services, numberOfWorkers, id } = req.body;
@@ -441,14 +455,16 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
         const images = req.files.map(async (file) => await uploadFileToS3(file, 'product/secured/user-data', product!._id.toString()));
         const uploadedImages = await Promise.all(images);
         product = await AgricultureLaborProduct.findByIdAndUpdate(product._id, {
-            images: uploadedImages,
-            eShramCardNumber,
-            readyToTravelIn10Km,
-            isIndividual,
-            services,
-            verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
-            numberOfWorkers,
-            business: business._id,
+            $set: {
+                images: uploadedImages,
+                eShramCardNumber,
+                readyToTravelIn10Km,
+                isIndividual,
+                services,
+                verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
+                numberOfWorkers,
+                business: business._id,
+            }
         }, { new: true });
     } else {
         throw createHttpError(400, "Invalid category");
@@ -460,7 +476,7 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
 export const rateProduct = expressAsyncHandler(async (req: Request, res: Response) => {
     let { productId, rating, category } = req.body;
     rating = parseInt(rating);
-    if( isNaN(rating) ){
+    if (isNaN(rating)) {
         throw createHttpError(400, 'Rating must be a number');
     }
     const userId = req.userId;
@@ -492,7 +508,7 @@ export const rateProduct = expressAsyncHandler(async (req: Request, res: Respons
     }
     if (!product) {
         throw createHttpError(404, 'Product not found');
-    } else if( product.verificationStatus != ProductStatus.VERIFIED ){
+    } else if (product.verificationStatus != ProductStatus.VERIFIED) {
         throw createHttpError(400, 'Product is not verified');
     }
     if (product.ratings.find(r => r.userId.toString() == userId)) {

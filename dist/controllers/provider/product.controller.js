@@ -303,12 +303,14 @@ exports.updateProduct = (0, express_async_handler_1.default)((req, res) => __awa
         const images = req.files.map((file, index) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, s3Upload_1.uploadFileToS3)(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', product._id.toString() + index); }));
         const uploadedImages = yield Promise.all(images);
         product = yield harvestorProduct_model_1.HarvestorProduct.findByIdAndUpdate(product._id, {
-            images: uploadedImages,
-            hp,
-            modelNo,
-            verificationStatus: product.verificationStatus == product_types_1.ProductStatus.UNVERIFIED ? product_types_1.ProductStatus.UNVERIFIED : product_types_1.ProductStatus.RE_VERIFICATION_REQUIRED,
-            business: business._id,
-            type: type
+            $set: {
+                images: uploadedImages,
+                hp,
+                modelNo,
+                verificationStatus: product.verificationStatus == product_types_1.ProductStatus.UNVERIFIED ? product_types_1.ProductStatus.UNVERIFIED : product_types_1.ProductStatus.RE_VERIFICATION_REQUIRED,
+                business: business._id,
+                type: type
+            }
         }, { new: true });
     }
     else if (category === business_types_1.BusinessCategory.EARTH_MOVERS) {
@@ -333,12 +335,14 @@ exports.updateProduct = (0, express_async_handler_1.default)((req, res) => __awa
         const images = req.files.map((file, index) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, s3Upload_1.uploadFileToS3)(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', product._id.toString() + index); }));
         const uploadedImages = yield Promise.all(images);
         product = yield earthMoverProduct_model_1.EarthMoverProduct.findByIdAndUpdate(product._id, {
-            images: uploadedImages,
-            modelNo,
-            hp,
-            verificationStatus: product.verificationStatus == product_types_1.ProductStatus.UNVERIFIED ? product_types_1.ProductStatus.UNVERIFIED : product_types_1.ProductStatus.RE_VERIFICATION_REQUIRED,
-            business: business._id,
-            type: type
+            $set: {
+                images: uploadedImages,
+                modelNo,
+                hp,
+                verificationStatus: product.verificationStatus == product_types_1.ProductStatus.UNVERIFIED ? product_types_1.ProductStatus.UNVERIFIED : product_types_1.ProductStatus.RE_VERIFICATION_REQUIRED,
+                business: business._id,
+                type: type
+            }
         }, { new: true });
     }
     else if (category === business_types_1.BusinessCategory.IMPLEMENTS) {
@@ -363,11 +367,13 @@ exports.updateProduct = (0, express_async_handler_1.default)((req, res) => __awa
         const images = req.files.map((file, index) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, s3Upload_1.uploadFileToS3)(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', product._id.toString() + index); }));
         const uploadedImages = yield Promise.all(images);
         product = yield ImplementProduct_model_1.ImplementProduct.findByIdAndUpdate(product._id, {
-            images: uploadedImages,
-            modelNo,
-            hp,
-            verificationStatus: product.verificationStatus == product_types_1.ProductStatus.UNVERIFIED ? product_types_1.ProductStatus.UNVERIFIED : product_types_1.ProductStatus.RE_VERIFICATION_REQUIRED,
-            business: business._id
+            $set: {
+                images: uploadedImages,
+                modelNo,
+                hp,
+                verificationStatus: product.verificationStatus == product_types_1.ProductStatus.UNVERIFIED ? product_types_1.ProductStatus.UNVERIFIED : product_types_1.ProductStatus.RE_VERIFICATION_REQUIRED,
+                business: business._id
+            }
         }, { new: true });
     }
     else if (category === business_types_1.BusinessCategory.MACHINES) {
@@ -392,11 +398,13 @@ exports.updateProduct = (0, express_async_handler_1.default)((req, res) => __awa
         const images = req.files.map((file, index) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, s3Upload_1.uploadFileToS3)(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', product._id.toString() + index); }));
         const uploadedImages = yield Promise.all(images);
         product = yield MachineProduct_model_1.MachineProduct.findByIdAndUpdate(product._id, {
-            images: uploadedImages,
-            modelNo,
-            hp,
-            verificationStatus: product.verificationStatus == product_types_1.ProductStatus.UNVERIFIED ? product_types_1.ProductStatus.UNVERIFIED : product_types_1.ProductStatus.RE_VERIFICATION_REQUIRED,
-            business: business._id,
+            $set: {
+                images: uploadedImages,
+                modelNo,
+                hp,
+                verificationStatus: product.verificationStatus == product_types_1.ProductStatus.UNVERIFIED ? product_types_1.ProductStatus.UNVERIFIED : product_types_1.ProductStatus.RE_VERIFICATION_REQUIRED,
+                business: business._id,
+            }
         }, { new: true });
     }
     else if (category === business_types_1.BusinessCategory.PADDY_TRANSPLANTORS) {
@@ -421,11 +429,13 @@ exports.updateProduct = (0, express_async_handler_1.default)((req, res) => __awa
         const images = req.files.map((file, index) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, s3Upload_1.uploadFileToS3)(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', product._id.toString() + index); }));
         const uploadedImages = yield Promise.all(images);
         product = yield PaddyTransplantorProduct_model_1.PaddyTransplantorProduct.findByIdAndUpdate(product._id, {
-            images: uploadedImages,
-            modelNo,
-            hp,
-            verificationStatus: product.verificationStatus == product_types_1.ProductStatus.UNVERIFIED ? product_types_1.ProductStatus.UNVERIFIED : product_types_1.ProductStatus.RE_VERIFICATION_REQUIRED,
-            business: business._id,
+            $set: {
+                images: uploadedImages,
+                modelNo,
+                hp,
+                verificationStatus: product.verificationStatus == product_types_1.ProductStatus.UNVERIFIED ? product_types_1.ProductStatus.UNVERIFIED : product_types_1.ProductStatus.RE_VERIFICATION_REQUIRED,
+                business: business._id,
+            }
         }, { new: true });
     }
     else if (category === business_types_1.BusinessCategory.DRONES) {
@@ -450,11 +460,13 @@ exports.updateProduct = (0, express_async_handler_1.default)((req, res) => __awa
         const images = req.files.map((file, index) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, s3Upload_1.uploadFileToS3)(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', product._id.toString() + index); }));
         const uploadedImages = yield Promise.all(images);
         product = yield DroneProduct_model_1.DroneProduct.findByIdAndUpdate(product._id, {
-            images: uploadedImages,
-            type,
-            modelNo,
-            verificationStatus: product.verificationStatus == product_types_1.ProductStatus.UNVERIFIED ? product_types_1.ProductStatus.UNVERIFIED : product_types_1.ProductStatus.RE_VERIFICATION_REQUIRED,
-            business: business._id,
+            $set: {
+                images: uploadedImages,
+                type,
+                modelNo,
+                verificationStatus: product.verificationStatus == product_types_1.ProductStatus.UNVERIFIED ? product_types_1.ProductStatus.UNVERIFIED : product_types_1.ProductStatus.RE_VERIFICATION_REQUIRED,
+                business: business._id,
+            }
         }, { new: true });
     }
     else if (category === business_types_1.BusinessCategory.MECHANICS) {
@@ -482,14 +494,16 @@ exports.updateProduct = (0, express_async_handler_1.default)((req, res) => __awa
             numberOfWorkers = 1;
         }
         product = yield MechanicProduct_model_1.MechanicProduct.findByIdAndUpdate(product._id, {
-            images: uploadedImages,
-            eShramCardNumber,
-            readyToTravelIn10Km,
-            isIndividual,
-            services,
-            numberOfWorkers,
-            verificationStatus: product.verificationStatus == product_types_1.ProductStatus.UNVERIFIED ? product_types_1.ProductStatus.UNVERIFIED : product_types_1.ProductStatus.RE_VERIFICATION_REQUIRED,
-            business: business._id,
+            $set: {
+                images: uploadedImages,
+                eShramCardNumber,
+                readyToTravelIn10Km,
+                isIndividual,
+                services,
+                numberOfWorkers,
+                verificationStatus: product.verificationStatus == product_types_1.ProductStatus.UNVERIFIED ? product_types_1.ProductStatus.UNVERIFIED : product_types_1.ProductStatus.RE_VERIFICATION_REQUIRED,
+                business: business._id,
+            }
         }, { new: true });
     }
     else if (category === business_types_1.BusinessCategory.AGRICULTURE_LABOR) {
@@ -517,14 +531,16 @@ exports.updateProduct = (0, express_async_handler_1.default)((req, res) => __awa
         const images = req.files.map((file) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, s3Upload_1.uploadFileToS3)(file, 'product/secured/user-data', product._id.toString()); }));
         const uploadedImages = yield Promise.all(images);
         product = yield AgricultureLaborProduct_model_1.AgricultureLaborProduct.findByIdAndUpdate(product._id, {
-            images: uploadedImages,
-            eShramCardNumber,
-            readyToTravelIn10Km,
-            isIndividual,
-            services,
-            verificationStatus: product.verificationStatus == product_types_1.ProductStatus.UNVERIFIED ? product_types_1.ProductStatus.UNVERIFIED : product_types_1.ProductStatus.RE_VERIFICATION_REQUIRED,
-            numberOfWorkers,
-            business: business._id,
+            $set: {
+                images: uploadedImages,
+                eShramCardNumber,
+                readyToTravelIn10Km,
+                isIndividual,
+                services,
+                verificationStatus: product.verificationStatus == product_types_1.ProductStatus.UNVERIFIED ? product_types_1.ProductStatus.UNVERIFIED : product_types_1.ProductStatus.RE_VERIFICATION_REQUIRED,
+                numberOfWorkers,
+                business: business._id,
+            }
         }, { new: true });
     }
     else {

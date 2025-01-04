@@ -86,11 +86,19 @@ export const getProductsByCategory = expressAsyncHandler(async (req: Request, re
     res.status(200).json({ products });
 });
 
-export const findProductsByStatus = async (category: string, status: ProductStatus): Promise<any> => {
+export const findProductsByStatus = async (category: string, status: ProductStatus, business?: string): Promise<any> => {
     if (!Object.values(BusinessCategory).includes(category as BusinessCategory)) {
         throw createHttpError(400, "Invalid category");
     }
-
+    if (!isValidObjectId(business)) {
+        throw createHttpError(400, "Invalid business ID");
+    }
+    if (business) {
+        const data = await Business.findById(business);
+        if (!data) {
+            throw createHttpError(404, "Business not found");
+        }
+    }
     const modelMapping: Record<BusinessCategory, any> = {
         [BusinessCategory.HARVESTORS]: HarvestorProduct,
         [BusinessCategory.IMPLEMENTS]: ImplementProduct,
@@ -109,7 +117,12 @@ export const findProductsByStatus = async (category: string, status: ProductStat
     interface IProduct {
         images: string[];
     }
-    const products: IProduct[] = await model.find({ verificationStatus: status });
+    let products: IProduct[];
+    if (business) {
+        products = await model.find({ verificationStatus: status, business });
+    } else {
+        products = await model.find({ verificationStatus: status });
+    }
 
     for (const product of products) {
         await formatProductImageUrls(product);
