@@ -90,7 +90,7 @@ export const findProductsByStatus = async (category: string, status: ProductStat
     if (!Object.values(BusinessCategory).includes(category as BusinessCategory)) {
         throw createHttpError(400, "Invalid category");
     }
-    if (!isValidObjectId(business)) {
+    if (business && !isValidObjectId(business)) {
         throw createHttpError(400, "Invalid business ID");
     }
     if (business) {

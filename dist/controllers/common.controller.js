@@ -91,7 +91,7 @@ const findProductsByStatus = (category, status, business) => __awaiter(void 0, v
     if (!Object.values(business_types_1.BusinessCategory).includes(category)) {
         throw (0, http_errors_1.default)(400, "Invalid category");
     }
-    if (!(0, mongoose_1.isValidObjectId)(business)) {
+    if (business && !(0, mongoose_1.isValidObjectId)(business)) {
         throw (0, http_errors_1.default)(400, "Invalid business ID");
     }
     if (business) {

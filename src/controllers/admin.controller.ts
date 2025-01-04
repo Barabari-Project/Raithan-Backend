@@ -20,6 +20,7 @@ import { formateProviderImage, formatProductImageUrls } from '../utils/formatIma
 import { generateJwt } from '../utils/jwt';
 import { validateEmail } from '../utils/validation';
 import { findProductsByStatus } from './common.controller';
+import { logger } from '..';
 
 export const login = expressAsyncHandler(async (req: Request, res: Response) => {
     const { email, password } = req.body;
@@ -197,7 +198,6 @@ export const updateProductStatus = async (category: string, productId: string, s
 export const getProductByStatusAndProviderId = expressAsyncHandler(async (req: Request, res: Response) => {
     const { category,status } = req.params;
     const { businessId } = req.query;
-    
     if (!Object.values(ProductStatus).includes(status as ProductStatus)) {
         throw createHttpError(400, "Invalid status");
     }
