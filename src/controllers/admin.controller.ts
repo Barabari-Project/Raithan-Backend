@@ -195,12 +195,13 @@ export const updateProductStatus = async (category: string, productId: string, s
 }
 
 export const getProductByStatusAndProviderId = expressAsyncHandler(async (req: Request, res: Response) => {
-    const { category,status,businessId } = req.params;
+    const { category,status } = req.params;
+    const { businessId } = req.query;
     
     if (!Object.values(ProductStatus).includes(status as ProductStatus)) {
         throw createHttpError(400, "Invalid status");
     }
-    const products = await findProductsByStatus(category, status as ProductStatus,businessId);
+    const products = await findProductsByStatus(category, status as ProductStatus,businessId as string);
     res.status(200).json({ products });
 });
 

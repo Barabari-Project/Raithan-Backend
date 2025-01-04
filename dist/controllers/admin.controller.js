@@ -192,7 +192,8 @@ const updateProductStatus = (category, productId, status) => __awaiter(void 0, v
 });
 exports.updateProductStatus = updateProductStatus;
 exports.getProductByStatusAndProviderId = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { category, status, businessId } = req.params;
+    const { category, status } = req.params;
+    const { businessId } = req.query;
     if (!Object.values(product_types_1.ProductStatus).includes(status)) {
         throw (0, http_errors_1.default)(400, "Invalid status");
     }
