@@ -6,6 +6,8 @@ var ProductStatus;
     ProductStatus["VERIFIED"] = "Verified";
     ProductStatus["UNVERIFIED"] = "Unverified";
     ProductStatus["REJECTED"] = "Rejected";
+    ProductStatus["RE_VERIFICATION_REQUIRED"] = "Reverification Required";
+    ProductStatus["MODIFICATION_REQUIRED"] = "Modification Required";
 })(ProductStatus || (exports.ProductStatus = ProductStatus = {}));
 var MechanicServiceType;
 (function (MechanicServiceType) {

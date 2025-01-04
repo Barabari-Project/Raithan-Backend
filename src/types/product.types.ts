@@ -8,6 +8,13 @@ export interface IHarvestorProduct extends Document {
     modelNo: string;
     type: string;
     verificationStatus: ProductStatus;
+    avgRating: number;
+    ratings: IRating[];
+}
+
+export interface IRating {
+    userId: mongoose.Types.ObjectId;
+    rating: number;
 }
 
 export interface IEarthMoverProduct extends Document {
@@ -18,12 +25,16 @@ export interface IEarthMoverProduct extends Document {
     modelNo: string;
     type: string;
     verificationStatus: ProductStatus;
+    avgRating: number;
+    ratings: IRating[];
 }
 
 export enum ProductStatus {
     VERIFIED = 'Verified',
     UNVERIFIED = 'Unverified',
     REJECTED = 'Rejected',
+    RE_VERIFICATION_REQUIRED = 'Reverification Required',
+    MODIFICATION_REQUIRED = 'Modification Required',
 }
 
 export interface IImplementProduct extends Document {
@@ -33,6 +44,8 @@ export interface IImplementProduct extends Document {
     hp: string;
     modelNo: string;
     verificationStatus: ProductStatus;
+    avgRating: number;
+    ratings: IRating[];
 }
 
 export interface IMachineProduct extends Document {
@@ -42,6 +55,8 @@ export interface IMachineProduct extends Document {
     hp: string;
     modelNo: string;
     verificationStatus: ProductStatus;
+    avgRating: number;
+    ratings: IRating[];
 }
 
 export interface IPaddyTransplantorProduct extends Document {
@@ -51,6 +66,8 @@ export interface IPaddyTransplantorProduct extends Document {
     hp: string;
     modelNo: string;
     verificationStatus: ProductStatus;
+    avgRating: number;
+    ratings: IRating[];
 }
 
 export interface IDroneProduct extends Document {
@@ -60,6 +77,8 @@ export interface IDroneProduct extends Document {
     modelNo: string;
     type: string;
     verificationStatus: ProductStatus;
+    avgRating: number;
+    ratings: IRating[];
 }
 
 export interface IMechanicProduct extends Document {
@@ -72,6 +91,8 @@ export interface IMechanicProduct extends Document {
     services: MechanicServiceType[];
     numberOfWorkers: number;
     verificationStatus: ProductStatus;
+    avgRating: number;
+    ratings: IRating[];
 }
 
 export enum MechanicServiceType {
@@ -91,6 +112,8 @@ export interface IAgricultureLaborProduct extends Document {
     services: AgricultureLaborServiceType[];
     numberOfWorkers: number;
     verificationStatus: ProductStatus;
+    avgRating: number;
+    ratings: IRating[];
 }
 
 export enum AgricultureLaborServiceType {
