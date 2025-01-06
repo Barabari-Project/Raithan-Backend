@@ -114,9 +114,6 @@ export const findProductsByStatus = async (category: string, status?: ProductSta
     if (!model) {
         throw createHttpError(400, "Invalid category");
     }
-    interface IProduct {
-        images: string[];
-    }
 
     interface Query {
         verificationStatus?: ProductStatus;

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getCallHistoryByServiceProviderId = exports.getCallHistoryByServiceSeekerId = exports.getCallHistory = exports.getProductByStatusAndCategory = exports.updateProductStatus = exports.rejectProduct = exports.verifyProduct = exports.getServiceSeekers = exports.updateServiceProviderStatus = exports.getServiceProvidersByStatus = exports.getServiceProviders = exports.login = void 0;
+exports.getCallHistoryByServiceProviderId = exports.getCallHistoryByServiceSeekerId = exports.getCallHistory = exports.getProductByStatusAndCategoryAndBusinessId = exports.updateProductStatus = exports.rejectProduct = exports.verifyProduct = exports.getServiceSeekers = exports.updateServiceProviderStatus = exports.getServiceProvidersByStatus = exports.getServiceProviders = exports.login = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const http_errors_1 = __importDefault(require("http-errors"));
 const mongoose_1 = require("mongoose");
@@ -34,6 +34,7 @@ const formatImageUrl_1 = require("../utils/formatImageUrl");
 const jwt_1 = require("../utils/jwt");
 const validation_1 = require("../utils/validation");
 const common_controller_1 = require("./common.controller");
+const __1 = require("..");
 exports.login = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     if (!(0, validation_1.validateEmail)(email)) {
@@ -191,12 +192,13 @@ const updateProductStatus = (category, productId, status) => __awaiter(void 0, v
     return product;
 });
 exports.updateProductStatus = updateProductStatus;
-exports.getProductByStatusAndCategory = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { category, status } = req.query;
+exports.getProductByStatusAndCategoryAndBusinessId = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { category, status, business } = req.query;
+    __1.logger.debug(business);
     if (status && !Object.values(product_types_1.ProductStatus).includes(status)) {
         throw (0, http_errors_1.default)(400, "Invalid status");
     }
-    const products = yield (0, common_controller_1.findProductsByStatus)(category, status);
+    const products = yield (0, common_controller_1.findProductsByStatus)(category, status, business);
     res.status(200).json({ products });
 }));
 exports.getCallHistory = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {

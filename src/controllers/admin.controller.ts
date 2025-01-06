@@ -195,13 +195,13 @@ export const updateProductStatus = async (category: string, productId: string, s
     return product;
 }
 
-export const getProductByStatusAndCategory = expressAsyncHandler(async (req: Request, res: Response) => {
-    const { category, status } = req.query;
-
+export const getProductByStatusAndCategoryAndBusinessId = expressAsyncHandler(async (req: Request, res: Response) => {
+    const { category, status, business } = req.query;
+    logger.debug(business)
     if (status && !Object.values(ProductStatus).includes(status as ProductStatus)) {
         throw createHttpError(400, "Invalid status");
     }
-    const products = await findProductsByStatus(category as BusinessCategory, status as ProductStatus);
+    const products = await findProductsByStatus(category as BusinessCategory, status as ProductStatus, business as string);
     res.status(200).json({ products });
 });
 

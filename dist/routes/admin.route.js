@@ -17,7 +17,7 @@ router.put("/service-providers/:id/status", (0, authMiddleware_1.authMiddleware)
 // verify product
 router.post("/products/:category/:id/verify", (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.verifyProduct);
 router.post("/products/:category/:id/reject", (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.rejectProduct);
-router.get("/products", (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.getProductByStatusAndCategory);
+router.get("/products", (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.getProductByStatusAndCategoryAndBusinessId);
 // admin service seeker routes
 router.get("/service-seekers", (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.getServiceSeekers);
 router.get("/service-seekers/:id", (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), common_controller_1.getServiceSeekerById);

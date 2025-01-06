@@ -1,5 +1,5 @@
 import express from "express";
-import { getCallHistory, getCallHistoryByServiceProviderId, getCallHistoryByServiceSeekerId, getProductByStatusAndCategory, getServiceProviders, getServiceProvidersByStatus, getServiceSeekers, login, rejectProduct, updateServiceProviderStatus, verifyProduct } from "../controllers/admin.controller";
+import { getCallHistory, getCallHistoryByServiceProviderId, getCallHistoryByServiceSeekerId, getProductByStatusAndCategoryAndBusinessId, getServiceProviders, getServiceProvidersByStatus, getServiceSeekers, login, rejectProduct, updateServiceProviderStatus, verifyProduct } from "../controllers/admin.controller";
 import { authMiddleware } from "../middlewares/authMiddleware";
 import { getServiceSeekerById } from "../controllers/common.controller";
 
@@ -16,7 +16,7 @@ router.put("/service-providers/:id/status", authMiddleware(process.env.ADMIN_JWT
 // verify product
 router.post("/products/:category/:id/verify", authMiddleware(process.env.ADMIN_JWT_SECRET!), verifyProduct);
 router.post("/products/:category/:id/reject", authMiddleware(process.env.ADMIN_JWT_SECRET!), rejectProduct);
-router.get("/products", authMiddleware(process.env.ADMIN_JWT_SECRET!), getProductByStatusAndCategory);
+router.get("/products", authMiddleware(process.env.ADMIN_JWT_SECRET!), getProductByStatusAndCategoryAndBusinessId);
 
 // admin service seeker routes
 router.get("/service-seekers", authMiddleware(process.env.ADMIN_JWT_SECRET!), getServiceSeekers);
