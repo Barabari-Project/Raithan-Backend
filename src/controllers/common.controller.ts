@@ -86,7 +86,7 @@ export const getProductsByCategory = expressAsyncHandler(async (req: Request, re
     res.status(200).json({ products });
 });
 
-export const findProductsByStatus = async (category: string, status: ProductStatus, business?: string): Promise<any> => {
+export const findProductsByStatus = async (category: string, status?: ProductStatus, business?: string): Promise<any> => {
     if (!Object.values(BusinessCategory).includes(category as BusinessCategory)) {
         throw createHttpError(400, "Invalid category");
     }
@@ -117,12 +117,18 @@ export const findProductsByStatus = async (category: string, status: ProductStat
     interface IProduct {
         images: string[];
     }
-    let products: IProduct[];
-    if (business) {
-        products = await model.find({ verificationStatus: status, business });
-    } else {
-        products = await model.find({ verificationStatus: status });
+
+    interface Query {
+        verificationStatus?: ProductStatus;
+        business?: string;
     }
+
+    const query: Query = {};
+    if (status) query.verificationStatus = status;
+    if (business) query.business = business;
+
+    const products = await model.find(query);
+
 
     for (const product of products) {
         await formatProductImageUrls(product);

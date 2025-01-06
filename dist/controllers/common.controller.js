@@ -114,13 +114,12 @@ const findProductsByStatus = (category, status, business) => __awaiter(void 0, v
     if (!model) {
         throw (0, http_errors_1.default)(400, "Invalid category");
     }
-    let products;
-    if (business) {
-        products = yield model.find({ verificationStatus: status, business });
-    }
-    else {
-        products = yield model.find({ verificationStatus: status });
-    }
+    const query = {};
+    if (status)
+        query.verificationStatus = status;
+    if (business)
+        query.business = business;
+    const products = yield model.find(query);
     for (const product of products) {
         yield (0, formatImageUrl_1.formatProductImageUrls)(product);
     }
