@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -22,7 +13,6 @@ const path_1 = __importDefault(require("path"));
 const winston_1 = __importDefault(require("winston"));
 const database_js_1 = __importDefault(require("./database.js"));
 const routes_1 = __importDefault(require("./routes"));
-const s3Upload_1 = require("./utils/s3Upload");
 const validateEnvVars_1 = require("./utils/validateEnvVars");
 dotenv_1.default.config({ path: path_1.default.resolve(__dirname, '../.env') });
 exports.logger = winston_1.default.createLogger({
@@ -44,10 +34,6 @@ const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)({
     origin: '*',
-}));
-app.post('/ghi', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const url = yield (0, s3Upload_1.getImageUrl)(req.body.key);
-    res.status(200).json({ url });
 }));
 app.get('/raithan/health', (req, res) => {
     res.sendStatus(200);

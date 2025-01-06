@@ -11,7 +11,7 @@ export const multerMiddleware = multer({
         fileSize: 5 * 1024 * 1024, // 5 MB limit
     },
     fileFilter: (req, file, cb) => {
-        const allowedMimeTypes = ['image/jpeg', 'image/png'];
+        const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg'];
         if (allowedMimeTypes.includes(file.mimetype)) {
             cb(null, true); // Accept the file
         } else {

@@ -39,11 +39,6 @@ app.use(cors({
     origin: '*',
 }));
 
-app.post('/ghi', async (req: Request, res: Response) => {
-    const url = await getImageUrl(req.body.key);
-    res.status(200).json({ url });
-})
-
 app.get('/raithan/health', (req: Request, res: Response) => {
     res.sendStatus(200);
 });
