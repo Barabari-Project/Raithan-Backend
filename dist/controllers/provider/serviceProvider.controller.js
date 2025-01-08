@@ -45,7 +45,7 @@ exports.initiateOnboarding = (0, express_async_handler_1.default)((req, res) => 
         status: provider_types_1.ServiceProviderStatus.PENDING
     });
     yield (0, twilioService_1.sendOTP)(mobileNumber);
-    res.status(200).json({ message: "OTP sent successfully" });
+    res.status(201).json({ message: "OTP sent successfully" });
 }));
 // Step 2: Verify OTP and send JWT
 exports.verifyOtp = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {

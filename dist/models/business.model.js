@@ -103,7 +103,7 @@ const BusinessSchema = new mongoose_1.Schema({
                 type: String,
                 required: true,
                 validate: {
-                    validator: (v) => /^([0]?[0-9]|1[0-2]):[0-5][0-9] [ap]m$/.test(v),
+                    validator: (v) => /^([0]?[0-9]|1[0-2]):[0-5][0-9] [AP]M$/.test(v),
                     message: (props) => `${props.value} is not a valid time!`,
                 },
             },
