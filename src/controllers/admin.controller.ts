@@ -99,7 +99,7 @@ export const updateServiceProviderStatus = expressAsyncHandler(async (req: Reque
     const updatedServiceProvider: IServiceProvider | null = await ServiceProvider.findByIdAndUpdate(id,
         { $set: { status } },
         { new: true }
-    );
+    ).populate('business');
     await formateProviderImage(updatedServiceProvider!);
     // return updatedServiceProvider!;
     res.status(200).json({ serviceProvider: updatedServiceProvider });
@@ -110,19 +110,13 @@ export const getServiceSeekers = expressAsyncHandler(async (req: Request, res: R
     res.status(200).json(serviceSeekers);
 });
 
-export const verifyProduct = expressAsyncHandler(async (req: Request, res: Response) => {
+export const updateProductStatus = expressAsyncHandler(async (req: Request, res: Response) => {
     const { id: productId, category } = req.params;
-    const product = await updateProductStatus(category, productId, ProductStatus.VERIFIED);
-    res.status(200).json({ product });
-});
+    const { status } = req.body;
+    if (!Object.values(ProductStatus).includes(status)) {
+        throw createHttpError(400, "Invalid status provided");
+    }
 
-export const rejectProduct = expressAsyncHandler(async (req: Request, res: Response) => {
-    const { id: productId, category } = req.params;
-    const product = await updateProductStatus(category, productId, ProductStatus.REJECTED);
-    res.status(200).json({ product });
-});
-
-export const updateProductStatus = async (category: string, productId: string, status: ProductStatus) => {
     if (!Object.values(BusinessCategory).includes(category as BusinessCategory)) {
         throw createHttpError(400, "Invalid category");
     }
@@ -192,8 +186,8 @@ export const updateProductStatus = async (category: string, productId: string, s
         throw createHttpError(400, "Invalid category");
     }
     await formatProductImageUrls(product);
-    return product;
-}
+    res.status(200).json({ product });
+});
 
 export const getProductByStatusAndCategoryAndBusinessId = expressAsyncHandler(async (req: Request, res: Response) => {
     const { category, status, business } = req.query;

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getCallHistoryByServiceProviderId = exports.getCallHistoryByServiceSeekerId = exports.getCallHistory = exports.getProductByStatusAndCategoryAndBusinessId = exports.updateProductStatus = exports.rejectProduct = exports.verifyProduct = exports.getServiceSeekers = exports.updateServiceProviderStatus = exports.getServiceProvidersByStatus = exports.getServiceProviders = exports.login = void 0;
+exports.getCallHistoryByServiceProviderId = exports.getCallHistoryByServiceSeekerId = exports.getCallHistory = exports.getProductByStatusAndCategoryAndBusinessId = exports.updateProductStatus = exports.getServiceSeekers = exports.updateServiceProviderStatus = exports.getServiceProvidersByStatus = exports.getServiceProviders = exports.login = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const http_errors_1 = __importDefault(require("http-errors"));
 const mongoose_1 = require("mongoose");
@@ -94,7 +94,7 @@ exports.updateServiceProviderStatus = (0, express_async_handler_1.default)((req,
         serviceProvider.status !== provider_types_1.ServiceProviderStatus.RE_VERIFICATION_REQUIRED) {
         throw (0, http_errors_1.default)(400, "Service provider is not pending verification");
     }
-    const updatedServiceProvider = yield serviceProvider_model_1.default.findByIdAndUpdate(id, { $set: { status } }, { new: true });
+    const updatedServiceProvider = yield serviceProvider_model_1.default.findByIdAndUpdate(id, { $set: { status } }, { new: true }).populate('business');
     yield (0, formatImageUrl_1.formateProviderImage)(updatedServiceProvider);
     // return updatedServiceProvider!;
     res.status(200).json({ serviceProvider: updatedServiceProvider });
@@ -103,17 +103,12 @@ exports.getServiceSeekers = (0, express_async_handler_1.default)((req, res) => _
     const serviceSeekers = yield serviceSeeker_model_1.default.find();
     res.status(200).json(serviceSeekers);
 }));
-exports.verifyProduct = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.updateProductStatus = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id: productId, category } = req.params;
-    const product = yield (0, exports.updateProductStatus)(category, productId, product_types_1.ProductStatus.VERIFIED);
-    res.status(200).json({ product });
-}));
-exports.rejectProduct = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id: productId, category } = req.params;
-    const product = yield (0, exports.updateProductStatus)(category, productId, product_types_1.ProductStatus.REJECTED);
-    res.status(200).json({ product });
-}));
-const updateProductStatus = (category, productId, status) => __awaiter(void 0, void 0, void 0, function* () {
+    const { status } = req.body;
+    if (!Object.values(product_types_1.ProductStatus).includes(status)) {
+        throw (0, http_errors_1.default)(400, "Invalid status provided");
+    }
     if (!Object.values(business_types_1.BusinessCategory).includes(category)) {
         throw (0, http_errors_1.default)(400, "Invalid category");
     }
@@ -189,9 +184,8 @@ const updateProductStatus = (category, productId, status) => __awaiter(void 0, v
         throw (0, http_errors_1.default)(400, "Invalid category");
     }
     yield (0, formatImageUrl_1.formatProductImageUrls)(product);
-    return product;
-});
-exports.updateProductStatus = updateProductStatus;
+    res.status(200).json({ product });
+}));
 exports.getProductByStatusAndCategoryAndBusinessId = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { category, status, business } = req.query;
     __1.logger.debug(business);
