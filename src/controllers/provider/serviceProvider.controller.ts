@@ -40,7 +40,7 @@ export const initiateOnboarding = expressAsyncHandler(async (req: Request, res: 
 
     await sendOTP(mobileNumber);
 
-    res.status(200).json({ message: "OTP sent successfully" });
+    res.status(201).json({ message: "OTP sent successfully" });
 
 });
 

@@ -67,7 +67,7 @@ const BusinessSchema: Schema = new Schema<IBusiness>(
                         type: String,
                         required: true,
                         validate: {
-                            validator: (v: string) => /^([0]?[0-9]|1[0-2]):[0-5][0-9] [ap]m$/.test(v),
+                            validator: (v: string) => /^([0]?[0-9]|1[0-2]):[0-5][0-9] [AP]M$/.test(v),
                             message: (props: any) => `${props.value} is not a valid time!`,
                         },
                     },

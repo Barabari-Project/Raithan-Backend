@@ -4,6 +4,7 @@ import { Business } from '../../models/business.model';
 import ServiceProvider from '../../models/serviceProvider.model';
 import expressAsyncHandler from 'express-async-handler';
 import { ServiceProviderStatus } from '../../types/provider.types';
+import { logger } from '../..';
 
 // Create a new business
 export const createBusiness = expressAsyncHandler(async (req: Request, res: Response) => {
@@ -22,6 +23,7 @@ export const createBusiness = expressAsyncHandler(async (req: Request, res: Resp
     if (isBusinessAlreadyExists) {
         throw createHttpError(400, 'Business already exists');
     }
+    
     const newBusiness = new Business({ ...req.body, serviceProvider: serviceProvider._id });
     await newBusiness.save();
 
