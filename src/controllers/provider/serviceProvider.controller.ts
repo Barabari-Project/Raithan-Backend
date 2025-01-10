@@ -90,10 +90,6 @@ export const updateProfile = expressAsyncHandler(async (req: Request, res: Respo
 
     const userId = req.userId;
 
-    if (!req.file) {
-        throw createHttpError(400, 'Profile picture is required');
-    }
-
     let provider = await ServiceProvider.findById(userId);
 
     if (!provider) {
@@ -105,9 +101,11 @@ export const updateProfile = expressAsyncHandler(async (req: Request, res: Respo
         provider.status !== ServiceProviderStatus.VERIFIED) {
         throw createHttpError(400, 'You can not update profile.');
     }
-
+    let profilePicturePath = null;
     // Upload profile picture to S3
-    const profilePicturePath = await uploadFileToS3(req.file, 'profile-pictures', provider._id);
+    if (req.file) {
+        profilePicturePath = await uploadFileToS3(req.file, 'profile-pictures', provider._id);
+    }
     let status;
     if (provider.status == ServiceProviderStatus.OTP_VERIFIED) {
         status = ServiceProviderStatus.BUSINESS_DETAILS_REMAINING;
@@ -117,11 +115,19 @@ export const updateProfile = expressAsyncHandler(async (req: Request, res: Respo
         status = provider.status;
     }
 
-    provider = await ServiceProvider.findByIdAndUpdate(
-        userId,
-        { $set: { firstName, lastName, profilePicturePath, gender, yearOfBirth, status } },
-        { new: true }
-    );
+    if (profilePicturePath) {
+        provider = await ServiceProvider.findByIdAndUpdate(
+            userId,
+            { $set: { firstName, lastName, profilePicturePath, gender, yearOfBirth, status } },
+            { new: true }
+        );
+    } else {
+        provider = await ServiceProvider.findByIdAndUpdate(
+            userId,
+            { $set: { firstName, lastName, gender, yearOfBirth, status } },
+            { new: true }
+        );
+    }
 
     await formateProviderImage(provider!);
 

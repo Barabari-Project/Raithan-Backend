@@ -80,9 +80,6 @@ exports.updateProfile = (0, express_async_handler_1.default)((req, res) => __awa
         throw (0, http_errors_1.default)(400, "Invalid Inputs");
     }
     const userId = req.userId;
-    if (!req.file) {
-        throw (0, http_errors_1.default)(400, 'Profile picture is required');
-    }
     let provider = yield serviceProvider_model_1.default.findById(userId);
     if (!provider) {
         throw (0, http_errors_1.default)(404, 'User not found');
@@ -94,8 +91,11 @@ exports.updateProfile = (0, express_async_handler_1.default)((req, res) => __awa
         provider.status !== provider_types_1.ServiceProviderStatus.VERIFIED) {
         throw (0, http_errors_1.default)(400, 'You can not update profile.');
     }
+    let profilePicturePath = null;
     // Upload profile picture to S3
-    const profilePicturePath = yield (0, s3Upload_1.uploadFileToS3)(req.file, 'profile-pictures', provider._id);
+    if (req.file) {
+        profilePicturePath = yield (0, s3Upload_1.uploadFileToS3)(req.file, 'profile-pictures', provider._id);
+    }
     let status;
     if (provider.status == provider_types_1.ServiceProviderStatus.OTP_VERIFIED) {
         status = provider_types_1.ServiceProviderStatus.BUSINESS_DETAILS_REMAINING;
@@ -106,7 +106,12 @@ exports.updateProfile = (0, express_async_handler_1.default)((req, res) => __awa
     else {
         status = provider.status;
     }
-    provider = yield serviceProvider_model_1.default.findByIdAndUpdate(userId, { $set: { firstName, lastName, profilePicturePath, gender, yearOfBirth, status } }, { new: true });
+    if (profilePicturePath) {
+        provider = yield serviceProvider_model_1.default.findByIdAndUpdate(userId, { $set: { firstName, lastName, profilePicturePath, gender, yearOfBirth, status } }, { new: true });
+    }
+    else {
+        provider = yield serviceProvider_model_1.default.findByIdAndUpdate(userId, { $set: { firstName, lastName, gender, yearOfBirth, status } }, { new: true });
+    }
     yield (0, formatImageUrl_1.formateProviderImage)(provider);
     res.status(200).json({
         message: 'Profile updated successfully',
