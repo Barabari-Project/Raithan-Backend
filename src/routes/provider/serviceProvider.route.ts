@@ -4,6 +4,7 @@ import {
     login,
     updateProfile,
     verifyLoginOtp,
+    profile,
     verifyOtp
 } from "../../controllers/provider/serviceProvider.controller";
 import { authMiddleware } from "../../middlewares/authMiddleware";
@@ -22,6 +23,9 @@ router.post("/onboard/user/profile",
     handleMulterError,
     updateProfile
 );
+
+// profile
+router.get('/profile', authMiddleware(process.env.PROVIDER_JWT_SECRET!), profile);
 
 // login
 router.post("/login", login);

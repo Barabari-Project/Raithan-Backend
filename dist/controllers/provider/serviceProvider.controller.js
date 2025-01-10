@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyLoginOtp = exports.login = exports.updateProfile = exports.verifyOtp = exports.initiateOnboarding = void 0;
+exports.verifyLoginOtp = exports.login = exports.profile = exports.updateProfile = exports.verifyOtp = exports.initiateOnboarding = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const serviceProvider_model_1 = __importDefault(require("../../models/serviceProvider.model"));
 const http_errors_1 = __importDefault(require("http-errors"));
@@ -112,6 +112,11 @@ exports.updateProfile = (0, express_async_handler_1.default)((req, res) => __awa
         message: 'Profile updated successfully',
         provider,
     });
+}));
+exports.profile = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.userId;
+    const provider = yield serviceProvider_model_1.default.findById(userId).populate('business');
+    res.status(200).json({ provider });
 }));
 // Login
 exports.login = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {

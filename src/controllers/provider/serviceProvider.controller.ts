@@ -107,7 +107,7 @@ export const updateProfile = expressAsyncHandler(async (req: Request, res: Respo
     }
 
     // Upload profile picture to S3
-    const profilePicturePath = await uploadFileToS3(req.file, 'profile-pictures',provider._id);
+    const profilePicturePath = await uploadFileToS3(req.file, 'profile-pictures', provider._id);
     let status;
     if (provider.status == ServiceProviderStatus.OTP_VERIFIED) {
         status = ServiceProviderStatus.BUSINESS_DETAILS_REMAINING;
@@ -129,6 +129,12 @@ export const updateProfile = expressAsyncHandler(async (req: Request, res: Respo
         message: 'Profile updated successfully',
         provider,
     });
+});
+
+export const profile = expressAsyncHandler(async (req: Request, res: Response) => {
+    const userId = req.userId;
+    const provider = await ServiceProvider.findById(userId).populate('business');
+    res.status(200).json({ provider });
 });
 
 // Login

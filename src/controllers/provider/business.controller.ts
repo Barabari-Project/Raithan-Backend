@@ -23,7 +23,7 @@ export const createBusiness = expressAsyncHandler(async (req: Request, res: Resp
     if (isBusinessAlreadyExists) {
         throw createHttpError(400, 'Business already exists');
     }
-    
+
     const newBusiness = new Business({ ...req.body, serviceProvider: serviceProvider._id });
     await newBusiness.save();
 
