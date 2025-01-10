@@ -76,10 +76,20 @@ const serviceProviderSchema = new mongoose_1.Schema({
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: 'business',
     },
+    location: {
+        lat: {
+            type: Number,
+            required: [true, 'Latitude is required'],
+        },
+        lng: {
+            type: Number,
+            required: [true, 'Longitude is required'],
+        },
+    },
 }, {
     timestamps: true,
 });
-serviceProviderSchema.post('save', function (error, doc, next) {
+const handleMongooseError = (error, next) => {
     if (error.name === 'ValidationError') {
         const firstError = error.errors[Object.keys(error.errors)[0]];
         throw (0, http_errors_1.default)(400, firstError.message);
@@ -90,6 +100,12 @@ serviceProviderSchema.post('save', function (error, doc, next) {
     else {
         next(error); // Pass any other errors to the next middleware
     }
+};
+serviceProviderSchema.post('save', function (error, doc, next) {
+    handleMongooseError(error, next);
+});
+serviceProviderSchema.post('findOneAndUpdate', function (error, doc, next) {
+    handleMongooseError(error, next);
 });
 // Create and export the ServiceProvider model
 const ServiceProvider = mongoose_1.default.model('serviceProvider', serviceProviderSchema, 'serviceProvider');

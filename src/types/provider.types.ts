@@ -16,6 +16,10 @@ export interface IServiceProvider extends Document {
     profilePicturePath?: string;
     business?: IBusiness['_id'];  // Reference to the businessDetails model
     status: ServiceProviderStatus;
+    location?: {
+        lat: number;
+        lng: number;
+    };
 }
 
 export enum ServiceProviderStatus {
@@ -29,7 +33,7 @@ export enum ServiceProviderStatus {
     RE_VERIFICATION_REQUIRED = 're_verification_required'
 }
 
-export enum Gender{
+export enum Gender {
     MALE = "Male",
     FEMALE = "Female",
     OTHER = "Other"

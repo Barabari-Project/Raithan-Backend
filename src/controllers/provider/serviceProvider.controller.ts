@@ -137,6 +137,20 @@ export const updateProfile = expressAsyncHandler(async (req: Request, res: Respo
     });
 });
 
+export const setLocation = expressAsyncHandler(async (req: Request, res: Response) => {
+
+    const { lat, lng } = req.body;
+    const userId = req.userId;
+    logger.debug(req.body.lat);
+    logger.debug(req.body.lng);
+    await ServiceProvider.findByIdAndUpdate(
+        userId,
+        { $set: { location: { lat, lng } } },
+        { runValidators: true }
+    );
+    res.sendStatus(200);
+});
+
 export const profile = expressAsyncHandler(async (req: Request, res: Response) => {
     const userId = req.userId;
     const provider = await ServiceProvider.findById(userId).populate('business');

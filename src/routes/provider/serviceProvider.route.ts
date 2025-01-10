@@ -5,7 +5,8 @@ import {
     updateProfile,
     verifyLoginOtp,
     profile,
-    verifyOtp
+    verifyOtp,
+    setLocation
 } from "../../controllers/provider/serviceProvider.controller";
 import { authMiddleware } from "../../middlewares/authMiddleware";
 import { handleMulterError, multerMiddleware } from '../../middlewares/multerMiddleware';
@@ -22,6 +23,10 @@ router.post("/onboard/user/profile",
     authMiddleware(process.env.PROVIDER_JWT_SECRET!),
     handleMulterError,
     updateProfile
+);
+router.post('/location',
+    authMiddleware(process.env.PROVIDER_JWT_SECRET!),
+    setLocation
 );
 
 // profile

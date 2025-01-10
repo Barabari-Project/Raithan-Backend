@@ -1,6 +1,7 @@
 import createHttpError from 'http-errors';
 import mongoose, { Schema } from 'mongoose';
 import { Gender, IServiceProvider, ServiceProviderStatus } from '../types/provider.types';
+import { logger } from '..';
 
 const serviceProviderSchema = new Schema<IServiceProvider>({
     mobileNumber: {
@@ -39,11 +40,20 @@ const serviceProviderSchema = new Schema<IServiceProvider>({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'business',
     },
+    location: {
+        lat: {
+            type: Number,
+            required: [true, 'Latitude is required'],
+        },
+        lng: {
+            type: Number,
+            required: [true, 'Longitude is required'],
+        },
+    },
 }, {
     timestamps: true,
 });
-
-serviceProviderSchema.post('save', function (error: any, doc: any, next: Function) {
+const handleMongooseError = (error: any, next: Function) => {
     if (error.name === 'ValidationError') {
         const firstError = error.errors[Object.keys(error.errors)[0]];
         throw createHttpError(400, firstError.message);
@@ -52,6 +62,12 @@ serviceProviderSchema.post('save', function (error: any, doc: any, next: Functio
     } else {
         next(error); // Pass any other errors to the next middleware
     }
+}
+serviceProviderSchema.post('save', function (error: any, doc: any, next: Function) {
+    handleMongooseError(error, next);
+});
+serviceProviderSchema.post('findOneAndUpdate', function (error: any, doc: any, next: Function) {
+    handleMongooseError(error, next);
 });
 
 // Create and export the ServiceProvider model
