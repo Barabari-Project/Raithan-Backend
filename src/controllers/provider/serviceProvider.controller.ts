@@ -140,6 +140,7 @@ export const updateProfile = expressAsyncHandler(async (req: Request, res: Respo
 export const profile = expressAsyncHandler(async (req: Request, res: Response) => {
     const userId = req.userId;
     const provider = await ServiceProvider.findById(userId).populate('business');
+    await formateProviderImage(provider!);
     res.status(200).json({ provider });
 });
 
