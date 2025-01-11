@@ -1,15 +1,26 @@
 
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import expressAsyncHandler from 'express-async-handler';
-import ServiceSeeker from '../models/serviceSeeker.model';
 import createHttpError from 'http-errors';
-import { sendOTP, verifyOTP } from '../utils/twilioService';
-import ServiceProvider from '../models/serviceProvider.model';
-import { generateJwt } from '../utils/jwt';
 import { isValidObjectId } from 'mongoose';
-import { ServiceProviderStatus } from '../types/provider.types';
 import CallHistory from '../models/callHistory.model';
+import { AgricultureLaborProduct } from "../models/products/AgricultureLaborProduct.model";
+import { DroneProduct } from "../models/products/DroneProduct.model";
+import { EarthMoverProduct } from "../models/products/earthMoverProduct.model";
+import { HarvestorProduct } from '../models/products/harvestorProduct.model';
+import { ImplementProduct } from '../models/products/ImplementProduct.model';
+import { MachineProduct } from "../models/products/MachineProduct.model";
+import { MechanicProduct } from "../models/products/MechanicProduct.model";
+import { PaddyTransplantorProduct } from "../models/products/PaddyTransplantorProduct.model";
+import ServiceProvider from '../models/serviceProvider.model';
+import ServiceSeeker from '../models/serviceSeeker.model';
+import { BusinessCategory, IBusiness } from '../types/business.types';
+import { ProductStatus, ProductType } from '../types/product.types';
+import { ServiceProviderStatus } from '../types/provider.types';
 import { ServiceSeekerStatus } from '../types/seeker.types';
+import { generateJwt } from '../utils/jwt';
+import { sendOTP, verifyOTP } from '../utils/twilioService';
+import { formatProductImageUrls } from '../utils/formatImageUrl';
 
 // Login
 export const login = expressAsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
@@ -84,3 +95,68 @@ export const createCallEvent = expressAsyncHandler(async (req: Request, res: Res
     res.sendStatus(200);
 });
 
+type ProductWithLocation = ProductType & {
+    location: {
+        lat: number;
+        lng: number;
+    } | null;
+    business: IBusiness
+};
+
+export const getProductsByDistance = expressAsyncHandler(async (req: Request, res: Response) => {
+    const { lat, lng, distance, category } = req.body;
+
+    if (!Object.values(BusinessCategory).includes(category as BusinessCategory)) {
+        throw createHttpError(400, "Invalid category");
+    }
+
+    const modelMapping: Record<BusinessCategory, any> = {
+        [BusinessCategory.HARVESTORS]: HarvestorProduct,
+        [BusinessCategory.IMPLEMENTS]: ImplementProduct,
+        [BusinessCategory.MACHINES]: MachineProduct,
+        [BusinessCategory.MECHANICS]: MechanicProduct,
+        [BusinessCategory.PADDY_TRANSPLANTORS]: PaddyTransplantorProduct,
+        [BusinessCategory.AGRICULTURE_LABOR]: AgricultureLaborProduct,
+        [BusinessCategory.EARTH_MOVERS]: EarthMoverProduct,
+        [BusinessCategory.DRONES]: DroneProduct,
+    };
+
+    const model = modelMapping[category as BusinessCategory];
+    if (!model) {
+        throw createHttpError(400, "Invalid category");
+    }
+
+    const products = await model
+        .find({ verificationStatus: ProductStatus.VERIFIED })
+        .populate("business");
+
+    let filteredProductList: ProductWithLocation[] = products.filter((product: ProductWithLocation) => {
+        if (product.business.location) {
+            const { lat: productLat, lng: productLng } = product.business.location;
+            const distanceInMeters = calculateDistance(lat, lng, productLat, productLng);
+            return distanceInMeters <= distance;
+        }
+    });
+
+    const formatedImgUrlPromises = filteredProductList.map(async (filteredProduct: ProductWithLocation) => formatProductImageUrls(filteredProduct));
+
+    await Promise.all(formatedImgUrlPromises);
+
+    res.status(200).json({ productList: filteredProductList });
+});
+
+function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+    const toRadians = (degree: number): number => degree * (Math.PI / 180);
+
+    const R = 6371; // Earth's radius in kilometers
+    const dLat = toRadians(lat2 - lat1);
+    const dLng = toRadians(lng2 - lng1);
+
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+        Math.sin(dLng / 2) * Math.sin(dLng / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // Distance in kilometers
+}

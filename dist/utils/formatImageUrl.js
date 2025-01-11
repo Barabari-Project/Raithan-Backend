@@ -12,9 +12,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.formateProviderImage = exports.formatProductImageUrls = void 0;
 const s3Upload_1 = require("./s3Upload");
 const formatProductImageUrls = (product) => __awaiter(void 0, void 0, void 0, function* () {
-    for (let i = 0; i < product.images.length; i++) {
-        product.images[i] = yield (0, s3Upload_1.getImageUrl)(product.images[i]);
-    }
+    const formattedImages = yield Promise.all(product.images.map((image) => (0, s3Upload_1.getImageUrl)(image)));
+    product.images = formattedImages;
 });
 exports.formatProductImageUrls = formatProductImageUrls;
 const formateProviderImage = (provider) => __awaiter(void 0, void 0, void 0, function* () {

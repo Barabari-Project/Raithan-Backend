@@ -1,9 +1,10 @@
 import { getImageUrl } from "./s3Upload"
 
 export const formatProductImageUrls = async (product: { images: string[] }): Promise<void> => {
-    for (let i = 0; i < product.images.length; i++) {
-        product.images[i] = await getImageUrl(product.images[i]);
-    }
+    const formattedImages = await Promise.all(
+        product.images.map((image) => getImageUrl(image))
+    );
+    product.images = formattedImages;
 }
 
 export const formateProviderImage = async (provider: { profilePicturePath?: string }): Promise<void> => {

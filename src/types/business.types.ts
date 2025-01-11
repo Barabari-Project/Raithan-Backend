@@ -25,4 +25,8 @@ export interface IBusiness extends Document {
     workingDays: { [day: string]: boolean };
     workingTime: { start: string; end: string };
     category: BusinessCategory[];
+    location?: {
+        lat: number;
+        lng: number;
+    };
 }

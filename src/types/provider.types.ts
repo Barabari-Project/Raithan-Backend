@@ -16,10 +16,6 @@ export interface IServiceProvider extends Document {
     profilePicturePath?: string;
     business?: IBusiness['_id'];  // Reference to the businessDetails model
     status: ServiceProviderStatus;
-    location?: {
-        lat: number;
-        lng: number;
-    };
 }
 
 export enum ServiceProviderStatus {

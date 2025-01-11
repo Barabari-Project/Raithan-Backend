@@ -75,17 +75,7 @@ const serviceProviderSchema = new mongoose_1.Schema({
     business: {
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: 'business',
-    },
-    location: {
-        lat: {
-            type: Number,
-            // required: [true, 'Latitude is required'],
-        },
-        lng: {
-            type: Number,
-            // required: [true, 'Longitude is required'],
-        },
-    },
+    }
 }, {
     timestamps: true,
 });

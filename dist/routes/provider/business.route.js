@@ -9,4 +9,5 @@ const authMiddleware_1 = require("../../middlewares/authMiddleware");
 const router = express_1.default.Router();
 router.post("/", (0, authMiddleware_1.authMiddleware)(process.env.PROVIDER_JWT_SECRET), business_controller_1.createBusiness);
 router.put("/", (0, authMiddleware_1.authMiddleware)(process.env.PROVIDER_JWT_SECRET), business_controller_1.updateBusiness);
+router.post('/location', (0, authMiddleware_1.authMiddleware)(process.env.PROVIDER_JWT_SECRET), business_controller_1.setLocation);
 exports.default = router;

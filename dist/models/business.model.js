@@ -123,6 +123,14 @@ const BusinessSchema = new mongoose_1.Schema({
         default: [],
         enum: Object.values(business_types_1.BusinessCategory),
     },
+    location: {
+        lat: {
+            type: Number,
+        },
+        lng: {
+            type: Number,
+        },
+    },
 }, { timestamps: true });
 const handleMongooseError = (error, next) => {
     __1.logger.debug(error.name);

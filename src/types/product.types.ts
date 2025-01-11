@@ -1,8 +1,17 @@
 import mongoose, { Document } from "mongoose";
+import { HarvestorProduct } from "../models/products/harvestorProduct.model";
+import { ImplementProduct } from "../models/products/ImplementProduct.model";
+import { MachineProduct } from "../models/products/MachineProduct.model";
+import { PaddyTransplantorProduct } from "../models/products/PaddyTransplantorProduct.model";
+import { MechanicProduct } from "../models/products/MechanicProduct.model";
+import { EarthMoverProduct } from "../models/products/earthMoverProduct.model";
+import { DroneProduct } from "../models/products/DroneProduct.model";
+import { AgricultureLaborProduct } from "../models/products/AgricultureLaborProduct.model";
+import { IBusiness } from "./business.types";
 
 export interface IHarvestorProduct extends Document {
     _id: mongoose.Types.ObjectId;
-    business: mongoose.Types.ObjectId;
+    business: mongoose.Types.ObjectId | IBusiness;
     images: string[];
     hp: string;
     modelNo: string;
@@ -19,7 +28,7 @@ export interface IRating {
 
 export interface IEarthMoverProduct extends Document {
     _id: mongoose.Types.ObjectId;
-    business: mongoose.Types.ObjectId;
+    business: mongoose.Types.ObjectId | IBusiness;
     images: string[];
     hp: string;
     modelNo: string;
@@ -37,6 +46,16 @@ export enum ProductStatus {
     MODIFICATION_REQUIRED = 'Modification Required',
 }
 
+export type ProductType =
+    | IHarvestorProduct
+    | IImplementProduct
+    | IMachineProduct
+    | IMechanicProduct
+    | IPaddyTransplantorProduct
+    | IAgricultureLaborProduct
+    | IEarthMoverProduct
+    | IDroneProduct;
+
 export interface IImplementProduct extends Document {
     _id: mongoose.Types.ObjectId;
     business: mongoose.Types.ObjectId;
@@ -50,7 +69,7 @@ export interface IImplementProduct extends Document {
 
 export interface IMachineProduct extends Document {
     _id: mongoose.Types.ObjectId;
-    business: mongoose.Types.ObjectId;
+    business: mongoose.Types.ObjectId | IBusiness;
     images: string[];
     hp: string;
     modelNo: string;
@@ -61,7 +80,7 @@ export interface IMachineProduct extends Document {
 
 export interface IPaddyTransplantorProduct extends Document {
     _id: mongoose.Types.ObjectId;
-    business: mongoose.Types.ObjectId;
+    business: mongoose.Types.ObjectId | IBusiness;
     images: string[];
     hp: string;
     modelNo: string;
@@ -72,7 +91,7 @@ export interface IPaddyTransplantorProduct extends Document {
 
 export interface IDroneProduct extends Document {
     _id: mongoose.Types.ObjectId;
-    business: mongoose.Types.ObjectId;
+    business: mongoose.Types.ObjectId | IBusiness;
     images: string[];
     modelNo: string;
     type: string;
@@ -83,7 +102,7 @@ export interface IDroneProduct extends Document {
 
 export interface IMechanicProduct extends Document {
     _id: mongoose.Types.ObjectId;
-    business: mongoose.Types.ObjectId;
+    business: mongoose.Types.ObjectId | IBusiness;
     images: string[];
     eShramCardNumber: string;
     readyToTravelIn10Km: boolean;
@@ -104,7 +123,7 @@ export enum MechanicServiceType {
 
 export interface IAgricultureLaborProduct extends Document {
     _id: mongoose.Types.ObjectId;
-    business: mongoose.Types.ObjectId;
+    business: mongoose.Types.ObjectId | IBusiness;
     images: string[];
     eShramCardNumber: string;
     readyToTravelIn10Km: boolean;

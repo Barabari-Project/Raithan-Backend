@@ -89,6 +89,14 @@ const BusinessSchema: Schema = new Schema<IBusiness>(
             default: [],
             enum: Object.values(BusinessCategory),
         },
+        location: {
+            lat: {
+                type: Number,
+            },
+            lng: {
+                type: Number,
+            },
+        },
     },
     { timestamps: true }
 );

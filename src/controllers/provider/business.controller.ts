@@ -38,6 +38,19 @@ export const createBusiness = expressAsyncHandler(async (req: Request, res: Resp
     });
 });
 
+export const setLocation = expressAsyncHandler(async (req: Request, res: Response) => {
+    const { lat, lng } = req.body;
+    const userId = req.userId;
+    const provider = await ServiceProvider.findById(userId);
+    await Business.findByIdAndUpdate(
+        provider?.business,
+        { $set: { location: { lat, lng } } },
+        { runValidators: true }
+    );
+    res.sendStatus(200);
+});
+
+
 // Update a business by ID
 export const updateBusiness = expressAsyncHandler(async (req: Request, res: Response) => {
 

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateBusiness = exports.createBusiness = void 0;
+exports.updateBusiness = exports.setLocation = exports.createBusiness = void 0;
 const http_errors_1 = __importDefault(require("http-errors"));
 const business_model_1 = require("../../models/business.model");
 const serviceProvider_model_1 = __importDefault(require("../../models/serviceProvider.model"));
@@ -41,6 +41,13 @@ exports.createBusiness = (0, express_async_handler_1.default)((req, res) => __aw
         message: 'Business created successfully',
         business: newBusiness,
     });
+}));
+exports.setLocation = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { lat, lng } = req.body;
+    const userId = req.userId;
+    const provider = yield serviceProvider_model_1.default.findById(userId);
+    yield business_model_1.Business.findByIdAndUpdate(provider === null || provider === void 0 ? void 0 : provider.business, { $set: { location: { lat, lng } } }, { runValidators: true });
+    res.sendStatus(200);
 }));
 // Update a business by ID
 exports.updateBusiness = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {

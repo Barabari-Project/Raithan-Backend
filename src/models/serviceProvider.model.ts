@@ -39,20 +39,11 @@ const serviceProviderSchema = new Schema<IServiceProvider>({
     business: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'business',
-    },
-    location: {
-        lat: {
-            type: Number,
-            // required: [true, 'Latitude is required'],
-        },
-        lng: {
-            type: Number,
-            // required: [true, 'Longitude is required'],
-        },
-    },
+    }
 }, {
     timestamps: true,
 });
+
 const handleMongooseError = (error: any, next: Function) => {
     if (error.name === 'ValidationError') {
         const firstError = error.errors[Object.keys(error.errors)[0]];
