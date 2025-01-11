@@ -79,11 +79,11 @@ const serviceProviderSchema = new mongoose_1.Schema({
     location: {
         lat: {
             type: Number,
-            required: [true, 'Latitude is required'],
+            // required: [true, 'Latitude is required'],
         },
         lng: {
             type: Number,
-            required: [true, 'Longitude is required'],
+            // required: [true, 'Longitude is required'],
         },
     },
 }, {
