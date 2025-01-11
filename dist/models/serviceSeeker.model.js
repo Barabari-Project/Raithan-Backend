@@ -56,7 +56,7 @@ const serviceSeekerSchema = new mongoose_1.Schema({
 }, {
     timestamps: true,
 });
-serviceSeekerSchema.post('save', function (error, doc, next) {
+const handleMongooseError = (error, next) => {
     if (error.name === 'ValidationError') {
         const firstError = error.errors[Object.keys(error.errors)[0]];
         throw (0, http_errors_1.default)(400, firstError.message);
@@ -67,6 +67,12 @@ serviceSeekerSchema.post('save', function (error, doc, next) {
     else {
         next(error); // Pass any other errors to the next middleware
     }
+};
+serviceSeekerSchema.post('save', function (error, doc, next) {
+    handleMongooseError(error, next);
+});
+serviceSeekerSchema.post('findOneAndUpdate', function (error, doc, next) {
+    handleMongooseError(error, next);
 });
 // Create and export the ServiceProvider model
 const ServiceSeeker = mongoose_1.default.model('serviceSeeker', serviceSeekerSchema, 'serviceSeeker');

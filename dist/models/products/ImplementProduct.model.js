@@ -76,7 +76,7 @@ const ImplementProductSchema = new mongoose_1.Schema({
         default: []
     },
 }, { timestamps: true });
-ImplementProductSchema.post('save', function (error, doc, next) {
+const handleMongooseError = (error, next) => {
     if (error.name === 'ValidationError') {
         const firstError = error.errors[Object.keys(error.errors)[0]];
         throw (0, http_errors_1.default)(400, firstError.message);
@@ -87,5 +87,11 @@ ImplementProductSchema.post('save', function (error, doc, next) {
     else {
         next(error); // Pass any other errors to the next middleware
     }
+};
+ImplementProductSchema.post('save', function (error, doc, next) {
+    handleMongooseError(error, next);
+});
+ImplementProductSchema.post('findOneAndUpdate', function (error, doc, next) {
+    handleMongooseError(error, next);
 });
 exports.ImplementProduct = mongoose_1.default.model('implementProduct', ImplementProductSchema, 'implementProduct');

@@ -92,7 +92,7 @@ const AgricultureLaborProductSchema = new mongoose_1.Schema({
         default: []
     },
 }, { timestamps: true });
-AgricultureLaborProductSchema.post('save', function (error, doc, next) {
+const handleMongooseError = (error, next) => {
     if (error.name === 'ValidationError') {
         const firstError = error.errors[Object.keys(error.errors)[0]];
         throw (0, http_errors_1.default)(400, firstError.message);
@@ -103,5 +103,11 @@ AgricultureLaborProductSchema.post('save', function (error, doc, next) {
     else {
         next(error); // Pass any other errors to the next middleware
     }
+};
+AgricultureLaborProductSchema.post('save', function (error, doc, next) {
+    handleMongooseError(error, next);
+});
+AgricultureLaborProductSchema.post('findOneAndUpdate', function (error, doc, next) {
+    handleMongooseError(error, next);
 });
 exports.AgricultureLaborProduct = mongoose_1.default.model('agricultureLaborProduct', AgricultureLaborProductSchema, 'agricultureLaborProduct');

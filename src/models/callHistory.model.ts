@@ -3,29 +3,29 @@ import createHttpError from 'http-errors';
 import { ICallHistory } from '../types/common.types';
 
 const callHistorySchema = new Schema<ICallHistory>({
-    serviceSeekerMobileNumber:{
+    serviceSeekerMobileNumber: {
         type: String,
-        required: [true,'Service Seeker Mobile Number is required'],
+        required: [true, 'Service Seeker Mobile Number is required'],
     },
-    serviceProviderMobileNumber:{
+    serviceProviderMobileNumber: {
         type: String,
         required: [true, 'Service Provider Mobile Number is required'],
     },
     serviceSeeker: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'serviceSeeker',
-        required: [true,'Service Seeker id is required'],
+        required: [true, 'Service Seeker id is required'],
     },
     serviceProvider: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'serviceProvider',
-        required: [true,'Service Provider id is required'],
+        required: [true, 'Service Provider id is required'],
     }
 }, {
     timestamps: true,
 });
 
-callHistorySchema.post('save', function (error: any, doc: any, next: Function) {
+const handleMongooseError = (error: any, next: Function) => {
     if (error.name === 'ValidationError') {
         const firstError = error.errors[Object.keys(error.errors)[0]];
         throw createHttpError(400, firstError.message);
@@ -34,6 +34,13 @@ callHistorySchema.post('save', function (error: any, doc: any, next: Function) {
     } else {
         next(error); // Pass any other errors to the next middleware
     }
+}
+
+callHistorySchema.post('save', function (error: any, doc: any, next: Function) {
+    handleMongooseError(error, next);
+});
+callHistorySchema.post('findOneAndUpdate', function (error: any, doc: any, next: Function) {
+    handleMongooseError(error, next);
 });
 
 // Create and export the ServiceProvider model

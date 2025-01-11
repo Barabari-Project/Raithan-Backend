@@ -44,7 +44,7 @@ const HarvestorProductSchema: Schema = new Schema<IHarvestorProduct>({
 }, { timestamps: true });
 
 
-HarvestorProductSchema.post('save', function (error: any, doc: any, next: Function) {
+const handleMongooseError = (error: any, next: Function) => {
     if (error.name === 'ValidationError') {
         const firstError = error.errors[Object.keys(error.errors)[0]];
         throw createHttpError(400, firstError.message);
@@ -53,6 +53,13 @@ HarvestorProductSchema.post('save', function (error: any, doc: any, next: Functi
     } else {
         next(error); // Pass any other errors to the next middleware
     }
+};
+
+HarvestorProductSchema.post('save', function (error: any, doc: any, next: Function) {
+    handleMongooseError(error, next);
+});
+HarvestorProductSchema.post('findOneAndUpdate', function (error: any, doc: any, next: Function) {
+    handleMongooseError(error, next);
 });
 
 export const HarvestorProduct = mongoose.model<IHarvestorProduct>('harvestorProduct', HarvestorProductSchema, 'harvestorProduct');

@@ -56,7 +56,7 @@ const AgricultureLaborProductSchema: Schema = new Schema<IAgricultureLaborProduc
 }, { timestamps: true });
 
 
-AgricultureLaborProductSchema.post('save', function (error: any, doc: any, next: Function) {
+const handleMongooseError = (error: any, next: Function) => {
     if (error.name === 'ValidationError') {
         const firstError = error.errors[Object.keys(error.errors)[0]];
         throw createHttpError(400, firstError.message);
@@ -65,6 +65,13 @@ AgricultureLaborProductSchema.post('save', function (error: any, doc: any, next:
     } else {
         next(error); // Pass any other errors to the next middleware
     }
+};
+
+AgricultureLaborProductSchema.post('save', function (error: any, doc: any, next: Function) {
+    handleMongooseError(error, next);
+});
+AgricultureLaborProductSchema.post('findOneAndUpdate', function (error: any, doc: any, next: Function) {
+    handleMongooseError(error, next);
 });
 
 export const AgricultureLaborProduct = mongoose.model<IAgricultureLaborProduct>('agricultureLaborProduct', AgricultureLaborProductSchema, 'agricultureLaborProduct');

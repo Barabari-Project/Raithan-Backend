@@ -39,7 +39,7 @@ const DroneProductSchema: Schema = new Schema<IDroneProduct>({
     },
 }, { timestamps: true });
 
-DroneProductSchema.post('save', function (error: any, doc: any, next: Function) {
+const handleMongooseError = (error: any, next: Function) => {
     if (error.name === 'ValidationError') {
         const firstError = error.errors[Object.keys(error.errors)[0]];
         throw createHttpError(400, firstError.message);
@@ -48,6 +48,13 @@ DroneProductSchema.post('save', function (error: any, doc: any, next: Function) 
     } else {
         next(error); // Pass any other errors to the next middleware
     }
+};
+
+DroneProductSchema.post('save', function (error: any, doc: any, next: Function) {
+    handleMongooseError(error, next);
+});
+DroneProductSchema.post('findOneAndUpdate', function (error: any, doc: any, next: Function) {
+    handleMongooseError(error, next);
 });
 
 export const DroneProduct = mongoose.model<IDroneProduct>('droneProduct', DroneProductSchema, 'droneProduct');

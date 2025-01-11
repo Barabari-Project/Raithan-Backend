@@ -39,7 +39,7 @@ const MachineProductSchema: Schema = new Schema<IMachineProduct>({
     },
 }, { timestamps: true });
 
-MachineProductSchema.post('save', function (error: any, doc: any, next: Function) {
+const handleMongooseError = (error: any, next: Function) => {
     if (error.name === 'ValidationError') {
         const firstError = error.errors[Object.keys(error.errors)[0]];
         throw createHttpError(400, firstError.message);
@@ -48,6 +48,13 @@ MachineProductSchema.post('save', function (error: any, doc: any, next: Function
     } else {
         next(error); // Pass any other errors to the next middleware
     }
+};
+
+MachineProductSchema.post('save', function (error: any, doc: any, next: Function) {
+    handleMongooseError(error, next);
+});
+MachineProductSchema.post('findOneAndUpdate', function (error: any, doc: any, next: Function) {
+    handleMongooseError(error, next);
 });
 
 export const MachineProduct = mongoose.model<IMachineProduct>('machineProduct', MachineProductSchema, 'machineProduct');

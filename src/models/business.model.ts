@@ -93,7 +93,7 @@ const BusinessSchema: Schema = new Schema<IBusiness>(
     { timestamps: true }
 );
 
-BusinessSchema.post('save', function (error: any, doc: any, next: Function) {
+const handleMongooseError = (error: any, next: Function) => {
     logger.debug(error.name)
     if (error.name === 'ValidationError') {
         const firstError = error.errors[Object.keys(error.errors)[0]];
@@ -103,6 +103,13 @@ BusinessSchema.post('save', function (error: any, doc: any, next: Function) {
     } else {
         next(error); // Pass any other errors to the next middleware
     }
+}
+
+BusinessSchema.post('save', function (error: any, doc: any, next: Function) {
+    handleMongooseError(error, next);
+});
+BusinessSchema.post('findOneAndUpdate', function (error: any, doc: any, next: Function) {
+    handleMongooseError(error, next);
 });
 
 // Export the model

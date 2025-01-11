@@ -124,7 +124,7 @@ const BusinessSchema = new mongoose_1.Schema({
         enum: Object.values(business_types_1.BusinessCategory),
     },
 }, { timestamps: true });
-BusinessSchema.post('save', function (error, doc, next) {
+const handleMongooseError = (error, next) => {
     __1.logger.debug(error.name);
     if (error.name === 'ValidationError') {
         const firstError = error.errors[Object.keys(error.errors)[0]];
@@ -136,6 +136,12 @@ BusinessSchema.post('save', function (error, doc, next) {
     else {
         next(error); // Pass any other errors to the next middleware
     }
+};
+BusinessSchema.post('save', function (error, doc, next) {
+    handleMongooseError(error, next);
+});
+BusinessSchema.post('findOneAndUpdate', function (error, doc, next) {
+    handleMongooseError(error, next);
 });
 // Export the model
 exports.Business = mongoose_1.default.model('business', BusinessSchema, 'business');

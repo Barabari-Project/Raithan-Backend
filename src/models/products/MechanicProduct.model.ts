@@ -55,7 +55,7 @@ const MechanicProductSchema: Schema = new Schema<IMechanicProduct>({
     },
 }, { timestamps: true });
 
-MechanicProductSchema.post('save', function (error: any, doc: any, next: Function) {
+const handleMongooseError = (error: any, next: Function) => {
     if (error.name === 'ValidationError') {
         const firstError = error.errors[Object.keys(error.errors)[0]];
         throw createHttpError(400, firstError.message);
@@ -64,6 +64,13 @@ MechanicProductSchema.post('save', function (error: any, doc: any, next: Functio
     } else {
         next(error); // Pass any other errors to the next middleware
     }
+};
+
+MechanicProductSchema.post('save', function (error: any, doc: any, next: Function) {
+    handleMongooseError(error, next);
+});
+MechanicProductSchema.post('findOneAndUpdate', function (error: any, doc: any, next: Function) {
+    handleMongooseError(error, next);
 });
 
 export const MechanicProduct = mongoose.model<IMechanicProduct>('mechanicProduct', MechanicProductSchema, 'mechanicProduct');
