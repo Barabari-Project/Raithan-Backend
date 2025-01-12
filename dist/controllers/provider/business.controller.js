@@ -47,7 +47,7 @@ exports.setLocation = (0, express_async_handler_1.default)((req, res) => __await
     const userId = req.userId;
     const provider = yield serviceProvider_model_1.default.findById(userId);
     yield business_model_1.Business.findByIdAndUpdate(provider === null || provider === void 0 ? void 0 : provider.business, { $set: { location: { lat, lng } } }, { runValidators: true });
-    res.sendStatus(200);
+    res.json({ message: 'Location updated Successfully!' }).status(200);
 }));
 // Update a business by ID
 exports.updateBusiness = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {

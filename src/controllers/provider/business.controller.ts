@@ -47,7 +47,7 @@ export const setLocation = expressAsyncHandler(async (req: Request, res: Respons
         { $set: { location: { lat, lng } } },
         { runValidators: true }
     );
-    res.sendStatus(200);
+    res.json({message: 'Location updated Successfully!'}).status(200);
 });
 
 
