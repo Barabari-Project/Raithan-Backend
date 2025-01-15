@@ -479,6 +479,9 @@ export const rateProduct = expressAsyncHandler(async (req: Request, res: Respons
     if (isNaN(rating)) {
         throw createHttpError(400, 'Rating must be a number');
     }
+    if (rating < 0 || rating > 10) {
+        throw createHttpError(400, 'Rating must be between 0 and 10');
+    }
     const userId = req.userId;
     if (!isValidObjectId(productId)) {
         throw createHttpError(400, 'Invalid product id');

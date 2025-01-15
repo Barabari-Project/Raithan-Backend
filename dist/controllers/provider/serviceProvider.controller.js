@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyLoginOtp = exports.login = exports.profile = exports.updateProfile = exports.verifyOtp = exports.initiateOnboarding = void 0;
+exports.verifyLoginOtp = exports.login = exports.getProductsByCategoryAndProivderId = exports.profile = exports.updateProfile = exports.verifyOtp = exports.initiateOnboarding = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const serviceProvider_model_1 = __importDefault(require("../../models/serviceProvider.model"));
 const http_errors_1 = __importDefault(require("http-errors"));
@@ -25,6 +25,15 @@ const s3Upload_1 = require("../../utils/s3Upload");
 const validation_1 = require("../../utils/validation");
 const serviceSeeker_model_1 = __importDefault(require("../../models/serviceSeeker.model"));
 const formatImageUrl_1 = require("../../utils/formatImageUrl");
+const business_types_1 = require("../../types/business.types");
+const AgricultureLaborProduct_model_1 = require("../../models/products/AgricultureLaborProduct.model");
+const DroneProduct_model_1 = require("../../models/products/DroneProduct.model");
+const earthMoverProduct_model_1 = require("../../models/products/earthMoverProduct.model");
+const harvestorProduct_model_1 = require("../../models/products/harvestorProduct.model");
+const ImplementProduct_model_1 = require("../../models/products/ImplementProduct.model");
+const MachineProduct_model_1 = require("../../models/products/MachineProduct.model");
+const MechanicProduct_model_1 = require("../../models/products/MechanicProduct.model");
+const PaddyTransplantorProduct_model_1 = require("../../models/products/PaddyTransplantorProduct.model");
 // Onboarding
 // Step 1: Store mobile number and send OTP
 exports.initiateOnboarding = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -123,6 +132,40 @@ exports.profile = (0, express_async_handler_1.default)((req, res) => __awaiter(v
     const provider = yield serviceProvider_model_1.default.findById(userId).populate('business');
     yield (0, formatImageUrl_1.formateProviderImage)(provider);
     res.status(200).json({ provider });
+}));
+exports.getProductsByCategoryAndProivderId = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { category, status } = req.query;
+    const userId = req.userId;
+    const serviceProvider = yield serviceProvider_model_1.default.findById(userId);
+    if (Object.values(business_types_1.BusinessCategory).includes(category)) {
+        const modelMapping = {
+            [business_types_1.BusinessCategory.HARVESTORS]: harvestorProduct_model_1.HarvestorProduct,
+            [business_types_1.BusinessCategory.IMPLEMENTS]: ImplementProduct_model_1.ImplementProduct,
+            [business_types_1.BusinessCategory.MACHINES]: MachineProduct_model_1.MachineProduct,
+            [business_types_1.BusinessCategory.MECHANICS]: MechanicProduct_model_1.MechanicProduct,
+            [business_types_1.BusinessCategory.PADDY_TRANSPLANTORS]: PaddyTransplantorProduct_model_1.PaddyTransplantorProduct,
+            [business_types_1.BusinessCategory.AGRICULTURE_LABOR]: AgricultureLaborProduct_model_1.AgricultureLaborProduct,
+            [business_types_1.BusinessCategory.EARTH_MOVERS]: earthMoverProduct_model_1.EarthMoverProduct,
+            [business_types_1.BusinessCategory.DRONES]: DroneProduct_model_1.DroneProduct,
+        };
+        const model = modelMapping[category];
+        const query = {};
+        if (serviceProvider === null || serviceProvider === void 0 ? void 0 : serviceProvider.business) {
+            query.business = serviceProvider.business;
+        }
+        if (status)
+            query.verificationStatus = status;
+        const products = yield model.find(query);
+        for (const product of products) {
+            yield (0, formatImageUrl_1.formatProductImageUrls)(product);
+        }
+        const formatedImgUrlPromises = products.map((product) => __awaiter(void 0, void 0, void 0, function* () { return (0, formatImageUrl_1.formatProductImageUrls)(product); }));
+        yield Promise.all(formatedImgUrlPromises);
+        res.status(200).json({ products });
+    }
+    else {
+        throw (0, http_errors_1.default)(400, "Invalid category");
+    }
 }));
 // Login
 exports.login = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {

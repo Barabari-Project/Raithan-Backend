@@ -5,7 +5,8 @@ import {
     updateProfile,
     verifyLoginOtp,
     profile,
-    verifyOtp
+    verifyOtp,
+    getProductsByCategoryAndProivderId
 } from "../../controllers/provider/serviceProvider.controller";
 import { authMiddleware } from "../../middlewares/authMiddleware";
 import { handleMulterError, multerMiddleware } from '../../middlewares/multerMiddleware';
@@ -23,6 +24,8 @@ router.post("/onboard/user/profile",
     handleMulterError,
     updateProfile
 );
+
+router.get('/products', authMiddleware(process.env.PROVIDER_JWT_SECRET!), getProductsByCategoryAndProivderId);
 
 // profile
 router.get('/profile', authMiddleware(process.env.PROVIDER_JWT_SECRET!), profile);

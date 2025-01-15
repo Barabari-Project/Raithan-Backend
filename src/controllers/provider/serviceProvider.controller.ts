@@ -11,7 +11,18 @@ import { logger } from '../..';
 import { uploadFileToS3 } from '../../utils/s3Upload';
 import { validateMobileNumber, validateName } from '../../utils/validation';
 import ServiceSeeker from '../../models/serviceSeeker.model';
-import { formateProviderImage } from '../../utils/formatImageUrl';
+import { formateProviderImage, formatProductImageUrls } from '../../utils/formatImageUrl';
+import { BusinessCategory } from '../../types/business.types';
+import { AgricultureLaborProduct } from "../../models/products/AgricultureLaborProduct.model";
+import { DroneProduct } from "../../models/products/DroneProduct.model";
+import { EarthMoverProduct } from "../../models/products/earthMoverProduct.model";
+import { HarvestorProduct } from "../../models/products/harvestorProduct.model";
+import { ImplementProduct } from "../../models/products/ImplementProduct.model";
+import { MachineProduct } from "../../models/products/MachineProduct.model";
+import { MechanicProduct } from "../../models/products/MechanicProduct.model";
+import { PaddyTransplantorProduct } from "../../models/products/PaddyTransplantorProduct.model";
+import { ProductStatus } from '../../types/product.types';
+import mongoose from 'mongoose';
 
 // Onboarding
 // Step 1: Store mobile number and send OTP
@@ -142,6 +153,49 @@ export const profile = expressAsyncHandler(async (req: Request, res: Response) =
     const provider = await ServiceProvider.findById(userId).populate('business');
     await formateProviderImage(provider!);
     res.status(200).json({ provider });
+});
+
+export const getProductsByCategoryAndProivderId = expressAsyncHandler(async (req: Request, res: Response) => {
+    const { category, status } = req.query;
+    const userId = req.userId;
+
+    const serviceProvider = await ServiceProvider.findById(userId);
+
+    if (Object.values(BusinessCategory).includes(category as BusinessCategory)) {
+        const modelMapping: Record<BusinessCategory, any> = {
+            [BusinessCategory.HARVESTORS]: HarvestorProduct,
+            [BusinessCategory.IMPLEMENTS]: ImplementProduct,
+            [BusinessCategory.MACHINES]: MachineProduct,
+            [BusinessCategory.MECHANICS]: MechanicProduct,
+            [BusinessCategory.PADDY_TRANSPLANTORS]: PaddyTransplantorProduct,
+            [BusinessCategory.AGRICULTURE_LABOR]: AgricultureLaborProduct,
+            [BusinessCategory.EARTH_MOVERS]: EarthMoverProduct,
+            [BusinessCategory.DRONES]: DroneProduct,
+        };
+
+        const model = modelMapping[category as BusinessCategory];
+        const query: Query = {};
+        interface Query {
+            verificationStatus?: ProductStatus;
+            business?: mongoose.Types.ObjectId;
+        }
+        if (serviceProvider?.business) {
+            query.business = serviceProvider!.business;
+        }
+        if (status) query.verificationStatus = status as ProductStatus;
+        const products = await model.find(query);
+        for (const product of products) {
+            await formatProductImageUrls(product);
+        }
+
+        const formatedImgUrlPromises = products.map(async (product: { images: string[] }) => formatProductImageUrls(product));
+
+        await Promise.all(formatedImgUrlPromises);
+
+        res.status(200).json({ products });
+    } else {
+        throw createHttpError(400, "Invalid category");
+    }
 });
 
 // Login

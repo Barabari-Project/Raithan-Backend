@@ -555,6 +555,9 @@ exports.rateProduct = (0, express_async_handler_1.default)((req, res) => __await
     if (isNaN(rating)) {
         throw (0, http_errors_1.default)(400, 'Rating must be a number');
     }
+    if (rating < 0 || rating > 10) {
+        throw (0, http_errors_1.default)(400, 'Rating must be between 0 and 10');
+    }
     const userId = req.userId;
     if (!(0, mongoose_1.isValidObjectId)(productId)) {
         throw (0, http_errors_1.default)(400, 'Invalid product id');
