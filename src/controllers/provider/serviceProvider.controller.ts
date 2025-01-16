@@ -184,9 +184,6 @@ export const getProductsByCategoryAndProivderId = expressAsyncHandler(async (req
         }
         if (status) query.verificationStatus = status as ProductStatus;
         const products = await model.find(query);
-        for (const product of products) {
-            await formatProductImageUrls(product);
-        }
 
         const formatedImgUrlPromises = products.map(async (product: { images: string[] }) => formatProductImageUrls(product));
 

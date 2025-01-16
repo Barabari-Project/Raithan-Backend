@@ -156,9 +156,6 @@ exports.getProductsByCategoryAndProivderId = (0, express_async_handler_1.default
         if (status)
             query.verificationStatus = status;
         const products = yield model.find(query);
-        for (const product of products) {
-            yield (0, formatImageUrl_1.formatProductImageUrls)(product);
-        }
         const formatedImgUrlPromises = products.map((product) => __awaiter(void 0, void 0, void 0, function* () { return (0, formatImageUrl_1.formatProductImageUrls)(product); }));
         yield Promise.all(formatedImgUrlPromises);
         res.status(200).json({ products });
