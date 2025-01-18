@@ -12,8 +12,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.formateProviderImage = exports.formatProductImageUrls = void 0;
 const s3Upload_1 = require("./s3Upload");
 const formatProductImageUrls = (product) => __awaiter(void 0, void 0, void 0, function* () {
-    const formattedImages = yield Promise.all(product.images.map((image) => (0, s3Upload_1.getImageUrl)(image)));
-    product.images = formattedImages;
+    const imageNames = Object.keys(product.images);
+    // Filter and map the images to fetch URLs in parallel
+    const formattedImages = yield Promise.all(imageNames
+        .filter(imageName => product.images[imageName]) // Filter only non-null images
+        .map(imageName => (0, s3Upload_1.getImageUrl)(product.images[imageName])) // Fetch URL for each image
+    );
+    // Use reduce to rebuild the images object with formatted URLs
+    product.images = imageNames.filter(imageName => product.images[imageName]).reduce((acc, key, index) => {
+        acc[key] = formattedImages[index]; // Set the key with the corresponding URL
+        return acc;
+    }, {});
 });
 exports.formatProductImageUrls = formatProductImageUrls;
 const formateProviderImage = (provider) => __awaiter(void 0, void 0, void 0, function* () {

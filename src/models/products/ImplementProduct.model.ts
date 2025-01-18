@@ -5,8 +5,30 @@ import { RatingSchema } from "../Rating.model";
 
 const ImplementProductSchema: Schema = new Schema<IImplementProduct>({
     images: {
-        type: [String],
-        required: [true, "Images are required."],
+        "front-view": {
+            type: String,
+            required: [true, "Front view image is required."],
+        },
+        "back-view": {
+            type: String,
+            required: [true, "Back view image is required."],
+        },
+        "left-view": {
+            type: String,
+            required: [true, "Left view image is required."],
+        },
+        "right-view": {
+            type: String,
+            required: [true, "Right view image is required."],
+        },
+        "driving-license": {
+            type: String,
+            required: [true, "Driving license image is required."],
+        },
+        "rc-book": {
+            type: String,
+            required: [true, "RC book image is required."],
+        },
     },
     hp: {
         type: String,

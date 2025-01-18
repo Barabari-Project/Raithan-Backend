@@ -21,7 +21,7 @@ import { ImplementProduct } from "../../models/products/ImplementProduct.model";
 import { MachineProduct } from "../../models/products/MachineProduct.model";
 import { MechanicProduct } from "../../models/products/MechanicProduct.model";
 import { PaddyTransplantorProduct } from "../../models/products/PaddyTransplantorProduct.model";
-import { ProductStatus } from '../../types/product.types';
+import { ProductStatus, ProductType, UploadedImages } from '../../types/product.types';
 import mongoose from 'mongoose';
 
 // Onboarding
@@ -161,6 +161,12 @@ export const getProductsByCategoryAndProivderId = expressAsyncHandler(async (req
 
     const serviceProvider = await ServiceProvider.findById(userId);
 
+    if (serviceProvider!.status == ServiceProviderStatus.BUSINESS_DETAILS_REMAINING ||
+        serviceProvider!.status == ServiceProviderStatus.OTP_VERIFIED ||
+        serviceProvider!.status == ServiceProviderStatus.PENDING) {
+        throw createHttpError(403, "Invalid Access");
+    }
+
     if (Object.values(BusinessCategory).includes(category as BusinessCategory)) {
         const modelMapping: Record<BusinessCategory, any> = {
             [BusinessCategory.HARVESTORS]: HarvestorProduct,
@@ -185,7 +191,7 @@ export const getProductsByCategoryAndProivderId = expressAsyncHandler(async (req
         if (status) query.verificationStatus = status as ProductStatus;
         const products = await model.find(query);
 
-        const formatedImgUrlPromises = products.map(async (product: { images: string[] }) => formatProductImageUrls(product));
+        const formatedImgUrlPromises = products.map(async (product: ProductType) => formatProductImageUrls(product));
 
         await Promise.all(formatedImgUrlPromises);
 
@@ -221,6 +227,11 @@ export const verifyLoginOtp = expressAsyncHandler(async (req: Request, res: Resp
     }
 
     await verifyOTP(mobileNumber, code);
+
+    if (provider.status == ServiceProviderStatus.PENDING) {
+        provider.status = ServiceProviderStatus.OTP_VERIFIED;
+        await provider.save();
+    }
 
     const token = generateJwt({ userId: provider._id }, process.env.PROVIDER_JWT_SECRET!);
 

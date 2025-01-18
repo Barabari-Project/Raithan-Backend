@@ -43,8 +43,10 @@ const http_errors_1 = __importDefault(require("http-errors"));
 const Rating_model_1 = require("../Rating.model");
 const MechanicProductSchema = new mongoose_1.Schema({
     images: {
-        type: [String],
-        required: [true, "Images are required."],
+        "e-shram-card": {
+            type: String,
+            required: [true, "Front view image is required."],
+        }
     },
     services: {
         type: [String],

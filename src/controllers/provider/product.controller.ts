@@ -17,7 +17,7 @@ import { ServiceProviderStatus } from "../../types/provider.types";
 import { uploadFileToS3 } from "../../utils/s3Upload";
 import { formatProductImageUrls } from "../../utils/formatImageUrl";
 import mongoose, { isValidObjectId } from "mongoose";
-import { IAgricultureLaborProduct, IDroneProduct, IEarthMoverProduct, IHarvestorProduct, IImplementProduct, IMachineProduct, IMechanicProduct, IPaddyTransplantorProduct, ProductStatus } from "../../types/product.types";
+import { IAgricultureLaborProduct, IDroneProduct, IEarthMoverProduct, IHarvestorProduct, IImplementProduct, IMachineProduct, IMechanicProduct, IPaddyTransplantorProduct, ProductStatus, ProductType, UploadedImages } from "../../types/product.types";
 
 export const createProduct = expressAsyncHandler(async (req: Request, res: Response) => {
     const { category } = req.body;
@@ -25,121 +25,78 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
     if (!Object.values(BusinessCategory).includes(category)) {
         throw createHttpError(400, "Invalid category");
     }
-    let product;
+
+    let product: ProductType | null = null;
     const userId = req.userId;
     const serviceProvider = await ServiceProvider.findById(userId);
+
     if (!serviceProvider) {
         throw createHttpError(404, "Service provider not found");
     }
+
     if (serviceProvider.status !== ServiceProviderStatus.VERIFIED) {
         throw createHttpError(400, "Service provider is not verified");
     }
+
     const business = await Business.findOne({ serviceProvider: serviceProvider._id });
     if (!business) {
         throw createHttpError(404, "Business not found");
     }
+
     if (!business.category.includes(category)) {
         business.category.push(category);
         await business.save();
     }
-    const _id = new ObjectId();
 
-    if (category === BusinessCategory.HARVESTORS) {
-        const { hp, modelNo, type } = req.body;
-        if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Product  picture is required');
-        } else if (req.files.length !== 6) {
-            // 4 photos from 4 directions, driving license and rc book
-            throw createHttpError(400, 'You need to upload 6 images');
+    const _id = new ObjectId();
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+    const uploadedImages: UploadedImages = await uploadImages(files, _id.toString());
+
+    if (category === BusinessCategory.HARVESTORS || category === BusinessCategory.EARTH_MOVERS || category === BusinessCategory.IMPLEMENTS || category === BusinessCategory.MACHINES || category === BusinessCategory.PADDY_TRANSPLANTORS) {
+        const requiredFields = ['front-view', 'back-view', 'left-view', 'right-view', 'driving-license', 'rc-book'];
+        for (const field of requiredFields) {
+            if (!files[field] || files[field].length === 0) {
+                throw createHttpError(400, `Missing required image: ${field}`);
+            }
         }
-        const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', _id.toString() + index));
-        const uploadedImages = await Promise.all(images);
-        product = await HarvestorProduct.create({
-            images: uploadedImages,
-            hp,
-            _id,
-            modelNo,
-            business: business._id,
-            type: type
-        });
-    } else if (category === BusinessCategory.EARTH_MOVERS) {
-        if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Product  picture is required');
-        } else if (req.files.length !== 6) {
-            // 4 photos from 4 directions, driving license and rc book
-            throw createHttpError(400, 'You need to upload 6 images');
-        }
-        const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', _id.toString() + index));
-        const uploadedImages = await Promise.all(images);
+
+
         const { modelNo, hp, type } = req.body;
-        product = await EarthMoverProduct.create({
+        const createData = {
             images: uploadedImages,
+            _id,
             modelNo,
             hp,
-            _id,
             business: business._id,
-            type: type
-        });
-    } else if (category === BusinessCategory.IMPLEMENTS) {
-        if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Product  picture is required');
-        } else if (req.files.length !== 6) {
-            // 4 photos from 4 directions, driving license and rc book
-            throw createHttpError(400, 'You need to upload 6 images');
+            ...(type && { type }),
+        };
+
+        switch (category) {
+            case BusinessCategory.HARVESTORS:
+                product = await HarvestorProduct.create(createData);
+                break;
+            case BusinessCategory.EARTH_MOVERS:
+                product = await EarthMoverProduct.create(createData);
+                break;
+            case BusinessCategory.IMPLEMENTS:
+                product = await ImplementProduct.create(createData);
+                break;
+            case BusinessCategory.MACHINES:
+                product = await MachineProduct.create(createData);
+                break;
+            case BusinessCategory.PADDY_TRANSPLANTORS:
+                product = await PaddyTransplantorProduct.create(createData);
+                break;
         }
-        const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', _id.toString() + index));
-        const uploadedImages = await Promise.all(images);
-        const { modelNo, hp } = req.body;
-        product = await ImplementProduct.create({
-            images: uploadedImages,
-            modelNo,
-            hp,
-            _id,
-            business: business._id
-        });
-    } else if (category === BusinessCategory.MACHINES) {
-        if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Product  picture is required');
-        } else if (req.files.length !== 6) {
-            // 4 photos from 4 directions, driving license and rc book
-            throw createHttpError(400, 'You need to upload 6 images');
-        }
-        const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', _id.toString() + index));
-        const uploadedImages = await Promise.all(images);
-        const { modelNo, hp } = req.body;
-        product = await MachineProduct.create({
-            images: uploadedImages,
-            modelNo,
-            hp,
-            _id,
-            business: business._id,
-        });
-    } else if (category === BusinessCategory.PADDY_TRANSPLANTORS) {
-        if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Product  picture is required');
-        } else if (req.files.length !== 6) {
-            // 4 photos from 4 directions, driving license and rc book
-            throw createHttpError(400, 'You need to upload 6 images');
-        }
-        const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', _id.toString() + index));
-        const uploadedImages = await Promise.all(images);
-        const { modelNo, hp } = req.body;
-        product = await PaddyTransplantorProduct.create({
-            images: uploadedImages,
-            modelNo,
-            hp,
-            _id,
-            business: business._id,
-        });
     } else if (category === BusinessCategory.DRONES) {
-        if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Product  picture is required');
-        } else if (req.files.length !== 5) {
-            // 4 photos from 4 directions and 1 bill
-            throw createHttpError(400, 'You need to upload 5 images');
+        const requiredFields = ['front-view', 'back-view', 'left-view', 'right-view', 'bill'];
+        for (const field of requiredFields) {
+            if (!files[field] || files[field].length === 0) {
+                throw createHttpError(400, `Missing required image: ${field}`);
+            }
         }
-        const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', _id.toString() + index));
-        const uploadedImages = await Promise.all(images);
+
         const { type, modelNo } = req.body;
         product = await DroneProduct.create({
             images: uploadedImages,
@@ -148,45 +105,17 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
             modelNo,
             business: business._id,
         });
-    } else if (category === BusinessCategory.MECHANICS) {
-        if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Product  picture is required');
+    } else if (category === BusinessCategory.MECHANICS || category === BusinessCategory.AGRICULTURE_LABOR) {
+        const requiredField = 'e-shram-card';
+        if (!files[requiredField] || files[requiredField].length === 0) {
+            throw createHttpError(400, `Missing required image: ${requiredField}`);
         }
-        // eShram card 
-        if (req.files.length !== 1) {
-            throw createHttpError(400, 'You need to upload 1 image');
-        }
-        const images = req.files.map(async (file, index) => await uploadFileToS3(file, 'product/secured/user-data', _id.toString() + index));
-        const uploadedImages = await Promise.all(images);
-        let { eShramCardNumber, readyToTravelIn10Km, isIndividual, services, numberOfWorkers } = req.body;
-        if (isIndividual) {
-            numberOfWorkers = 1;
-        }
-        product = await MechanicProduct.create({
-            images: uploadedImages,
-            eShramCardNumber,
-            readyToTravelIn10Km,
-            _id,
-            isIndividual,
-            services,
-            numberOfWorkers,
-            business: business._id,
-        });
-    } else if (category === BusinessCategory.AGRICULTURE_LABOR) {
-        let { eShramCardNumber, readyToTravelIn10Km, isIndividual, services, numberOfWorkers } = req.body;
-        if (isIndividual) {
-            numberOfWorkers = 1;
-        }
-        if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Product  picture is required');
-        }
-        // eShram card 
-        if (req.files.length !== 1) {
-            throw createHttpError(400, 'You need to upload 1 image');
-        }
-        const images = req.files.map(async (file, index) => await uploadFileToS3(file, 'product/secured/user-data', _id.toString() + index));
-        const uploadedImages = await Promise.all(images);
-        product = await AgricultureLaborProduct.create({
+
+        const { eShramCardNumber, readyToTravelIn10Km, isIndividual, services } = req.body;
+        let { numberOfWorkers } = req.body;
+        if (isIndividual) numberOfWorkers = 1;
+
+        const createData = {
             images: uploadedImages,
             eShramCardNumber,
             readyToTravelIn10Km,
@@ -195,22 +124,31 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
             _id,
             numberOfWorkers,
             business: business._id,
-        });
+        };
+
+        if (category === BusinessCategory.MECHANICS) {
+            product = await MechanicProduct.create(createData);
+        } else {
+            product = await AgricultureLaborProduct.create(createData);
+        }
     } else {
         throw createHttpError(400, "Invalid category");
     }
-    await formatProductImageUrls(product);
+
+    await formatProductImageUrls(product!);
     res.status(201).json({ message: 'Product created successfully', product });
 });
 
+
 export const updateProduct = expressAsyncHandler(async (req: Request, res: Response) => {
-    const { category } = req.body;
+    const { category, id } = req.body;
 
     if (!Object.values(BusinessCategory).includes(category)) {
         throw createHttpError(400, "Invalid category");
     }
-    let product: IAgricultureLaborProduct | IDroneProduct | IEarthMoverProduct | IHarvestorProduct | IImplementProduct | IMachineProduct | IMechanicProduct | IPaddyTransplantorProduct | null;
+    let product: ProductType | null = null;
     const userId = req.userId;
+
     const serviceProvider = await ServiceProvider.findById(userId);
     if (!serviceProvider) {
         throw createHttpError(404, "Service provider not found");
@@ -226,252 +164,192 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
         throw createHttpError(400, "Category not found in business");
     }
 
-    if (category === BusinessCategory.HARVESTORS) {
-        const { hp, modelNo, type, id } = req.body;
-        if (!isValidObjectId(id)) {
-            throw createHttpError(400, "Invalid id");
-        }
-        product = await HarvestorProduct.findById(id);
-        if (!product) {
-            throw createHttpError(404, "Product not found");
-        } else if (product.verificationStatus == ProductStatus.REJECTED) {
-            throw createHttpError(400, "Product is rejected");
-        }
-        if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Product  picture is required');
-        } else if (req.files.length !== 6) {
-            // 4 photos from 4 directions, driving license and rc book
-            throw createHttpError(400, 'You need to upload 6 images');
-        }
-        const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', product!._id.toString() + index));
-        const uploadedImages = await Promise.all(images);
-        product = await HarvestorProduct.findByIdAndUpdate(product!._id, {
-            $set: {
-                images: uploadedImages,
-                hp,
-                modelNo,
-                verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
-                business: business._id,
-                type: type
+    const modelMapping: Record<BusinessCategory, any> = {
+        [BusinessCategory.HARVESTORS]: HarvestorProduct,
+        [BusinessCategory.IMPLEMENTS]: ImplementProduct,
+        [BusinessCategory.MACHINES]: MachineProduct,
+        [BusinessCategory.MECHANICS]: MechanicProduct,
+        [BusinessCategory.PADDY_TRANSPLANTORS]: PaddyTransplantorProduct,
+        [BusinessCategory.AGRICULTURE_LABOR]: AgricultureLaborProduct,
+        [BusinessCategory.EARTH_MOVERS]: EarthMoverProduct,
+        [BusinessCategory.DRONES]: DroneProduct,
+    };
+
+    const model = modelMapping[category as BusinessCategory];
+    if (!model) {
+        throw createHttpError(400, "Invalid category");
+    }
+
+    product = await model.findById(id);
+
+    if (product == null) {
+        throw createHttpError(404, "Product not found");
+    }
+
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+    const uploadedImages: UploadedImages = await uploadImages(files, id);
+
+    if (category === BusinessCategory.HARVESTORS || category === BusinessCategory.EARTH_MOVERS || category === BusinessCategory.IMPLEMENTS || category === BusinessCategory.MACHINES || category === BusinessCategory.PADDY_TRANSPLANTORS) {
+
+        for (const imageName in uploadedImages) {
+            if (uploadedImages[imageName as keyof UploadedImages] === null) {
+                uploadedImages[imageName as keyof UploadedImages] = product.images[imageName as keyof UploadedImages];
             }
-        }, { new: true });
-    } else if (category === BusinessCategory.EARTH_MOVERS) {
-        const { modelNo, hp, type, id } = req.body;
-        if (!isValidObjectId(id)) {
-            throw createHttpError(400, "Invalid id");
         }
-        product = await EarthMoverProduct.findById(id);
-        if (!product) {
-            throw createHttpError(404, "Product not found");
-        } else if (product.verificationStatus == ProductStatus.REJECTED) {
-            throw createHttpError(400, "Product is rejected");
+
+        const { modelNo, hp, type } = req.body;
+        const createData = {
+            images: uploadedImages,
+            modelNo,
+            hp,
+            ...(type && { type }),
+        };
+
+        switch (category) {
+            case BusinessCategory.HARVESTORS:
+                product = await HarvestorProduct.findByIdAndUpdate(
+                    id,
+                    { $set: createData },
+                    { new: true, runValidators: true }
+                );
+                break;
+            case BusinessCategory.EARTH_MOVERS:
+                product = await EarthMoverProduct.findByIdAndUpdate(
+                    id,
+                    { $set: createData },
+                    { new: true, runValidators: true }
+                );
+                break;
+            case BusinessCategory.IMPLEMENTS:
+                product = await ImplementProduct.findByIdAndUpdate(
+                    id,
+                    { $set: createData },
+                    { new: true, runValidators: true }
+                );
+                break;
+            case BusinessCategory.MACHINES:
+                product = await MachineProduct.findByIdAndUpdate(
+                    id,
+                    { $set: createData },
+                    { new: true, runValidators: true }
+                );
+                break;
+            case BusinessCategory.PADDY_TRANSPLANTORS:
+                product = await PaddyTransplantorProduct.findByIdAndUpdate(
+                    id,
+                    { $set: createData },
+                    { new: true, runValidators: true }
+                );
+                break;
         }
-        if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Product  picture is required');
-        } else if (req.files.length !== 6) {
-            // 4 photos from 4 directions, driving license and rc book
-            throw createHttpError(400, 'You need to upload 6 images');
-        }
-        const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', product!._id.toString() + index));
-        const uploadedImages = await Promise.all(images);
-        product = await EarthMoverProduct.findByIdAndUpdate(product!._id, {
-            $set: {
-                images: uploadedImages,
-                modelNo,
-                hp,
-                verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
-                business: business._id,
-                type: type
-            }
-        }, { new: true });
-    } else if (category === BusinessCategory.IMPLEMENTS) {
-        const { modelNo, hp, id } = req.body;
-        if (!isValidObjectId(id)) {
-            throw createHttpError(400, "Invalid id");
-        }
-        product = await ImplementProduct.findById(id);
-        if (!product) {
-            throw createHttpError(404, "Product not found");
-        } else if (product.verificationStatus == ProductStatus.REJECTED) {
-            throw createHttpError(400, "Product is rejected");
-        }
-        if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Product  picture is required');
-        } else if (req.files.length !== 6) {
-            // 4 photos from 4 directions, driving license and rc book
-            throw createHttpError(400, 'You need to upload 6 images');
-        }
-        const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', product!._id.toString() + index));
-        const uploadedImages = await Promise.all(images);
-        product = await ImplementProduct.findByIdAndUpdate(product!._id, {
-            $set: {
-                images: uploadedImages,
-                modelNo,
-                hp,
-                verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
-                business: business._id
-            }
-        }, { new: true });
-    } else if (category === BusinessCategory.MACHINES) {
-        const { modelNo, hp, id } = req.body;
-        if (!isValidObjectId(id)) {
-            throw createHttpError(400, "Invalid id");
-        }
-        product = await MachineProduct.findById(id);
-        if (!product) {
-            throw createHttpError(404, "Product not found");
-        } else if (product.verificationStatus == ProductStatus.REJECTED) {
-            throw createHttpError(400, "Product is rejected");
-        }
-        if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Product  picture is required');
-        } else if (req.files.length !== 6) {
-            // 4 photos from 4 directions, driving license and rc book
-            throw createHttpError(400, 'You need to upload 6 images');
-        }
-        const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', product!._id.toString() + index));
-        const uploadedImages = await Promise.all(images);
-        product = await MachineProduct.findByIdAndUpdate(product!._id, {
-            $set: {
-                images: uploadedImages,
-                modelNo,
-                hp,
-                verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
-                business: business._id,
-            }
-        }, { new: true });
-    } else if (category === BusinessCategory.PADDY_TRANSPLANTORS) {
-        const { modelNo, hp, id } = req.body;
-        if (!isValidObjectId(id)) {
-            throw createHttpError(400, "Invalid id");
-        }
-        product = await PaddyTransplantorProduct.findById(id);
-        if (!product) {
-            throw createHttpError(404, "Product not found");
-        } else if (product.verificationStatus == ProductStatus.REJECTED) {
-            throw createHttpError(400, "Product is rejected");
-        }
-        if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Product  picture is required');
-        } else if (req.files.length !== 6) {
-            // 4 photos from 4 directions, driving license and rc book
-            throw createHttpError(400, 'You need to upload 6 images');
-        }
-        const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', product!._id.toString() + index));
-        const uploadedImages = await Promise.all(images);
-        product = await PaddyTransplantorProduct.findByIdAndUpdate(product._id, {
-            $set: {
-                images: uploadedImages,
-                modelNo,
-                hp,
-                verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
-                business: business._id,
-            }
-        }, { new: true });
     } else if (category === BusinessCategory.DRONES) {
-        const { type, modelNo, id } = req.body;
-        if (!isValidObjectId(id)) {
-            throw createHttpError(400, "Invalid id");
-        }
-        product = await DroneProduct.findById(id);
-        if (!product) {
-            throw createHttpError(404, "Product not found");
-        } else if (product.verificationStatus == ProductStatus.REJECTED) {
-            throw createHttpError(400, "Product is rejected");
-        }
-        if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Product  picture is required');
-        } else if (req.files.length !== 5) {
-            // 4 photos from 4 directions and 1 bill
-            throw createHttpError(400, 'You need to upload 5 images');
-        }
-        const images = req.files.map(async (file, index) => await uploadFileToS3(file, index < 4 ? 'product/product-images' : 'product/secured/user-data', product!._id.toString() + index));
-        const uploadedImages = await Promise.all(images);
-        product = await DroneProduct.findByIdAndUpdate(product._id, {
+
+        const { type, modelNo } = req.body;
+
+        product = await DroneProduct.findByIdAndUpdate(id, {
             $set: {
                 images: uploadedImages,
                 type,
-                modelNo,
-                verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
-                business: business._id,
-            }
-        }, { new: true });
-    } else if (category === BusinessCategory.MECHANICS) {
-        let { eShramCardNumber, readyToTravelIn10Km, isIndividual, services, numberOfWorkers, id } = req.body;
-        if (!isValidObjectId(id)) {
-            throw createHttpError(400, "Invalid id");
+                modelNo
+            },
+        }, { new: true, runValidators: true });
+    } else if (category === BusinessCategory.MECHANICS || category === BusinessCategory.AGRICULTURE_LABOR) {
+
+
+        const { eShramCardNumber, readyToTravelIn10Km, isIndividual, services } = req.body;
+        let { numberOfWorkers } = req.body;
+        if (isIndividual) numberOfWorkers = 1;
+
+        const createData = {
+            images: uploadedImages,
+            eShramCardNumber,
+            readyToTravelIn10Km,
+            isIndividual,
+            services,
+            numberOfWorkers,
+        };
+
+        if (category === BusinessCategory.MECHANICS) {
+            product = await MechanicProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true });
+        } else {
+            product = await AgricultureLaborProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true });
         }
-        product = await MechanicProduct.findById(id);
-        if (!product) {
-            throw createHttpError(404, "Product not found");
-        } else if (product.verificationStatus == ProductStatus.REJECTED) {
-            throw createHttpError(400, "Product is rejected");
-        }
-        if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Product  picture is required');
-        }
-        // eShram card 
-        if (req.files.length !== 1) {
-            throw createHttpError(400, 'You need to upload 1 image');
-        }
-        const images = req.files.map(async (file) => await uploadFileToS3(file, 'product/secured/user-data', product!._id.toString()));
-        const uploadedImages = await Promise.all(images);
-        if (isIndividual) {
-            numberOfWorkers = 1;
-        }
-        product = await MechanicProduct.findByIdAndUpdate(product._id, {
-            $set: {
-                images: uploadedImages,
-                eShramCardNumber,
-                readyToTravelIn10Km,
-                isIndividual,
-                services,
-                numberOfWorkers,
-                verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
-                business: business._id,
-            }
-        }, { new: true });
-    } else if (category === BusinessCategory.AGRICULTURE_LABOR) {
-        let { eShramCardNumber, readyToTravelIn10Km, isIndividual, services, numberOfWorkers, id } = req.body;
-        if (!isValidObjectId(id)) {
-            throw createHttpError(400, "Invalid id");
-        }
-        product = await AgricultureLaborProduct.findById(id);
-        if (!product) {
-            throw createHttpError(404, "Product not found");
-        } else if (product.verificationStatus == ProductStatus.REJECTED) {
-            throw createHttpError(400, "Product is rejected");
-        }
-        if (isIndividual) {
-            numberOfWorkers = 1;
-        }
-        if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            throw createHttpError(400, 'Product  picture is required');
-        }
-        // eShram card 
-        if (req.files.length !== 1) {
-            throw createHttpError(400, 'You need to upload 1 image');
-        }
-        const images = req.files.map(async (file) => await uploadFileToS3(file, 'product/secured/user-data', product!._id.toString()));
-        const uploadedImages = await Promise.all(images);
-        product = await AgricultureLaborProduct.findByIdAndUpdate(product._id, {
-            $set: {
-                images: uploadedImages,
-                eShramCardNumber,
-                readyToTravelIn10Km,
-                isIndividual,
-                services,
-                verificationStatus: product.verificationStatus == ProductStatus.UNVERIFIED ? ProductStatus.UNVERIFIED : ProductStatus.RE_VERIFICATION_REQUIRED,
-                numberOfWorkers,
-                business: business._id,
-            }
-        }, { new: true });
     } else {
         throw createHttpError(400, "Invalid category");
     }
+
     await formatProductImageUrls(product!);
-    res.status(201).json({ message: 'Product created successfully', product });
+    res.status(200).json({ message: 'Product updated successfully', product });
 });
+
+export const uploadImages = async (files: { [fieldname: string]: Express.Multer.File[] }, id: string) => {
+    const uploadImage = async (file: Express.Multer.File, folder: string, name: string) =>
+        await uploadFileToS3(file, folder, `${id.toString()}-${name}`);
+
+    const uploadTasks: { key: keyof UploadedImages; promise: Promise<string | null> }[] = [
+        {
+            key: "front-view",
+            promise: files['front-view'] && files['front-view'][0]
+                ? uploadImage(files['front-view'][0], 'product/product-images', 'front-view')
+                : Promise.resolve(null),
+        },
+        {
+            key: "back-view",
+            promise: files['back-view'] && files['back-view'][0]
+                ? uploadImage(files['back-view'][0], 'product/product-images', 'back-view')
+                : Promise.resolve(null),
+        },
+        {
+            key: "left-view",
+            promise: files['left-view'] && files['left-view'][0]
+                ? uploadImage(files['left-view'][0], 'product/product-images', 'left-view')
+                : Promise.resolve(null),
+        },
+        {
+            key: "right-view",
+            promise: files['right-view'] && files['right-view'][0]
+                ? uploadImage(files['right-view'][0], 'product/product-images', 'right-view')
+                : Promise.resolve(null),
+        },
+        {
+            key: "driving-license",
+            promise: files['driving-license'] && files['driving-license'][0]
+                ? uploadImage(files['driving-license'][0], 'product/secured/user-data', 'driving-license')
+                : Promise.resolve(null),
+        },
+        {
+            key: "rc-book",
+            promise: files['rc-book'] && files['rc-book'][0]
+                ? uploadImage(files['rc-book'][0], 'product/secured/user-data', 'rc-book')
+                : Promise.resolve(null),
+        },
+        {
+            key: "bill",
+            promise: files['bill'] && files['bill'][0]
+                ? uploadImage(files['bill'][0], 'product/secured/user-data', 'bill')
+                : Promise.resolve(null),
+        },
+        {
+            key: "e-shram-card",
+            promise: files['e-shram-card'] && files['bill'][0]
+                ? uploadImage(files['e-shram-card'][0], 'product/secured/user-data', 'e-shram-card')
+                : Promise.resolve(null),
+        }
+    ];
+
+    // Execute all upload tasks in parallel
+    const uploadedImagesArray = await Promise.all(
+        uploadTasks.map((task) => task.promise)
+    );
+
+    const uploadedImages: UploadedImages = uploadTasks.reduce((acc, task, index) => {
+        acc[task.key] = uploadedImagesArray[index];
+        return acc;
+    }, {} as UploadedImages);
+
+    return uploadedImages;
+}
 
 export const rateProduct = expressAsyncHandler(async (req: Request, res: Response) => {
     let { productId, rating, category } = req.body;

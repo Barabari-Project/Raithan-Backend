@@ -12,13 +12,24 @@ import { IBusiness } from "./business.types";
 export interface IHarvestorProduct extends Document {
     _id: mongoose.Types.ObjectId;
     business: mongoose.Types.ObjectId | IBusiness;
-    images: string[];
+    images: UploadedImages;
     hp: string;
     modelNo: string;
     type: string;
     verificationStatus: ProductStatus;
     avgRating: number;
     ratings: IRating[];
+}
+
+export interface UploadedImages {
+    "front-view": string | null;
+    "back-view": string | null;
+    "left-view": string | null;
+    "right-view": string | null;
+    "driving-license": string | null;
+    "rc-book": string | null;
+    "bill": string | null;
+    "e-shram-card": string | null;
 }
 
 export interface IRating {
@@ -29,7 +40,7 @@ export interface IRating {
 export interface IEarthMoverProduct extends Document {
     _id: mongoose.Types.ObjectId;
     business: mongoose.Types.ObjectId | IBusiness;
-    images: string[];
+    images: UploadedImages;
     hp: string;
     modelNo: string;
     type: string;
@@ -59,7 +70,7 @@ export type ProductType =
 export interface IImplementProduct extends Document {
     _id: mongoose.Types.ObjectId;
     business: mongoose.Types.ObjectId;
-    images: string[];
+    images: UploadedImages;
     hp: string;
     modelNo: string;
     verificationStatus: ProductStatus;
@@ -70,7 +81,7 @@ export interface IImplementProduct extends Document {
 export interface IMachineProduct extends Document {
     _id: mongoose.Types.ObjectId;
     business: mongoose.Types.ObjectId | IBusiness;
-    images: string[];
+    images: UploadedImages;
     hp: string;
     modelNo: string;
     verificationStatus: ProductStatus;
@@ -81,7 +92,7 @@ export interface IMachineProduct extends Document {
 export interface IPaddyTransplantorProduct extends Document {
     _id: mongoose.Types.ObjectId;
     business: mongoose.Types.ObjectId | IBusiness;
-    images: string[];
+    images: UploadedImages;
     hp: string;
     modelNo: string;
     verificationStatus: ProductStatus;
@@ -92,7 +103,7 @@ export interface IPaddyTransplantorProduct extends Document {
 export interface IDroneProduct extends Document {
     _id: mongoose.Types.ObjectId;
     business: mongoose.Types.ObjectId | IBusiness;
-    images: string[];
+    images: UploadedImages;
     modelNo: string;
     type: string;
     verificationStatus: ProductStatus;
@@ -103,7 +114,7 @@ export interface IDroneProduct extends Document {
 export interface IMechanicProduct extends Document {
     _id: mongoose.Types.ObjectId;
     business: mongoose.Types.ObjectId | IBusiness;
-    images: string[];
+    images: UploadedImages;
     eShramCardNumber: string;
     readyToTravelIn10Km: boolean;
     isIndividual: boolean;
@@ -124,7 +135,7 @@ export enum MechanicServiceType {
 export interface IAgricultureLaborProduct extends Document {
     _id: mongoose.Types.ObjectId;
     business: mongoose.Types.ObjectId | IBusiness;
-    images: string[];
+    images: UploadedImages;
     eShramCardNumber: string;
     readyToTravelIn10Km: boolean;
     isIndividual: boolean;

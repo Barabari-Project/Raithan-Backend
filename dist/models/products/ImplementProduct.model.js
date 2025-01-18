@@ -43,8 +43,30 @@ const http_errors_1 = __importDefault(require("http-errors"));
 const Rating_model_1 = require("../Rating.model");
 const ImplementProductSchema = new mongoose_1.Schema({
     images: {
-        type: [String],
-        required: [true, "Images are required."],
+        "front-view": {
+            type: String,
+            required: [true, "Front view image is required."],
+        },
+        "back-view": {
+            type: String,
+            required: [true, "Back view image is required."],
+        },
+        "left-view": {
+            type: String,
+            required: [true, "Left view image is required."],
+        },
+        "right-view": {
+            type: String,
+            required: [true, "Right view image is required."],
+        },
+        "driving-license": {
+            type: String,
+            required: [true, "Driving license image is required."],
+        },
+        "rc-book": {
+            type: String,
+            required: [true, "RC book image is required."],
+        },
     },
     hp: {
         type: String,

@@ -5,8 +5,10 @@ import { RatingSchema } from "../Rating.model";
 
 const MechanicProductSchema: Schema = new Schema<IMechanicProduct>({
     images: {
-        type: [String],
-        required: [true, "Images are required."],
+        "e-shram-card": {
+            type: String,
+            required: [true, "Front view image is required."],
+        }
     },
     services: {
         type: [String],

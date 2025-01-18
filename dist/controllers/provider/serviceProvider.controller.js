@@ -137,6 +137,11 @@ exports.getProductsByCategoryAndProivderId = (0, express_async_handler_1.default
     const { category, status } = req.query;
     const userId = req.userId;
     const serviceProvider = yield serviceProvider_model_1.default.findById(userId);
+    if (serviceProvider.status == provider_types_1.ServiceProviderStatus.BUSINESS_DETAILS_REMAINING ||
+        serviceProvider.status == provider_types_1.ServiceProviderStatus.OTP_VERIFIED ||
+        serviceProvider.status == provider_types_1.ServiceProviderStatus.PENDING) {
+        throw (0, http_errors_1.default)(403, "Invalid Access");
+    }
     if (Object.values(business_types_1.BusinessCategory).includes(category)) {
         const modelMapping = {
             [business_types_1.BusinessCategory.HARVESTORS]: harvestorProduct_model_1.HarvestorProduct,
@@ -182,6 +187,10 @@ exports.verifyLoginOtp = (0, express_async_handler_1.default)((req, res) => __aw
         throw (0, http_errors_1.default)(404, "User not found");
     }
     yield (0, twilioService_1.verifyOTP)(mobileNumber, code);
+    if (provider.status == provider_types_1.ServiceProviderStatus.PENDING) {
+        provider.status = provider_types_1.ServiceProviderStatus.OTP_VERIFIED;
+        yield provider.save();
+    }
     const token = (0, jwt_1.generateJwt)({ userId: provider._id }, process.env.PROVIDER_JWT_SECRET);
     (0, formatImageUrl_1.formateProviderImage)(provider);
     res.status(200).json({ message: "OTP verified successfully", token, provider });
