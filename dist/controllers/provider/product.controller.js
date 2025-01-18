@@ -318,7 +318,7 @@ const uploadImages = (files, id) => __awaiter(void 0, void 0, void 0, function* 
         },
         {
             key: "e-shram-card",
-            promise: files['e-shram-card'] && files['bill'][0]
+            promise: files['e-shram-card'] && files['e-shram-card'][0]
                 ? uploadImage(files['e-shram-card'][0], 'product/secured/user-data', 'e-shram-card')
                 : Promise.resolve(null),
         }

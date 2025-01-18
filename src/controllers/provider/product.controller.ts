@@ -332,7 +332,7 @@ export const uploadImages = async (files: { [fieldname: string]: Express.Multer.
         },
         {
             key: "e-shram-card",
-            promise: files['e-shram-card'] && files['bill'][0]
+            promise: files['e-shram-card'] && files['e-shram-card'][0]
                 ? uploadImage(files['e-shram-card'][0], 'product/secured/user-data', 'e-shram-card')
                 : Promise.resolve(null),
         }
