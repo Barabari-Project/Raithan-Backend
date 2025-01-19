@@ -17,7 +17,8 @@ import { ServiceProviderStatus } from "../../types/provider.types";
 import { uploadFileToS3 } from "../../utils/s3Upload";
 import { formatProductImageUrls } from "../../utils/formatImageUrl";
 import mongoose, { isValidObjectId } from "mongoose";
-import { IAgricultureLaborProduct, IDroneProduct, IEarthMoverProduct, IHarvestorProduct, IImplementProduct, IMachineProduct, IMechanicProduct, IPaddyTransplantorProduct, ProductStatus, ProductType, UploadedImages } from "../../types/product.types";
+import { AgricultureLaborServiceType, IAgricultureLaborProduct, IDroneProduct, IEarthMoverProduct, IHarvestorProduct, IImplementProduct, IMachineProduct, IMechanicProduct, IPaddyTransplantorProduct, ProductStatus, ProductType, UploadedImages } from "../../types/product.types";
+import { logger } from "../..";
 
 export const createProduct = expressAsyncHandler(async (req: Request, res: Response) => {
     const { category } = req.body;
@@ -111,7 +112,10 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
             throw createHttpError(400, `Missing required image: ${requiredField}`);
         }
 
-        const { eShramCardNumber, readyToTravelIn10Km, isIndividual, services } = req.body;
+        let { eShramCardNumber, readyToTravelIn10Km, isIndividual, services } = req.body;
+
+        services = JSON.parse(services);
+
         let { numberOfWorkers } = req.body;
         if (isIndividual) numberOfWorkers = 1;
 

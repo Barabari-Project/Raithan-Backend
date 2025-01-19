@@ -12,9 +12,11 @@ const MechanicProductSchema: Schema = new Schema<IMechanicProduct>({
     },
     services: {
         type: [String],
-        enum: {
-            values: Object.values(MechanicServiceType),
-            message: "Services must be one of the valid types.",
+        validate: {
+            validator: function (values) {
+                return values.every((value: MechanicServiceType) => Object.values(MechanicServiceType).includes(value));
+            },
+            message: "Each service must be one of the valid types.",
         },
         default: [],
     },

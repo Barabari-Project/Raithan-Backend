@@ -140,7 +140,8 @@ exports.createProduct = (0, express_async_handler_1.default)((req, res) => __awa
         if (!files[requiredField] || files[requiredField].length === 0) {
             throw (0, http_errors_1.default)(400, `Missing required image: ${requiredField}`);
         }
-        const { eShramCardNumber, readyToTravelIn10Km, isIndividual, services } = req.body;
+        let { eShramCardNumber, readyToTravelIn10Km, isIndividual, services } = req.body;
+        services = JSON.parse(services);
         let { numberOfWorkers } = req.body;
         if (isIndividual)
             numberOfWorkers = 1;

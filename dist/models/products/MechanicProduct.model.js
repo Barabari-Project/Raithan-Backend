@@ -50,9 +50,11 @@ const MechanicProductSchema = new mongoose_1.Schema({
     },
     services: {
         type: [String],
-        enum: {
-            values: Object.values(product_types_1.MechanicServiceType),
-            message: "Services must be one of the valid types.",
+        validate: {
+            validator: function (values) {
+                return values.every((value) => Object.values(product_types_1.MechanicServiceType).includes(value));
+            },
+            message: "Each service must be one of the valid types.",
         },
         default: [],
     },

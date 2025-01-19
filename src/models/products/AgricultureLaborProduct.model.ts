@@ -32,9 +32,11 @@ const AgricultureLaborProductSchema: Schema = new Schema<IAgricultureLaborProduc
     },
     services: {
         type: [String],
-        enum: {
-            values: Object.values(AgricultureLaborServiceType),
-            message: "Services must be one of the valid types.",
+        validate: {
+            validator: function (values) {
+                return values.every((value:AgricultureLaborServiceType) => Object.values(AgricultureLaborServiceType).includes(value));
+            },
+            message: "Each service must be one of the valid types.",
         },
         default: [],
     },
