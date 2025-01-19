@@ -230,7 +230,7 @@ export const verifyLoginOtp = expressAsyncHandler(async (req: Request, res: Resp
 
     if (provider.status == ServiceProviderStatus.PENDING) {
         provider.status = ServiceProviderStatus.OTP_VERIFIED;
-        await provider.save();
+        await ServiceProvider.findByIdAndUpdate(provider._id,{$set: {status: ServiceProviderStatus.VERIFIED}})
     }
 
     const token = generateJwt({ userId: provider._id }, process.env.PROVIDER_JWT_SECRET!);

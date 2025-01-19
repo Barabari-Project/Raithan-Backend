@@ -189,7 +189,7 @@ exports.verifyLoginOtp = (0, express_async_handler_1.default)((req, res) => __aw
     yield (0, twilioService_1.verifyOTP)(mobileNumber, code);
     if (provider.status == provider_types_1.ServiceProviderStatus.PENDING) {
         provider.status = provider_types_1.ServiceProviderStatus.OTP_VERIFIED;
-        yield provider.save();
+        yield serviceProvider_model_1.default.findByIdAndUpdate(provider._id, { $set: { status: provider_types_1.ServiceProviderStatus.VERIFIED } });
     }
     const token = (0, jwt_1.generateJwt)({ userId: provider._id }, process.env.PROVIDER_JWT_SECRET);
     (0, formatImageUrl_1.formateProviderImage)(provider);
