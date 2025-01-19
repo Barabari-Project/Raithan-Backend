@@ -117,7 +117,7 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
         services = JSON.parse(services);
 
         let { numberOfWorkers } = req.body;
-        if (isIndividual) numberOfWorkers = 1;
+        if (isIndividual=='true') numberOfWorkers = 1;
 
         const createData = {
             images: uploadedImages,
