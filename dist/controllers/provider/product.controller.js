@@ -247,9 +247,10 @@ exports.updateProduct = (0, express_async_handler_1.default)((req, res) => __awa
         }, { new: true, runValidators: true });
     }
     else if (category === business_types_1.BusinessCategory.MECHANICS || category === business_types_1.BusinessCategory.AGRICULTURE_LABOR) {
-        const { eShramCardNumber, readyToTravelIn10Km, isIndividual, services } = req.body;
+        let { eShramCardNumber, readyToTravelIn10Km, isIndividual, services } = req.body;
+        services = JSON.parse(services);
         let { numberOfWorkers } = req.body;
-        if (isIndividual)
+        if (isIndividual == 'true')
             numberOfWorkers = 1;
         const createData = {
             images: uploadedImages,

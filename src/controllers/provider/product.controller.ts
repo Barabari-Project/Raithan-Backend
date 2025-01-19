@@ -261,9 +261,10 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
     } else if (category === BusinessCategory.MECHANICS || category === BusinessCategory.AGRICULTURE_LABOR) {
 
 
-        const { eShramCardNumber, readyToTravelIn10Km, isIndividual, services } = req.body;
+        let { eShramCardNumber, readyToTravelIn10Km, isIndividual, services } = req.body;
+        services = JSON.parse(services);
         let { numberOfWorkers } = req.body;
-        if (isIndividual) numberOfWorkers = 1;
+        if (isIndividual=='true') numberOfWorkers = 1;
 
         const createData = {
             images: uploadedImages,
