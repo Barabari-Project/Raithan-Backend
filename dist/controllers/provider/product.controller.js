@@ -208,12 +208,12 @@ exports.updateProduct = (0, express_async_handler_1.default)((req, res) => __awa
     }
     const files = req.files;
     const uploadedImages = yield (0, exports.uploadImages)(files, id);
-    if (category === business_types_1.BusinessCategory.HARVESTORS || category === business_types_1.BusinessCategory.EARTH_MOVERS || category === business_types_1.BusinessCategory.IMPLEMENTS || category === business_types_1.BusinessCategory.MACHINES || category === business_types_1.BusinessCategory.PADDY_TRANSPLANTORS) {
-        for (const imageName in uploadedImages) {
-            if (uploadedImages[imageName] === null) {
-                uploadedImages[imageName] = product.images[imageName];
-            }
+    for (const imageName in uploadedImages) {
+        if (uploadedImages[imageName] === null) {
+            uploadedImages[imageName] = product.images[imageName];
         }
+    }
+    if (category === business_types_1.BusinessCategory.HARVESTORS || category === business_types_1.BusinessCategory.EARTH_MOVERS || category === business_types_1.BusinessCategory.IMPLEMENTS || category === business_types_1.BusinessCategory.MACHINES || category === business_types_1.BusinessCategory.PADDY_TRANSPLANTORS) {
         const { modelNo, hp, type } = req.body;
         const createData = Object.assign({ images: uploadedImages, modelNo,
             hp }, (type && { type }));

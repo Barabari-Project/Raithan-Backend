@@ -189,14 +189,14 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
     const uploadedImages: UploadedImages = await uploadImages(files, id);
+    for (const imageName in uploadedImages) {
+        if (uploadedImages[imageName as keyof UploadedImages] === null) {
+            uploadedImages[imageName as keyof UploadedImages] = product.images[imageName as keyof UploadedImages];
+        }
+    }
 
     if (category === BusinessCategory.HARVESTORS || category === BusinessCategory.EARTH_MOVERS || category === BusinessCategory.IMPLEMENTS || category === BusinessCategory.MACHINES || category === BusinessCategory.PADDY_TRANSPLANTORS) {
 
-        for (const imageName in uploadedImages) {
-            if (uploadedImages[imageName as keyof UploadedImages] === null) {
-                uploadedImages[imageName as keyof UploadedImages] = product.images[imageName as keyof UploadedImages];
-            }
-        }
 
         const { modelNo, hp, type } = req.body;
         const createData = {
