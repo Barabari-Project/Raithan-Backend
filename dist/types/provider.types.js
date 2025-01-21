@@ -11,6 +11,7 @@ var ServiceProviderStatus;
     ServiceProviderStatus["REJECTED"] = "rejected";
     ServiceProviderStatus["MODIFICATION_REQUIRED"] = "modification_required";
     ServiceProviderStatus["RE_VERIFICATION_REQUIRED"] = "re_verification_required";
+    ServiceProviderStatus["BLOCKED"] = "blocked";
 })(ServiceProviderStatus || (exports.ServiceProviderStatus = ServiceProviderStatus = {}));
 var Gender;
 (function (Gender) {

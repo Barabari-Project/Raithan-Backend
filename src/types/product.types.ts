@@ -1,13 +1,13 @@
 import mongoose, { Document } from "mongoose";
+import { BusinessCategory, IBusiness } from "./business.types";
 import { HarvestorProduct } from "../models/products/harvestorProduct.model";
 import { ImplementProduct } from "../models/products/ImplementProduct.model";
+import { MechanicProduct } from "../models/products/MechanicProduct.model";
 import { MachineProduct } from "../models/products/MachineProduct.model";
 import { PaddyTransplantorProduct } from "../models/products/PaddyTransplantorProduct.model";
-import { MechanicProduct } from "../models/products/MechanicProduct.model";
 import { EarthMoverProduct } from "../models/products/earthMoverProduct.model";
-import { DroneProduct } from "../models/products/DroneProduct.model";
 import { AgricultureLaborProduct } from "../models/products/AgricultureLaborProduct.model";
-import { IBusiness } from "./business.types";
+import { DroneProduct } from "../models/products/DroneProduct.model";
 
 export interface IHarvestorProduct extends Document {
     _id: mongoose.Types.ObjectId;
@@ -20,6 +20,17 @@ export interface IHarvestorProduct extends Document {
     avgRating: number;
     ratings: IRating[];
 }
+
+export const modelMapping: Record<BusinessCategory, any> = {
+    [BusinessCategory.HARVESTORS]: HarvestorProduct,
+    [BusinessCategory.IMPLEMENTS]: ImplementProduct,
+    [BusinessCategory.MACHINES]: MachineProduct,
+    [BusinessCategory.MECHANICS]: MechanicProduct,
+    [BusinessCategory.PADDY_TRANSPLANTORS]: PaddyTransplantorProduct,
+    [BusinessCategory.AGRICULTURE_LABOR]: AgricultureLaborProduct,
+    [BusinessCategory.EARTH_MOVERS]: EarthMoverProduct,
+    [BusinessCategory.DRONES]: DroneProduct,
+};
 
 export interface UploadedImages {
     "front-view": string | null;
@@ -55,6 +66,7 @@ export enum ProductStatus {
     REJECTED = 'Rejected',
     RE_VERIFICATION_REQUIRED = 'Reverification Required',
     MODIFICATION_REQUIRED = 'Modification Required',
+    BLOCKED = 'Blocked'
 }
 
 export type ProductType =

@@ -18,14 +18,6 @@ const mongoose_1 = require("mongoose");
 const http_errors_1 = __importDefault(require("http-errors"));
 const __1 = require("..");
 const business_model_1 = require("../models/business.model");
-const AgricultureLaborProduct_model_1 = require("../models/products/AgricultureLaborProduct.model");
-const DroneProduct_model_1 = require("../models/products/DroneProduct.model");
-const earthMoverProduct_model_1 = require("../models/products/earthMoverProduct.model");
-const harvestorProduct_model_1 = require("../models/products/harvestorProduct.model");
-const ImplementProduct_model_1 = require("../models/products/ImplementProduct.model");
-const MachineProduct_model_1 = require("../models/products/MachineProduct.model");
-const MechanicProduct_model_1 = require("../models/products/MechanicProduct.model");
-const PaddyTransplantorProduct_model_1 = require("../models/products/PaddyTransplantorProduct.model");
 const serviceProvider_model_1 = __importDefault(require("../models/serviceProvider.model"));
 const serviceSeeker_model_1 = __importDefault(require("../models/serviceSeeker.model"));
 const business_types_1 = require("../types/business.types");
@@ -100,17 +92,7 @@ const findProductsByStatus = (category, status, business) => __awaiter(void 0, v
             throw (0, http_errors_1.default)(404, "Business not found");
         }
     }
-    const modelMapping = {
-        [business_types_1.BusinessCategory.HARVESTORS]: harvestorProduct_model_1.HarvestorProduct,
-        [business_types_1.BusinessCategory.IMPLEMENTS]: ImplementProduct_model_1.ImplementProduct,
-        [business_types_1.BusinessCategory.MACHINES]: MachineProduct_model_1.MachineProduct,
-        [business_types_1.BusinessCategory.MECHANICS]: MechanicProduct_model_1.MechanicProduct,
-        [business_types_1.BusinessCategory.PADDY_TRANSPLANTORS]: PaddyTransplantorProduct_model_1.PaddyTransplantorProduct,
-        [business_types_1.BusinessCategory.AGRICULTURE_LABOR]: AgricultureLaborProduct_model_1.AgricultureLaborProduct,
-        [business_types_1.BusinessCategory.EARTH_MOVERS]: earthMoverProduct_model_1.EarthMoverProduct,
-        [business_types_1.BusinessCategory.DRONES]: DroneProduct_model_1.DroneProduct,
-    };
-    const model = modelMapping[category];
+    const model = product_types_1.modelMapping[category];
     if (!model) {
         throw (0, http_errors_1.default)(400, "Invalid category");
     }

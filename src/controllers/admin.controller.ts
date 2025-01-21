@@ -2,25 +2,17 @@ import { Request, Response } from 'express';
 import expressAsyncHandler from 'express-async-handler';
 import createHttpError from 'http-errors';
 import { isValidObjectId } from 'mongoose';
+import { logger } from '..';
 import CallHistory from '../models/callHistory.model';
-import { AgricultureLaborProduct } from '../models/products/AgricultureLaborProduct.model';
-import { DroneProduct } from '../models/products/DroneProduct.model';
-import { EarthMoverProduct } from '../models/products/earthMoverProduct.model';
-import { HarvestorProduct } from '../models/products/harvestorProduct.model';
-import { ImplementProduct } from '../models/products/ImplementProduct.model';
-import { MachineProduct } from '../models/products/MachineProduct.model';
-import { MechanicProduct } from '../models/products/MechanicProduct.model';
-import { PaddyTransplantorProduct } from '../models/products/PaddyTransplantorProduct.model';
 import ServiceProvider from '../models/serviceProvider.model';
 import ServiceSeeker from '../models/serviceSeeker.model';
 import { BusinessCategory } from '../types/business.types';
-import { ProductStatus } from '../types/product.types';
+import { modelMapping, ProductStatus } from '../types/product.types';
 import { IServiceProvider, ServiceProviderStatus } from '../types/provider.types';
 import { formateProviderImage, formatProductImageUrls } from '../utils/formatImageUrl';
 import { generateJwt } from '../utils/jwt';
 import { validateEmail } from '../utils/validation';
 import { findProductsByStatus } from './common.controller';
-import { logger } from '..';
 
 export const login = expressAsyncHandler(async (req: Request, res: Response) => {
     const { email, password } = req.body;
@@ -105,6 +97,35 @@ export const updateServiceProviderStatus = expressAsyncHandler(async (req: Reque
     res.status(200).json({ serviceProvider: updatedServiceProvider });
 });
 
+export const blockServiceProvider = expressAsyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const serviceProvider = await ServiceProvider.findById(id);
+    if (!serviceProvider) {
+        throw createHttpError(404, "Service provider not found");
+    }
+    await ServiceProvider.findByIdAndUpdate(id, { $set: { status: ServiceProviderStatus.BLOCKED } });
+    if (serviceProvider.business) {
+        const productPromises: Promise<any>[] = [];
+        for (const category in modelMapping) {
+            const model = modelMapping[category as BusinessCategory];
+            const products = await model.find({ business: serviceProvider.business });
+            products.forEach((product: any) => {
+                product.verificationStatus = ProductStatus.BLOCKED;
+                productPromises.push(product.save());
+            });
+        }
+        await Promise.all(productPromises);
+    }
+
+    res.status(200).json({ message: "Service provider blocked successfully" });
+});
+
+export const unblockServiceProvider = expressAsyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    await ServiceProvider.findByIdAndUpdate(id, { $set: { status: ServiceProviderStatus.VERIFIED } });
+    res.status(200).json({ message: "Service provider unblocked successfully" });
+});
+
 export const getServiceSeekers = expressAsyncHandler(async (req: Request, res: Response) => {
     const serviceSeekers = await ServiceSeeker.find();
     res.status(200).json(serviceSeekers);
@@ -126,65 +147,16 @@ export const updateProductStatus = expressAsyncHandler(async (req: Request, res:
     }
     let product;
 
-    if (category === BusinessCategory.HARVESTORS) {
-        product = await HarvestorProduct.findById(productId);
-        if (!product) {
-            throw createHttpError(404, "Product not found");
-        }
-        product.verificationStatus = status;
-        await product.save();
-    } else if (category === BusinessCategory.IMPLEMENTS) {
-        product = await ImplementProduct.findById(productId);
-        if (!product) {
-            throw createHttpError(404, "Product not found");
-        }
-        product.verificationStatus = status;
-        await product.save();
-    } else if (category === BusinessCategory.MACHINES) {
-        product = await MachineProduct.findById(productId);
-        if (!product) {
-            throw createHttpError(404, "Product not found");
-        }
-        product.verificationStatus = status;
-        await product.save();
-    } else if (category === BusinessCategory.MECHANICS) {
-        product = await MechanicProduct.findById(productId);
-        if (!product) {
-            throw createHttpError(404, "Product not found");
-        }
-        product.verificationStatus = status;
-        await product.save();
-    } else if (category === BusinessCategory.PADDY_TRANSPLANTORS) {
-        product = await PaddyTransplantorProduct.findById(productId);
-        if (!product) {
-            throw createHttpError(404, "Product not found");
-        }
-        product.verificationStatus = status;
-        await product.save();
-    } else if (category === BusinessCategory.AGRICULTURE_LABOR) {
-        product = await AgricultureLaborProduct.findById(productId);
-        if (!product) {
-            throw createHttpError(404, "Product not found");
-        }
-        product.verificationStatus = status;
-        await product.save();
-    } else if (category === BusinessCategory.EARTH_MOVERS) {
-        product = await EarthMoverProduct.findById(productId);
-        if (!product) {
-            throw createHttpError(404, "Product not found");
-        }
-        product.verificationStatus = status;
-        await product.save();
-    } else if (category === BusinessCategory.DRONES) {
-        product = await DroneProduct.findById(productId);
-        if (!product) {
-            throw createHttpError(404, "Product not found");
-        }
-        product.verificationStatus = status;
-        await product.save();
-    } else {
+    const model = modelMapping[category as BusinessCategory];
+    if (!model) {
         throw createHttpError(400, "Invalid category");
     }
+
+    product = await model.findByIdAndUpdate(productId, { $set: { verificationStatus: status } }, { new: true, runValidators: true });
+    if (!product) {
+        throw createHttpError(404, "Product not found");
+    }
+
     await formatProductImageUrls(product);
     res.status(200).json({ product });
 });

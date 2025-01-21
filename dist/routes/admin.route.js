@@ -14,6 +14,8 @@ router.post("/auth/login", admin_controller_1.login);
 router.get("/service-providers", (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.getServiceProviders);
 router.get("/service-providers/:status", (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.getServiceProvidersByStatus);
 router.put("/service-providers/:id/status", (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.updateServiceProviderStatus);
+router.put("/service-providers/block/:id", (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.blockServiceProvider);
+router.put("/service-providers/unblock/:id", (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.unblockServiceProvider);
 // verify product
 router.put("/products/:category/:id/status", (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.updateProductStatus);
 router.get("/products", (0, authMiddleware_1.authMiddleware)(process.env.ADMIN_JWT_SECRET), admin_controller_1.getProductByStatusAndCategoryAndBusinessId);

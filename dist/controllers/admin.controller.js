@@ -12,19 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getCallHistoryByServiceProviderId = exports.getCallHistoryByServiceSeekerId = exports.getCallHistory = exports.getProductByStatusAndCategoryAndBusinessId = exports.updateProductStatus = exports.getServiceSeekers = exports.updateServiceProviderStatus = exports.getServiceProvidersByStatus = exports.getServiceProviders = exports.login = void 0;
+exports.getCallHistoryByServiceProviderId = exports.getCallHistoryByServiceSeekerId = exports.getCallHistory = exports.getProductByStatusAndCategoryAndBusinessId = exports.updateProductStatus = exports.getServiceSeekers = exports.unblockServiceProvider = exports.blockServiceProvider = exports.updateServiceProviderStatus = exports.getServiceProvidersByStatus = exports.getServiceProviders = exports.login = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const http_errors_1 = __importDefault(require("http-errors"));
 const mongoose_1 = require("mongoose");
+const __1 = require("..");
 const callHistory_model_1 = __importDefault(require("../models/callHistory.model"));
-const AgricultureLaborProduct_model_1 = require("../models/products/AgricultureLaborProduct.model");
-const DroneProduct_model_1 = require("../models/products/DroneProduct.model");
-const earthMoverProduct_model_1 = require("../models/products/earthMoverProduct.model");
-const harvestorProduct_model_1 = require("../models/products/harvestorProduct.model");
-const ImplementProduct_model_1 = require("../models/products/ImplementProduct.model");
-const MachineProduct_model_1 = require("../models/products/MachineProduct.model");
-const MechanicProduct_model_1 = require("../models/products/MechanicProduct.model");
-const PaddyTransplantorProduct_model_1 = require("../models/products/PaddyTransplantorProduct.model");
 const serviceProvider_model_1 = __importDefault(require("../models/serviceProvider.model"));
 const serviceSeeker_model_1 = __importDefault(require("../models/serviceSeeker.model"));
 const business_types_1 = require("../types/business.types");
@@ -34,7 +27,6 @@ const formatImageUrl_1 = require("../utils/formatImageUrl");
 const jwt_1 = require("../utils/jwt");
 const validation_1 = require("../utils/validation");
 const common_controller_1 = require("./common.controller");
-const __1 = require("..");
 exports.login = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     if (!(0, validation_1.validateEmail)(email)) {
@@ -99,6 +91,32 @@ exports.updateServiceProviderStatus = (0, express_async_handler_1.default)((req,
     // return updatedServiceProvider!;
     res.status(200).json({ serviceProvider: updatedServiceProvider });
 }));
+exports.blockServiceProvider = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const serviceProvider = yield serviceProvider_model_1.default.findById(id);
+    if (!serviceProvider) {
+        throw (0, http_errors_1.default)(404, "Service provider not found");
+    }
+    yield serviceProvider_model_1.default.findByIdAndUpdate(id, { $set: { status: provider_types_1.ServiceProviderStatus.BLOCKED } });
+    if (serviceProvider.business) {
+        const productPromises = [];
+        for (const category in product_types_1.modelMapping) {
+            const model = product_types_1.modelMapping[category];
+            const products = yield model.find({ business: serviceProvider.business });
+            products.forEach((product) => {
+                product.verificationStatus = product_types_1.ProductStatus.BLOCKED;
+                productPromises.push(product.save());
+            });
+        }
+        yield Promise.all(productPromises);
+    }
+    res.status(200).json({ message: "Service provider blocked successfully" });
+}));
+exports.unblockServiceProvider = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    yield serviceProvider_model_1.default.findByIdAndUpdate(id, { $set: { status: provider_types_1.ServiceProviderStatus.VERIFIED } });
+    res.status(200).json({ message: "Service provider unblocked successfully" });
+}));
 exports.getServiceSeekers = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const serviceSeekers = yield serviceSeeker_model_1.default.find();
     res.status(200).json(serviceSeekers);
@@ -116,72 +134,13 @@ exports.updateProductStatus = (0, express_async_handler_1.default)((req, res) =>
         throw (0, http_errors_1.default)(400, "Invalid product ID");
     }
     let product;
-    if (category === business_types_1.BusinessCategory.HARVESTORS) {
-        product = yield harvestorProduct_model_1.HarvestorProduct.findById(productId);
-        if (!product) {
-            throw (0, http_errors_1.default)(404, "Product not found");
-        }
-        product.verificationStatus = status;
-        yield product.save();
-    }
-    else if (category === business_types_1.BusinessCategory.IMPLEMENTS) {
-        product = yield ImplementProduct_model_1.ImplementProduct.findById(productId);
-        if (!product) {
-            throw (0, http_errors_1.default)(404, "Product not found");
-        }
-        product.verificationStatus = status;
-        yield product.save();
-    }
-    else if (category === business_types_1.BusinessCategory.MACHINES) {
-        product = yield MachineProduct_model_1.MachineProduct.findById(productId);
-        if (!product) {
-            throw (0, http_errors_1.default)(404, "Product not found");
-        }
-        product.verificationStatus = status;
-        yield product.save();
-    }
-    else if (category === business_types_1.BusinessCategory.MECHANICS) {
-        product = yield MechanicProduct_model_1.MechanicProduct.findById(productId);
-        if (!product) {
-            throw (0, http_errors_1.default)(404, "Product not found");
-        }
-        product.verificationStatus = status;
-        yield product.save();
-    }
-    else if (category === business_types_1.BusinessCategory.PADDY_TRANSPLANTORS) {
-        product = yield PaddyTransplantorProduct_model_1.PaddyTransplantorProduct.findById(productId);
-        if (!product) {
-            throw (0, http_errors_1.default)(404, "Product not found");
-        }
-        product.verificationStatus = status;
-        yield product.save();
-    }
-    else if (category === business_types_1.BusinessCategory.AGRICULTURE_LABOR) {
-        product = yield AgricultureLaborProduct_model_1.AgricultureLaborProduct.findById(productId);
-        if (!product) {
-            throw (0, http_errors_1.default)(404, "Product not found");
-        }
-        product.verificationStatus = status;
-        yield product.save();
-    }
-    else if (category === business_types_1.BusinessCategory.EARTH_MOVERS) {
-        product = yield earthMoverProduct_model_1.EarthMoverProduct.findById(productId);
-        if (!product) {
-            throw (0, http_errors_1.default)(404, "Product not found");
-        }
-        product.verificationStatus = status;
-        yield product.save();
-    }
-    else if (category === business_types_1.BusinessCategory.DRONES) {
-        product = yield DroneProduct_model_1.DroneProduct.findById(productId);
-        if (!product) {
-            throw (0, http_errors_1.default)(404, "Product not found");
-        }
-        product.verificationStatus = status;
-        yield product.save();
-    }
-    else {
+    const model = product_types_1.modelMapping[category];
+    if (!model) {
         throw (0, http_errors_1.default)(400, "Invalid category");
+    }
+    product = yield model.findByIdAndUpdate(productId, { $set: { verificationStatus: status } }, { new: true, runValidators: true });
+    if (!product) {
+        throw (0, http_errors_1.default)(404, "Product not found");
     }
     yield (0, formatImageUrl_1.formatProductImageUrls)(product);
     res.status(200).json({ product });

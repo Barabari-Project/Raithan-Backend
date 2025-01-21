@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
-import { ObjectId } from 'mongodb';
 import expressAsyncHandler from "express-async-handler";
 import createHttpError from "http-errors";
+import { ObjectId } from 'mongodb';
+import mongoose, { isValidObjectId } from "mongoose";
 import { Business } from "../../models/business.model";
 import { AgricultureLaborProduct } from "../../models/products/AgricultureLaborProduct.model";
 import { DroneProduct } from "../../models/products/DroneProduct.model";
@@ -13,11 +14,10 @@ import { MechanicProduct } from "../../models/products/MechanicProduct.model";
 import { PaddyTransplantorProduct } from "../../models/products/PaddyTransplantorProduct.model";
 import ServiceProvider from "../../models/serviceProvider.model";
 import { BusinessCategory } from "../../types/business.types";
+import { modelMapping, ProductStatus, ProductType, UploadedImages } from "../../types/product.types";
 import { ServiceProviderStatus } from "../../types/provider.types";
-import { uploadFileToS3 } from "../../utils/s3Upload";
 import { formatProductImageUrls } from "../../utils/formatImageUrl";
-import mongoose, { isValidObjectId } from "mongoose";
-import { IAgricultureLaborProduct, IDroneProduct, IEarthMoverProduct, IHarvestorProduct, IImplementProduct, IMachineProduct, IMechanicProduct, IPaddyTransplantorProduct, ProductStatus, ProductType, UploadedImages } from "../../types/product.types";
+import { uploadFileToS3 } from "../../utils/s3Upload";
 
 
 export const createProduct = expressAsyncHandler(async (req: Request, res: Response) => {
@@ -172,17 +172,6 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
         throw createHttpError(400, "Category not found in business");
     }
 
-    const modelMapping: Record<BusinessCategory, any> = {
-        [BusinessCategory.HARVESTORS]: HarvestorProduct,
-        [BusinessCategory.IMPLEMENTS]: ImplementProduct,
-        [BusinessCategory.MACHINES]: MachineProduct,
-        [BusinessCategory.MECHANICS]: MechanicProduct,
-        [BusinessCategory.PADDY_TRANSPLANTORS]: PaddyTransplantorProduct,
-        [BusinessCategory.AGRICULTURE_LABOR]: AgricultureLaborProduct,
-        [BusinessCategory.EARTH_MOVERS]: EarthMoverProduct,
-        [BusinessCategory.DRONES]: DroneProduct,
-    };
-
     const model = modelMapping[category as BusinessCategory];
     if (!model) {
         throw createHttpError(400, "Invalid category");
@@ -212,6 +201,7 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
             modelNo,
             hp,
             ...(type && { type }),
+            verificationStatus: ProductStatus.RE_VERIFICATION_REQUIRED
         };
 
         switch (category) {
@@ -259,7 +249,8 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
             $set: {
                 images: uploadedImages,
                 type,
-                modelNo
+                modelNo,
+                verificationStatus: ProductStatus.RE_VERIFICATION_REQUIRED
             },
         }, { new: true, runValidators: true });
     } else if (category === BusinessCategory.MECHANICS || category === BusinessCategory.AGRICULTURE_LABOR) {
@@ -277,6 +268,7 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
             isIndividual,
             services,
             numberOfWorkers,
+            verificationStatus: ProductStatus.RE_VERIFICATION_REQUIRED
         };
 
         if (category === BusinessCategory.MECHANICS) {
@@ -376,26 +368,15 @@ export const rateProduct = expressAsyncHandler(async (req: Request, res: Respons
     if (!Object.values(BusinessCategory).includes(category)) {
         throw createHttpError(400, "Invalid category");
     }
-    let product: IAgricultureLaborProduct | IDroneProduct | IEarthMoverProduct | IHarvestorProduct | IImplementProduct | IMachineProduct | IMechanicProduct | IPaddyTransplantorProduct | null;
-    if (category === BusinessCategory.HARVESTORS) {
-        product = await HarvestorProduct.findById(productId);
-    } else if (category === BusinessCategory.EARTH_MOVERS) {
-        product = await EarthMoverProduct.findById(productId);
-    } else if (category === BusinessCategory.IMPLEMENTS) {
-        product = await ImplementProduct.findById(productId);
-    } else if (category === BusinessCategory.MACHINES) {
-        product = await MachineProduct.findById(productId);
-    } else if (category === BusinessCategory.MECHANICS) {
-        product = await MechanicProduct.findById(productId);
-    } else if (category === BusinessCategory.AGRICULTURE_LABOR) {
-        product = await AgricultureLaborProduct.findById(productId);
-    } else if (category === BusinessCategory.PADDY_TRANSPLANTORS) {
-        product = await PaddyTransplantorProduct.findById(productId);
-    } else if (category === BusinessCategory.DRONES) {
-        product = await DroneProduct.findById(productId);
-    } else {
+    let product: ProductType | null;
+
+    const model = modelMapping[category as BusinessCategory];
+    if (!model) {
         throw createHttpError(400, "Invalid category");
     }
+
+    product = await model.findById(productId);
+
     if (!product) {
         throw createHttpError(404, 'Product not found');
     } else if (product.verificationStatus != ProductStatus.VERIFIED) {
@@ -404,8 +385,16 @@ export const rateProduct = expressAsyncHandler(async (req: Request, res: Respons
     if (product.ratings.find(r => r.userId.toString() == userId)) {
         throw createHttpError(400, 'You have already rated this product');
     }
-    product.avgRating = (product.avgRating * product.ratings.length + rating) / (product.ratings.length + 1);
-    product.ratings.push({ userId: new mongoose.Types.ObjectId(userId), rating });
-    await product.save();
+    
+    product = await model.findByIdAndUpdate(productId, {
+        $set: {
+            avgRating: (product.avgRating * product.ratings.length + rating) / (product.ratings.length + 1),
+        },
+        $push: {
+            ratings: { userId: new mongoose.Types.ObjectId(userId), rating }
+        }
+    }, { new: true, runValidators: true });
+
+    await formatProductImageUrls(product!);
     res.status(200).json({ message: 'Product rated successfully', product });
 });
