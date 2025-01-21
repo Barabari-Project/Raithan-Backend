@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getProductsByDistance = exports.createCallEvent = exports.verifyLoginOtp = exports.login = void 0;
+exports.getProductsByDistanceAndHp = exports.createCallEvent = exports.verifyLoginOtp = exports.login = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const http_errors_1 = __importDefault(require("http-errors"));
 const mongoose_1 = require("mongoose");
@@ -89,8 +89,8 @@ exports.createCallEvent = (0, express_async_handler_1.default)((req, res) => __a
     });
     res.sendStatus(200);
 }));
-exports.getProductsByDistance = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { lat, lng, distance, category } = req.body;
+exports.getProductsByDistanceAndHp = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { lat, lng, distance, category, hp } = req.body;
     if (!Object.values(business_types_1.BusinessCategory).includes(category)) {
         throw (0, http_errors_1.default)(400, "Invalid category");
     }
@@ -104,12 +104,22 @@ exports.getProductsByDistance = (0, express_async_handler_1.default)((req, res) 
         [business_types_1.BusinessCategory.EARTH_MOVERS]: earthMoverProduct_model_1.EarthMoverProduct,
         [business_types_1.BusinessCategory.DRONES]: DroneProduct_model_1.DroneProduct,
     };
+    if (hp) {
+        if (isNaN(hp)) {
+            throw (0, http_errors_1.default)(400, "Invalid hp");
+        }
+    }
     const model = modelMapping[category];
     if (!model) {
         throw (0, http_errors_1.default)(400, "Invalid category");
     }
+    const query = {};
+    if (hp) {
+        query.hp = { $gte: hp };
+    }
+    query.verificationStatus = product_types_1.ProductStatus.VERIFIED;
     const products = yield model
-        .find({ verificationStatus: product_types_1.ProductStatus.VERIFIED })
+        .find(query)
         .populate("business");
     let filteredProductList = products.filter((product) => {
         if (product.business.location) {

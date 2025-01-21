@@ -103,8 +103,8 @@ type ProductWithLocation = ProductType & {
     business: IBusiness
 };
 
-export const getProductsByDistance = expressAsyncHandler(async (req: Request, res: Response) => {
-    const { lat, lng, distance, category } = req.body;
+export const getProductsByDistanceAndHp = expressAsyncHandler(async (req: Request, res: Response) => {
+    const { lat, lng, distance, category, hp } = req.body;
 
     if (!Object.values(BusinessCategory).includes(category as BusinessCategory)) {
         throw createHttpError(400, "Invalid category");
@@ -121,13 +121,25 @@ export const getProductsByDistance = expressAsyncHandler(async (req: Request, re
         [BusinessCategory.DRONES]: DroneProduct,
     };
 
+    if (hp) {
+        if (isNaN(hp)) {
+            throw createHttpError(400, "Invalid hp");
+        }
+    }
+
     const model = modelMapping[category as BusinessCategory];
     if (!model) {
         throw createHttpError(400, "Invalid category");
     }
 
+    const query: any = {};
+    if (hp) {
+        query.hp = { $gte: hp };
+    }
+    query.verificationStatus = ProductStatus.VERIFIED;
+
     const products = await model
-        .find({ verificationStatus: ProductStatus.VERIFIED })
+        .find(query)
         .populate("business");
 
     let filteredProductList: ProductWithLocation[] = products.filter((product: ProductWithLocation) => {

@@ -76,8 +76,9 @@ exports.createProduct = (0, express_async_handler_1.default)((req, res) => __awa
     if (!serviceProvider) {
         throw (0, http_errors_1.default)(404, "Service provider not found");
     }
-    if (serviceProvider.status !== provider_types_1.ServiceProviderStatus.VERIFIED) {
-        throw (0, http_errors_1.default)(400, "Service provider is not verified");
+    if (serviceProvider.status === provider_types_1.ServiceProviderStatus.PENDING || serviceProvider.status === provider_types_1.ServiceProviderStatus.BUSINESS_DETAILS_REMAINING ||
+        serviceProvider.status === provider_types_1.ServiceProviderStatus.OTP_VERIFIED || serviceProvider.status === provider_types_1.ServiceProviderStatus.REJECTED) {
+        throw (0, http_errors_1.default)(400, "You are not allowed to create product. Please Complete your profile first.");
     }
     const business = yield business_model_1.Business.findOne({ serviceProvider: serviceProvider._id });
     if (!business) {
@@ -179,8 +180,9 @@ exports.updateProduct = (0, express_async_handler_1.default)((req, res) => __awa
     if (!serviceProvider) {
         throw (0, http_errors_1.default)(404, "Service provider not found");
     }
-    if (serviceProvider.status !== provider_types_1.ServiceProviderStatus.VERIFIED) {
-        throw (0, http_errors_1.default)(400, "Service provider is not verified");
+    if (serviceProvider.status === provider_types_1.ServiceProviderStatus.PENDING || serviceProvider.status === provider_types_1.ServiceProviderStatus.BUSINESS_DETAILS_REMAINING ||
+        serviceProvider.status === provider_types_1.ServiceProviderStatus.OTP_VERIFIED || serviceProvider.status === provider_types_1.ServiceProviderStatus.REJECTED) {
+        throw (0, http_errors_1.default)(400, "You are not allowed to update product. Please Complete your profile first.");
     }
     const business = yield business_model_1.Business.findOne({ serviceProvider: serviceProvider._id });
     if (!business) {

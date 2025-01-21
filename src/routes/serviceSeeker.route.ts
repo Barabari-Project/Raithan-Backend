@@ -1,5 +1,5 @@
 import express from "express";
-import { createCallEvent, getProductsByDistance, login, verifyLoginOtp } from "../controllers/serviceSeeker.controller";
+import { createCallEvent, getProductsByDistanceAndHp, login, verifyLoginOtp } from "../controllers/serviceSeeker.controller";
 import { authMiddleware } from "../middlewares/authMiddleware";
 
 const router = express.Router();
@@ -10,6 +10,6 @@ router.post("/login/verify-otp", verifyLoginOtp);
 
 router.post('/call-event', authMiddleware(process.env.SEEKER_JWT_SECRET!), createCallEvent);
 
-router.post('/get-products', authMiddleware(process.env.SEEKER_JWT_SECRET!), getProductsByDistance);
+router.post('/get-products', authMiddleware(process.env.SEEKER_JWT_SECRET!), getProductsByDistanceAndHp);
 
 export default router;

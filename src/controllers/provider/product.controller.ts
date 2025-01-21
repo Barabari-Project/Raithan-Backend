@@ -17,8 +17,8 @@ import { ServiceProviderStatus } from "../../types/provider.types";
 import { uploadFileToS3 } from "../../utils/s3Upload";
 import { formatProductImageUrls } from "../../utils/formatImageUrl";
 import mongoose, { isValidObjectId } from "mongoose";
-import { AgricultureLaborServiceType, IAgricultureLaborProduct, IDroneProduct, IEarthMoverProduct, IHarvestorProduct, IImplementProduct, IMachineProduct, IMechanicProduct, IPaddyTransplantorProduct, ProductStatus, ProductType, UploadedImages } from "../../types/product.types";
-import { logger } from "../..";
+import { IAgricultureLaborProduct, IDroneProduct, IEarthMoverProduct, IHarvestorProduct, IImplementProduct, IMachineProduct, IMechanicProduct, IPaddyTransplantorProduct, ProductStatus, ProductType, UploadedImages } from "../../types/product.types";
+
 
 export const createProduct = expressAsyncHandler(async (req: Request, res: Response) => {
     const { category } = req.body;
@@ -35,8 +35,10 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
         throw createHttpError(404, "Service provider not found");
     }
 
-    if (serviceProvider.status !== ServiceProviderStatus.VERIFIED) {
-        throw createHttpError(400, "Service provider is not verified");
+    if (serviceProvider.status === ServiceProviderStatus.PENDING || serviceProvider.status === ServiceProviderStatus.BUSINESS_DETAILS_REMAINING ||
+        serviceProvider.status === ServiceProviderStatus.OTP_VERIFIED || serviceProvider.status === ServiceProviderStatus.REJECTED
+    ) {
+        throw createHttpError(400, "You are not allowed to create product. Please Complete your profile first.");
     }
 
     const business = await Business.findOne({ serviceProvider: serviceProvider._id });
@@ -117,7 +119,7 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
         services = JSON.parse(services);
 
         let { numberOfWorkers } = req.body;
-        if (isIndividual=='true') numberOfWorkers = 1;
+        if (isIndividual == 'true') numberOfWorkers = 1;
 
         const createData = {
             images: uploadedImages,
@@ -157,8 +159,10 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
     if (!serviceProvider) {
         throw createHttpError(404, "Service provider not found");
     }
-    if (serviceProvider.status !== ServiceProviderStatus.VERIFIED) {
-        throw createHttpError(400, "Service provider is not verified");
+    if (serviceProvider.status === ServiceProviderStatus.PENDING || serviceProvider.status === ServiceProviderStatus.BUSINESS_DETAILS_REMAINING ||
+        serviceProvider.status === ServiceProviderStatus.OTP_VERIFIED || serviceProvider.status === ServiceProviderStatus.REJECTED
+    ) {
+        throw createHttpError(400, "You are not allowed to update product. Please Complete your profile first.");
     }
     const business = await Business.findOne({ serviceProvider: serviceProvider._id });
     if (!business) {
@@ -264,7 +268,7 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
         let { eShramCardNumber, readyToTravelIn10Km, isIndividual, services } = req.body;
         services = JSON.parse(services);
         let { numberOfWorkers } = req.body;
-        if (isIndividual=='true') numberOfWorkers = 1;
+        if (isIndividual == 'true') numberOfWorkers = 1;
 
         const createData = {
             images: uploadedImages,
