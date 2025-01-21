@@ -46,9 +46,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.rateProduct = exports.uploadImages = exports.updateProduct = exports.createProduct = void 0;
-const mongodb_1 = require("mongodb");
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const http_errors_1 = __importDefault(require("http-errors"));
+const mongodb_1 = require("mongodb");
+const mongoose_1 = __importStar(require("mongoose"));
 const business_model_1 = require("../../models/business.model");
 const AgricultureLaborProduct_model_1 = require("../../models/products/AgricultureLaborProduct.model");
 const DroneProduct_model_1 = require("../../models/products/DroneProduct.model");
@@ -60,11 +61,10 @@ const MechanicProduct_model_1 = require("../../models/products/MechanicProduct.m
 const PaddyTransplantorProduct_model_1 = require("../../models/products/PaddyTransplantorProduct.model");
 const serviceProvider_model_1 = __importDefault(require("../../models/serviceProvider.model"));
 const business_types_1 = require("../../types/business.types");
-const provider_types_1 = require("../../types/provider.types");
-const s3Upload_1 = require("../../utils/s3Upload");
-const formatImageUrl_1 = require("../../utils/formatImageUrl");
-const mongoose_1 = __importStar(require("mongoose"));
 const product_types_1 = require("../../types/product.types");
+const provider_types_1 = require("../../types/provider.types");
+const formatImageUrl_1 = require("../../utils/formatImageUrl");
+const s3Upload_1 = require("../../utils/s3Upload");
 exports.createProduct = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { category } = req.body;
     if (!Object.values(business_types_1.BusinessCategory).includes(category)) {
@@ -191,17 +191,7 @@ exports.updateProduct = (0, express_async_handler_1.default)((req, res) => __awa
     if (!business.category.includes(category)) {
         throw (0, http_errors_1.default)(400, "Category not found in business");
     }
-    const modelMapping = {
-        [business_types_1.BusinessCategory.HARVESTORS]: harvestorProduct_model_1.HarvestorProduct,
-        [business_types_1.BusinessCategory.IMPLEMENTS]: ImplementProduct_model_1.ImplementProduct,
-        [business_types_1.BusinessCategory.MACHINES]: MachineProduct_model_1.MachineProduct,
-        [business_types_1.BusinessCategory.MECHANICS]: MechanicProduct_model_1.MechanicProduct,
-        [business_types_1.BusinessCategory.PADDY_TRANSPLANTORS]: PaddyTransplantorProduct_model_1.PaddyTransplantorProduct,
-        [business_types_1.BusinessCategory.AGRICULTURE_LABOR]: AgricultureLaborProduct_model_1.AgricultureLaborProduct,
-        [business_types_1.BusinessCategory.EARTH_MOVERS]: earthMoverProduct_model_1.EarthMoverProduct,
-        [business_types_1.BusinessCategory.DRONES]: DroneProduct_model_1.DroneProduct,
-    };
-    const model = modelMapping[category];
+    const model = product_types_1.modelMapping[category];
     if (!model) {
         throw (0, http_errors_1.default)(400, "Invalid category");
     }
@@ -218,8 +208,8 @@ exports.updateProduct = (0, express_async_handler_1.default)((req, res) => __awa
     }
     if (category === business_types_1.BusinessCategory.HARVESTORS || category === business_types_1.BusinessCategory.EARTH_MOVERS || category === business_types_1.BusinessCategory.IMPLEMENTS || category === business_types_1.BusinessCategory.MACHINES || category === business_types_1.BusinessCategory.PADDY_TRANSPLANTORS) {
         const { modelNo, hp, type } = req.body;
-        const createData = Object.assign({ images: uploadedImages, modelNo,
-            hp }, (type && { type }));
+        const createData = Object.assign(Object.assign({ images: uploadedImages, modelNo,
+            hp }, (type && { type })), { verificationStatus: product_types_1.ProductStatus.RE_VERIFICATION_REQUIRED });
         switch (category) {
             case business_types_1.BusinessCategory.HARVESTORS:
                 product = yield harvestorProduct_model_1.HarvestorProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true });
@@ -244,7 +234,8 @@ exports.updateProduct = (0, express_async_handler_1.default)((req, res) => __awa
             $set: {
                 images: uploadedImages,
                 type,
-                modelNo
+                modelNo,
+                verificationStatus: product_types_1.ProductStatus.RE_VERIFICATION_REQUIRED
             },
         }, { new: true, runValidators: true });
     }
@@ -261,6 +252,7 @@ exports.updateProduct = (0, express_async_handler_1.default)((req, res) => __awa
             isIndividual,
             services,
             numberOfWorkers,
+            verificationStatus: product_types_1.ProductStatus.RE_VERIFICATION_REQUIRED
         };
         if (category === business_types_1.BusinessCategory.MECHANICS) {
             product = yield MechanicProduct_model_1.MechanicProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true });
@@ -353,33 +345,11 @@ exports.rateProduct = (0, express_async_handler_1.default)((req, res) => __await
         throw (0, http_errors_1.default)(400, "Invalid category");
     }
     let product;
-    if (category === business_types_1.BusinessCategory.HARVESTORS) {
-        product = yield harvestorProduct_model_1.HarvestorProduct.findById(productId);
-    }
-    else if (category === business_types_1.BusinessCategory.EARTH_MOVERS) {
-        product = yield earthMoverProduct_model_1.EarthMoverProduct.findById(productId);
-    }
-    else if (category === business_types_1.BusinessCategory.IMPLEMENTS) {
-        product = yield ImplementProduct_model_1.ImplementProduct.findById(productId);
-    }
-    else if (category === business_types_1.BusinessCategory.MACHINES) {
-        product = yield MachineProduct_model_1.MachineProduct.findById(productId);
-    }
-    else if (category === business_types_1.BusinessCategory.MECHANICS) {
-        product = yield MechanicProduct_model_1.MechanicProduct.findById(productId);
-    }
-    else if (category === business_types_1.BusinessCategory.AGRICULTURE_LABOR) {
-        product = yield AgricultureLaborProduct_model_1.AgricultureLaborProduct.findById(productId);
-    }
-    else if (category === business_types_1.BusinessCategory.PADDY_TRANSPLANTORS) {
-        product = yield PaddyTransplantorProduct_model_1.PaddyTransplantorProduct.findById(productId);
-    }
-    else if (category === business_types_1.BusinessCategory.DRONES) {
-        product = yield DroneProduct_model_1.DroneProduct.findById(productId);
-    }
-    else {
+    const model = product_types_1.modelMapping[category];
+    if (!model) {
         throw (0, http_errors_1.default)(400, "Invalid category");
     }
+    product = yield model.findById(productId);
     if (!product) {
         throw (0, http_errors_1.default)(404, 'Product not found');
     }
@@ -389,8 +359,14 @@ exports.rateProduct = (0, express_async_handler_1.default)((req, res) => __await
     if (product.ratings.find(r => r.userId.toString() == userId)) {
         throw (0, http_errors_1.default)(400, 'You have already rated this product');
     }
-    product.avgRating = (product.avgRating * product.ratings.length + rating) / (product.ratings.length + 1);
-    product.ratings.push({ userId: new mongoose_1.default.Types.ObjectId(userId), rating });
-    yield product.save();
+    product = yield model.findByIdAndUpdate(productId, {
+        $set: {
+            avgRating: (product.avgRating * product.ratings.length + rating) / (product.ratings.length + 1),
+        },
+        $push: {
+            ratings: { userId: new mongoose_1.default.Types.ObjectId(userId), rating }
+        }
+    }, { new: true, runValidators: true });
+    yield (0, formatImageUrl_1.formatProductImageUrls)(product);
     res.status(200).json({ message: 'Product rated successfully', product });
 }));

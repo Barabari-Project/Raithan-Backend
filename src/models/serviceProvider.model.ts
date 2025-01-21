@@ -1,7 +1,6 @@
 import createHttpError from 'http-errors';
 import mongoose, { Schema } from 'mongoose';
 import { Gender, IServiceProvider, ServiceProviderStatus } from '../types/provider.types';
-import { logger } from '..';
 
 const serviceProviderSchema = new Schema<IServiceProvider>({
     mobileNumber: {

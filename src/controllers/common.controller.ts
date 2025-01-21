@@ -5,18 +5,10 @@ import { isValidObjectId } from "mongoose";
 import createHttpError from "http-errors";
 import { logger } from "..";
 import { Business } from "../models/business.model";
-import { AgricultureLaborProduct } from "../models/products/AgricultureLaborProduct.model";
-import { DroneProduct } from "../models/products/DroneProduct.model";
-import { EarthMoverProduct } from "../models/products/earthMoverProduct.model";
-import { HarvestorProduct } from "../models/products/harvestorProduct.model";
-import { ImplementProduct } from "../models/products/ImplementProduct.model";
-import { MachineProduct } from "../models/products/MachineProduct.model";
-import { MechanicProduct } from "../models/products/MechanicProduct.model";
-import { PaddyTransplantorProduct } from "../models/products/PaddyTransplantorProduct.model";
 import ServiceProvider from "../models/serviceProvider.model";
 import ServiceSeeker from "../models/serviceSeeker.model";
 import { BusinessCategory } from "../types/business.types";
-import { ProductStatus } from "../types/product.types";
+import { modelMapping, ProductStatus } from "../types/product.types";
 import { formateProviderImage, formatProductImageUrls } from "../utils/formatImageUrl";
 
 export const getServiceProviderById = expressAsyncHandler(async (req: Request, res: Response) => {
@@ -99,16 +91,6 @@ export const findProductsByStatus = async (category: string, status?: ProductSta
             throw createHttpError(404, "Business not found");
         }
     }
-    const modelMapping: Record<BusinessCategory, any> = {
-        [BusinessCategory.HARVESTORS]: HarvestorProduct,
-        [BusinessCategory.IMPLEMENTS]: ImplementProduct,
-        [BusinessCategory.MACHINES]: MachineProduct,
-        [BusinessCategory.MECHANICS]: MechanicProduct,
-        [BusinessCategory.PADDY_TRANSPLANTORS]: PaddyTransplantorProduct,
-        [BusinessCategory.AGRICULTURE_LABOR]: AgricultureLaborProduct,
-        [BusinessCategory.EARTH_MOVERS]: EarthMoverProduct,
-        [BusinessCategory.DRONES]: DroneProduct,
-    };
 
     const model = modelMapping[category as BusinessCategory];
     if (!model) {

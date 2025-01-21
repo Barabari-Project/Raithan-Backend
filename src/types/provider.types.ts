@@ -26,7 +26,8 @@ export enum ServiceProviderStatus {
     VERIFIED = "verified",
     REJECTED = "rejected",
     MODIFICATION_REQUIRED = 'modification_required',
-    RE_VERIFICATION_REQUIRED = 're_verification_required'
+    RE_VERIFICATION_REQUIRED = 're_verification_required',
+    BLOCKED = 'blocked'
 }
 
 export enum Gender {

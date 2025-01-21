@@ -17,23 +17,15 @@ const express_async_handler_1 = __importDefault(require("express-async-handler")
 const http_errors_1 = __importDefault(require("http-errors"));
 const mongoose_1 = require("mongoose");
 const callHistory_model_1 = __importDefault(require("../models/callHistory.model"));
-const AgricultureLaborProduct_model_1 = require("../models/products/AgricultureLaborProduct.model");
-const DroneProduct_model_1 = require("../models/products/DroneProduct.model");
-const earthMoverProduct_model_1 = require("../models/products/earthMoverProduct.model");
-const harvestorProduct_model_1 = require("../models/products/harvestorProduct.model");
-const ImplementProduct_model_1 = require("../models/products/ImplementProduct.model");
-const MachineProduct_model_1 = require("../models/products/MachineProduct.model");
-const MechanicProduct_model_1 = require("../models/products/MechanicProduct.model");
-const PaddyTransplantorProduct_model_1 = require("../models/products/PaddyTransplantorProduct.model");
 const serviceProvider_model_1 = __importDefault(require("../models/serviceProvider.model"));
 const serviceSeeker_model_1 = __importDefault(require("../models/serviceSeeker.model"));
 const business_types_1 = require("../types/business.types");
 const product_types_1 = require("../types/product.types");
 const provider_types_1 = require("../types/provider.types");
 const seeker_types_1 = require("../types/seeker.types");
+const formatImageUrl_1 = require("../utils/formatImageUrl");
 const jwt_1 = require("../utils/jwt");
 const twilioService_1 = require("../utils/twilioService");
-const formatImageUrl_1 = require("../utils/formatImageUrl");
 // Login
 exports.login = (0, express_async_handler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { mobileNumber } = req.body;
@@ -94,22 +86,12 @@ exports.getProductsByDistanceAndHp = (0, express_async_handler_1.default)((req, 
     if (!Object.values(business_types_1.BusinessCategory).includes(category)) {
         throw (0, http_errors_1.default)(400, "Invalid category");
     }
-    const modelMapping = {
-        [business_types_1.BusinessCategory.HARVESTORS]: harvestorProduct_model_1.HarvestorProduct,
-        [business_types_1.BusinessCategory.IMPLEMENTS]: ImplementProduct_model_1.ImplementProduct,
-        [business_types_1.BusinessCategory.MACHINES]: MachineProduct_model_1.MachineProduct,
-        [business_types_1.BusinessCategory.MECHANICS]: MechanicProduct_model_1.MechanicProduct,
-        [business_types_1.BusinessCategory.PADDY_TRANSPLANTORS]: PaddyTransplantorProduct_model_1.PaddyTransplantorProduct,
-        [business_types_1.BusinessCategory.AGRICULTURE_LABOR]: AgricultureLaborProduct_model_1.AgricultureLaborProduct,
-        [business_types_1.BusinessCategory.EARTH_MOVERS]: earthMoverProduct_model_1.EarthMoverProduct,
-        [business_types_1.BusinessCategory.DRONES]: DroneProduct_model_1.DroneProduct,
-    };
     if (hp) {
         if (isNaN(hp)) {
             throw (0, http_errors_1.default)(400, "Invalid hp");
         }
     }
-    const model = modelMapping[category];
+    const model = product_types_1.modelMapping[category];
     if (!model) {
         throw (0, http_errors_1.default)(400, "Invalid category");
     }

@@ -15,25 +15,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyLoginOtp = exports.login = exports.getProductsByCategoryAndProivderId = exports.profile = exports.updateProfile = exports.verifyOtp = exports.initiateOnboarding = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
-const serviceProvider_model_1 = __importDefault(require("../../models/serviceProvider.model"));
 const http_errors_1 = __importDefault(require("http-errors"));
-const jwt_1 = require("../../utils/jwt");
-const provider_types_1 = require("../../types/provider.types");
-const twilioService_1 = require("../../utils/twilioService");
 const __1 = require("../..");
-const s3Upload_1 = require("../../utils/s3Upload");
-const validation_1 = require("../../utils/validation");
+const serviceProvider_model_1 = __importDefault(require("../../models/serviceProvider.model"));
 const serviceSeeker_model_1 = __importDefault(require("../../models/serviceSeeker.model"));
-const formatImageUrl_1 = require("../../utils/formatImageUrl");
 const business_types_1 = require("../../types/business.types");
-const AgricultureLaborProduct_model_1 = require("../../models/products/AgricultureLaborProduct.model");
-const DroneProduct_model_1 = require("../../models/products/DroneProduct.model");
-const earthMoverProduct_model_1 = require("../../models/products/earthMoverProduct.model");
-const harvestorProduct_model_1 = require("../../models/products/harvestorProduct.model");
-const ImplementProduct_model_1 = require("../../models/products/ImplementProduct.model");
-const MachineProduct_model_1 = require("../../models/products/MachineProduct.model");
-const MechanicProduct_model_1 = require("../../models/products/MechanicProduct.model");
-const PaddyTransplantorProduct_model_1 = require("../../models/products/PaddyTransplantorProduct.model");
+const product_types_1 = require("../../types/product.types");
+const provider_types_1 = require("../../types/provider.types");
+const formatImageUrl_1 = require("../../utils/formatImageUrl");
+const jwt_1 = require("../../utils/jwt");
+const s3Upload_1 = require("../../utils/s3Upload");
+const twilioService_1 = require("../../utils/twilioService");
+const validation_1 = require("../../utils/validation");
 // Onboarding
 // Step 1: Store mobile number and send OTP
 exports.initiateOnboarding = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -143,17 +136,7 @@ exports.getProductsByCategoryAndProivderId = (0, express_async_handler_1.default
         throw (0, http_errors_1.default)(403, "Invalid Access");
     }
     if (Object.values(business_types_1.BusinessCategory).includes(category)) {
-        const modelMapping = {
-            [business_types_1.BusinessCategory.HARVESTORS]: harvestorProduct_model_1.HarvestorProduct,
-            [business_types_1.BusinessCategory.IMPLEMENTS]: ImplementProduct_model_1.ImplementProduct,
-            [business_types_1.BusinessCategory.MACHINES]: MachineProduct_model_1.MachineProduct,
-            [business_types_1.BusinessCategory.MECHANICS]: MechanicProduct_model_1.MechanicProduct,
-            [business_types_1.BusinessCategory.PADDY_TRANSPLANTORS]: PaddyTransplantorProduct_model_1.PaddyTransplantorProduct,
-            [business_types_1.BusinessCategory.AGRICULTURE_LABOR]: AgricultureLaborProduct_model_1.AgricultureLaborProduct,
-            [business_types_1.BusinessCategory.EARTH_MOVERS]: earthMoverProduct_model_1.EarthMoverProduct,
-            [business_types_1.BusinessCategory.DRONES]: DroneProduct_model_1.DroneProduct,
-        };
-        const model = modelMapping[category];
+        const model = product_types_1.modelMapping[category];
         const query = {};
         if (serviceProvider === null || serviceProvider === void 0 ? void 0 : serviceProvider.business) {
             query.business = serviceProvider.business;
@@ -176,6 +159,9 @@ exports.login = (0, express_async_handler_1.default)((req, res) => __awaiter(voi
     if (!provider) {
         throw (0, http_errors_1.default)(404, "User not found");
     }
+    if (provider.status == provider_types_1.ServiceProviderStatus.BLOCKED) {
+        throw (0, http_errors_1.default)(400, "Your account is blocked");
+    }
     yield (0, twilioService_1.sendOTP)(mobileNumber);
     res.status(200).json({ message: "OTP sent successfully" });
 }));
@@ -185,6 +171,9 @@ exports.verifyLoginOtp = (0, express_async_handler_1.default)((req, res) => __aw
     const provider = yield serviceProvider_model_1.default.findOne({ mobileNumber: { $eq: mobileNumber } });
     if (!provider) {
         throw (0, http_errors_1.default)(404, "User not found");
+    }
+    if (provider.status == provider_types_1.ServiceProviderStatus.BLOCKED) {
+        throw (0, http_errors_1.default)(400, "Your account is blocked");
     }
     yield (0, twilioService_1.verifyOTP)(mobileNumber, code);
     if (provider.status == provider_types_1.ServiceProviderStatus.PENDING) {
