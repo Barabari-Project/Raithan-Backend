@@ -22,6 +22,7 @@ const serviceProvider_model_1 = __importDefault(require("../models/serviceProvid
 const serviceSeeker_model_1 = __importDefault(require("../models/serviceSeeker.model"));
 const business_types_1 = require("../types/business.types");
 const product_types_1 = require("../types/product.types");
+const modelMapping_1 = require("../utils/modelMapping");
 const provider_types_1 = require("../types/provider.types");
 const formatImageUrl_1 = require("../utils/formatImageUrl");
 const jwt_1 = require("../utils/jwt");
@@ -100,8 +101,8 @@ exports.blockServiceProvider = (0, express_async_handler_1.default)((req, res) =
     yield serviceProvider_model_1.default.findByIdAndUpdate(id, { $set: { status: provider_types_1.ServiceProviderStatus.BLOCKED } });
     if (serviceProvider.business) {
         const productPromises = [];
-        for (const category in product_types_1.modelMapping) {
-            const model = product_types_1.modelMapping[category];
+        for (const category in modelMapping_1.modelMapping) {
+            const model = modelMapping_1.modelMapping[category];
             const products = yield model.find({ business: serviceProvider.business });
             products.forEach((product) => {
                 product.verificationStatus = product_types_1.ProductStatus.BLOCKED;
@@ -134,7 +135,7 @@ exports.updateProductStatus = (0, express_async_handler_1.default)((req, res) =>
         throw (0, http_errors_1.default)(400, "Invalid product ID");
     }
     let product;
-    const model = product_types_1.modelMapping[category];
+    const model = modelMapping_1.modelMapping[category];
     if (!model) {
         throw (0, http_errors_1.default)(400, "Invalid category");
     }

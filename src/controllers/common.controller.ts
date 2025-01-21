@@ -8,7 +8,8 @@ import { Business } from "../models/business.model";
 import ServiceProvider from "../models/serviceProvider.model";
 import ServiceSeeker from "../models/serviceSeeker.model";
 import { BusinessCategory } from "../types/business.types";
-import { modelMapping, ProductStatus } from "../types/product.types";
+import { ProductStatus } from "../types/product.types";
+import { modelMapping } from '../utils/modelMapping';
 import { formateProviderImage, formatProductImageUrls } from "../utils/formatImageUrl";
 
 export const getServiceProviderById = expressAsyncHandler(async (req: Request, res: Response) => {

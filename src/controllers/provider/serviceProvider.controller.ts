@@ -8,13 +8,14 @@ import { logger } from '../..';
 import ServiceProvider from '../../models/serviceProvider.model';
 import ServiceSeeker from '../../models/serviceSeeker.model';
 import { BusinessCategory } from '../../types/business.types';
-import { modelMapping, ProductStatus, ProductType } from '../../types/product.types';
+import { ProductStatus, ProductType } from '../../types/product.types';
 import { Gender, ServiceProviderStatus } from '../../types/provider.types';
 import { formateProviderImage, formatProductImageUrls } from '../../utils/formatImageUrl';
 import { generateJwt } from "../../utils/jwt";
 import { uploadFileToS3 } from '../../utils/s3Upload';
 import { sendOTP, verifyOTP } from '../../utils/twilioService';
 import { validateMobileNumber, validateName } from '../../utils/validation';
+import { modelMapping } from '../../utils/modelMapping';
 
 // Onboarding
 // Step 1: Store mobile number and send OTP

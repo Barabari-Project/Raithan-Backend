@@ -62,6 +62,7 @@ const PaddyTransplantorProduct_model_1 = require("../../models/products/PaddyTra
 const serviceProvider_model_1 = __importDefault(require("../../models/serviceProvider.model"));
 const business_types_1 = require("../../types/business.types");
 const product_types_1 = require("../../types/product.types");
+const modelMapping_1 = require("../../utils/modelMapping");
 const provider_types_1 = require("../../types/provider.types");
 const formatImageUrl_1 = require("../../utils/formatImageUrl");
 const s3Upload_1 = require("../../utils/s3Upload");
@@ -191,7 +192,7 @@ exports.updateProduct = (0, express_async_handler_1.default)((req, res) => __awa
     if (!business.category.includes(category)) {
         throw (0, http_errors_1.default)(400, "Category not found in business");
     }
-    const model = product_types_1.modelMapping[category];
+    const model = modelMapping_1.modelMapping[category];
     if (!model) {
         throw (0, http_errors_1.default)(400, "Invalid category");
     }
@@ -345,7 +346,7 @@ exports.rateProduct = (0, express_async_handler_1.default)((req, res) => __await
         throw (0, http_errors_1.default)(400, "Invalid category");
     }
     let product;
-    const model = product_types_1.modelMapping[category];
+    const model = modelMapping_1.modelMapping[category];
     if (!model) {
         throw (0, http_errors_1.default)(400, "Invalid category");
     }

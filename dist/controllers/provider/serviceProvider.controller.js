@@ -20,13 +20,13 @@ const __1 = require("../..");
 const serviceProvider_model_1 = __importDefault(require("../../models/serviceProvider.model"));
 const serviceSeeker_model_1 = __importDefault(require("../../models/serviceSeeker.model"));
 const business_types_1 = require("../../types/business.types");
-const product_types_1 = require("../../types/product.types");
 const provider_types_1 = require("../../types/provider.types");
 const formatImageUrl_1 = require("../../utils/formatImageUrl");
 const jwt_1 = require("../../utils/jwt");
 const s3Upload_1 = require("../../utils/s3Upload");
 const twilioService_1 = require("../../utils/twilioService");
 const validation_1 = require("../../utils/validation");
+const modelMapping_1 = require("../../utils/modelMapping");
 // Onboarding
 // Step 1: Store mobile number and send OTP
 exports.initiateOnboarding = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -136,7 +136,7 @@ exports.getProductsByCategoryAndProivderId = (0, express_async_handler_1.default
         throw (0, http_errors_1.default)(403, "Invalid Access");
     }
     if (Object.values(business_types_1.BusinessCategory).includes(category)) {
-        const model = product_types_1.modelMapping[category];
+        const model = modelMapping_1.modelMapping[category];
         const query = {};
         if (serviceProvider === null || serviceProvider === void 0 ? void 0 : serviceProvider.business) {
             query.business = serviceProvider.business;

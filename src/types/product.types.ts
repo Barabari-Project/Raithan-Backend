@@ -21,17 +21,6 @@ export interface IHarvestorProduct extends Document {
     ratings: IRating[];
 }
 
-export const modelMapping: Record<BusinessCategory, any> = {
-    [BusinessCategory.HARVESTORS]: HarvestorProduct,
-    [BusinessCategory.IMPLEMENTS]: ImplementProduct,
-    [BusinessCategory.MACHINES]: MachineProduct,
-    [BusinessCategory.MECHANICS]: MechanicProduct,
-    [BusinessCategory.PADDY_TRANSPLANTORS]: PaddyTransplantorProduct,
-    [BusinessCategory.AGRICULTURE_LABOR]: AgricultureLaborProduct,
-    [BusinessCategory.EARTH_MOVERS]: EarthMoverProduct,
-    [BusinessCategory.DRONES]: DroneProduct,
-};
-
 export interface UploadedImages {
     "front-view": string | null;
     "back-view": string | null;

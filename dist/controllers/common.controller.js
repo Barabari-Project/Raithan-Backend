@@ -22,6 +22,7 @@ const serviceProvider_model_1 = __importDefault(require("../models/serviceProvid
 const serviceSeeker_model_1 = __importDefault(require("../models/serviceSeeker.model"));
 const business_types_1 = require("../types/business.types");
 const product_types_1 = require("../types/product.types");
+const modelMapping_1 = require("../utils/modelMapping");
 const formatImageUrl_1 = require("../utils/formatImageUrl");
 exports.getServiceProviderById = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
@@ -92,7 +93,7 @@ const findProductsByStatus = (category, status, business) => __awaiter(void 0, v
             throw (0, http_errors_1.default)(404, "Business not found");
         }
     }
-    const model = product_types_1.modelMapping[category];
+    const model = modelMapping_1.modelMapping[category];
     if (!model) {
         throw (0, http_errors_1.default)(400, "Invalid category");
     }
