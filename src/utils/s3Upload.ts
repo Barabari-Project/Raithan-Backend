@@ -34,18 +34,20 @@ export const uploadFileToS3 = async (file: Express.Multer.File, folder: string, 
 
 export const getImageUrl = async (fileKey: string): Promise<string> => {
     logger.debug(fileKey);
-    if (!fileKey.includes('/secured')) {
+    // if (!fileKey.includes('/secured')) {
+    if (true) {
         return `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`;
     } else {
+        console.log("we are here");
         const params = {
             Bucket: process.env.AWS_BUCKET_NAME!,
             Key: fileKey,
         };
 
         const command = new GetObjectCommand(params);
-
+        console.log("going to make a call");
         const presignedUrl = await getSignedUrl(s3, command, { expiresIn: 60 * 5 }); // Expires in 5 minutes
-
+        console.log("getting error make a call");
         return presignedUrl;
     }
 };
