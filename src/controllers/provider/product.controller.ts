@@ -65,7 +65,6 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
             }
         }
 
-
         const { modelNo, hp, type } = req.body;
         const createData = {
             images: uploadedImages,

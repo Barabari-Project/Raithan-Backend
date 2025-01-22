@@ -97,11 +97,18 @@ type ProductWithLocation = ProductType & {
 };
 
 export const getProductsByDistanceAndHp = expressAsyncHandler(async (req: Request, res: Response) => {
-    const { lat, lng, distance, category, hp } = req.body;
+    let { lat, lng, distance, category, hp } = req.body;
 
     if (!Object.values(BusinessCategory).includes(category as BusinessCategory)) {
         throw createHttpError(400, "Invalid category");
     }
+
+    if (isNaN(parseFloat(lat)) || isNaN(parseFloat(lng))) {
+        throw createHttpError(400, "Invalid latitude or longitude");
+    }
+
+    lat = parseFloat(lat);
+    lng = parseFloat(lng);
 
     if (hp) {
         if (isNaN(hp)) {
@@ -116,8 +123,9 @@ export const getProductsByDistanceAndHp = expressAsyncHandler(async (req: Reques
 
     const query: any = {};
     if (hp) {
-        query.hp = { $gte: hp };
+        query.hp = { $lte: hp };
     }
+
     query.verificationStatus = ProductStatus.VERIFIED;
 
     const products = await model

@@ -13,6 +13,10 @@ const s3 = new S3Client({
 });
 
 export const uploadFileToS3 = async (file: Express.Multer.File, folder: string, fileName: string): Promise<string> => {
+    console.log('AWS_REGION:', process.env.AWS_REGION);
+    console.log('AWS_ACCESS_KEY_ID:', process.env.AWS_ACCESS_KEY_ID);
+    console.log('AWS_BUCKET_NAME:', process.env.AWS_BUCKET_NAME);
+
     const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg'];
     const contentType = file.mimetype;
     if (!allowedMimeTypes.includes(contentType)) {
@@ -34,8 +38,7 @@ export const uploadFileToS3 = async (file: Express.Multer.File, folder: string, 
 
 export const getImageUrl = async (fileKey: string): Promise<string> => {
     logger.debug(fileKey);
-    // if (!fileKey.includes('/secured')) {
-    if (true) {
+    if (!fileKey.includes('/secured')) {
         return `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`;
     } else {
         console.log("we are here");
