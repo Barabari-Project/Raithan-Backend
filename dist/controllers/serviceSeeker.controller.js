@@ -83,10 +83,15 @@ exports.createCallEvent = (0, express_async_handler_1.default)((req, res) => __a
     res.sendStatus(200);
 }));
 exports.getProductsByDistanceAndHp = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { lat, lng, distance, category, hp } = req.body;
+    let { lat, lng, distance, category, hp } = req.body;
     if (!Object.values(business_types_1.BusinessCategory).includes(category)) {
         throw (0, http_errors_1.default)(400, "Invalid category");
     }
+    if (isNaN(parseFloat(lat)) || isNaN(parseFloat(lng))) {
+        throw (0, http_errors_1.default)(400, "Invalid latitude or longitude");
+    }
+    lat = parseFloat(lat);
+    lng = parseFloat(lng);
     if (hp) {
         if (isNaN(hp)) {
             throw (0, http_errors_1.default)(400, "Invalid hp");
@@ -98,7 +103,7 @@ exports.getProductsByDistanceAndHp = (0, express_async_handler_1.default)((req, 
     }
     const query = {};
     if (hp) {
-        query.hp = { $gte: hp };
+        query.hp = { $lte: hp };
     }
     query.verificationStatus = product_types_1.ProductStatus.VERIFIED;
     const products = yield model
