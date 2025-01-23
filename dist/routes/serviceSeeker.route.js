@@ -11,5 +11,5 @@ const router = express_1.default.Router();
 router.post("/login", serviceSeeker_controller_1.login);
 router.post("/login/verify-otp", serviceSeeker_controller_1.verifyLoginOtp);
 router.post('/call-event', (0, authMiddleware_1.authMiddleware)(process.env.SEEKER_JWT_SECRET), serviceSeeker_controller_1.createCallEvent);
-router.post('/get-products', (0, authMiddleware_1.authMiddleware)(process.env.SEEKER_JWT_SECRET), serviceSeeker_controller_1.getProductsByDistanceAndHp);
+router.post('/get-products', serviceSeeker_controller_1.getProductsByDistanceAndHp);
 exports.default = router;

@@ -10,6 +10,6 @@ router.post("/login/verify-otp", verifyLoginOtp);
 
 router.post('/call-event', authMiddleware(process.env.SEEKER_JWT_SECRET!), createCallEvent);
 
-router.post('/get-products', authMiddleware(process.env.SEEKER_JWT_SECRET!), getProductsByDistanceAndHp);
+router.post('/get-products', getProductsByDistanceAndHp);
 
 export default router;
