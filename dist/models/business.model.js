@@ -55,6 +55,11 @@ const BusinessSchema = new mongoose_1.Schema({
             message: (props) => `${props.value} is not a valid pincode!`,
         },
     },
+    mobileNumber: {
+        type: String,
+        required: [true, 'Mobile number is required'],
+        unique: [true, 'Mobile number is already exists']
+    },
     blockNumber: {
         type: String,
         required: [true, "block Number is required"],

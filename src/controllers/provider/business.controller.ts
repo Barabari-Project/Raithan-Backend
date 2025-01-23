@@ -4,7 +4,6 @@ import { Business } from '../../models/business.model';
 import ServiceProvider from '../../models/serviceProvider.model';
 import expressAsyncHandler from 'express-async-handler';
 import { ServiceProviderStatus } from '../../types/provider.types';
-import { logger } from '../..';
 
 // Create a new business
 export const createBusiness = expressAsyncHandler(async (req: Request, res: Response) => {
@@ -24,7 +23,7 @@ export const createBusiness = expressAsyncHandler(async (req: Request, res: Resp
         throw createHttpError(400, 'Business already exists');
     }
 
-    const newBusiness = new Business({ ...req.body, serviceProvider: serviceProvider._id });
+    const newBusiness = new Business({ ...req.body, serviceProvider: serviceProvider._id, mobileNumber: serviceProvider.mobileNumber });
     await newBusiness.save();
 
     serviceProvider.business = newBusiness._id;
@@ -47,7 +46,7 @@ export const setLocation = expressAsyncHandler(async (req: Request, res: Respons
         { $set: { location: { lat, lng } } },
         { runValidators: true }
     );
-    res.json({message: 'Location updated Successfully!'}).status(200);
+    res.json({ message: 'Location updated Successfully!' }).status(200);
 });
 
 
@@ -68,7 +67,7 @@ export const updateBusiness = expressAsyncHandler(async (req: Request, res: Resp
 
     const updatedBusiness = await Business.findByIdAndUpdate(
         serviceProvider.business,
-        { $set: { ...req.body, serviceProvider: req.userId } },
+        { $set: { ...req.body, serviceProvider: req.userId, mobileNumber: serviceProvider.mobileNumber } },
         { new: true, runValidators: true }
     );
 

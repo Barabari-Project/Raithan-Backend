@@ -15,6 +15,7 @@ export interface IBusiness extends Document {
     _id: mongoose.Types.ObjectId;
     businessName: string;
     pincode: string;
+    mobileNumber:string;
     blockNumber: string;
     street: string;
     area: string;

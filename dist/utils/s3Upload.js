@@ -50,15 +50,12 @@ const getImageUrl = (fileKey) => __awaiter(void 0, void 0, void 0, function* () 
         return `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`;
     }
     else {
-        console.log("we are here");
         const params = {
             Bucket: process.env.AWS_BUCKET_NAME,
             Key: fileKey,
         };
         const command = new client_s3_1.GetObjectCommand(params);
-        console.log("going to make a call");
-        const presignedUrl = yield (0, s3_request_presigner_1.getSignedUrl)(s3, command, { expiresIn: 60 * 5 }); // Expires in 5 minutes
-        console.log("getting error make a call");
+        const presignedUrl = yield (0, s3_request_presigner_1.getSignedUrl)(s3, command, { expiresIn: 60 * 5 });
         return presignedUrl;
     }
 });

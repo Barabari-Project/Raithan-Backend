@@ -31,7 +31,7 @@ exports.createBusiness = (0, express_async_handler_1.default)((req, res) => __aw
     if (isBusinessAlreadyExists) {
         throw (0, http_errors_1.default)(400, 'Business already exists');
     }
-    const newBusiness = new business_model_1.Business(Object.assign(Object.assign({}, req.body), { serviceProvider: serviceProvider._id }));
+    const newBusiness = new business_model_1.Business(Object.assign(Object.assign({}, req.body), { serviceProvider: serviceProvider._id, mobileNumber: serviceProvider.mobileNumber }));
     yield newBusiness.save();
     serviceProvider.business = newBusiness._id;
     serviceProvider.status = provider_types_1.ServiceProviderStatus.VERIFICATION_REQUIRED;
@@ -61,7 +61,7 @@ exports.updateBusiness = (0, express_async_handler_1.default)((req, res) => __aw
         serviceProvider.status !== provider_types_1.ServiceProviderStatus.RE_VERIFICATION_REQUIRED)) {
         throw (0, http_errors_1.default)(400, "You can not update a business details");
     }
-    const updatedBusiness = yield business_model_1.Business.findByIdAndUpdate(serviceProvider.business, { $set: Object.assign(Object.assign({}, req.body), { serviceProvider: req.userId }) }, { new: true, runValidators: true });
+    const updatedBusiness = yield business_model_1.Business.findByIdAndUpdate(serviceProvider.business, { $set: Object.assign(Object.assign({}, req.body), { serviceProvider: req.userId, mobileNumber: serviceProvider.mobileNumber }) }, { new: true, runValidators: true });
     if (serviceProvider.status == provider_types_1.ServiceProviderStatus.VERIFIED || serviceProvider.status == provider_types_1.ServiceProviderStatus.MODIFICATION_REQUIRED) {
         serviceProvider.status = provider_types_1.ServiceProviderStatus.RE_VERIFICATION_REQUIRED;
         yield serviceProvider.save();

@@ -27,6 +27,7 @@ const seeker_types_1 = require("../types/seeker.types");
 const formatImageUrl_1 = require("../utils/formatImageUrl");
 const jwt_1 = require("../utils/jwt");
 const twilioService_1 = require("../utils/twilioService");
+const __1 = require("..");
 // Login
 exports.login = (0, express_async_handler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { mobileNumber } = req.body;
@@ -112,7 +113,13 @@ exports.getProductsByDistanceAndHp = (0, express_async_handler_1.default)((req, 
     let filteredProductList = products.filter((product) => {
         if (product.business.location) {
             const { lat: productLat, lng: productLng } = product.business.location;
+            __1.logger.debug(lat);
+            __1.logger.debug(lng);
+            __1.logger.debug(productLat);
+            __1.logger.debug(productLng);
             const distanceInMeters = calculateDistance(lat, lng, productLat, productLng);
+            __1.logger.debug(distanceInMeters);
+            __1.logger.debug(distance);
             return distanceInMeters <= distance;
         }
     });

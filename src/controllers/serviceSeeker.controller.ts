@@ -14,6 +14,8 @@ import { ServiceSeekerStatus } from '../types/seeker.types';
 import { formatProductImageUrls } from '../utils/formatImageUrl';
 import { generateJwt } from '../utils/jwt';
 import { sendOTP, verifyOTP } from '../utils/twilioService';
+import { logger } from '..';
+import { log } from 'console';
 
 // Login
 export const login = expressAsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
@@ -135,7 +137,13 @@ export const getProductsByDistanceAndHp = expressAsyncHandler(async (req: Reques
     let filteredProductList: ProductWithLocation[] = products.filter((product: ProductWithLocation) => {
         if (product.business.location) {
             const { lat: productLat, lng: productLng } = product.business.location;
+            logger.debug(lat);
+            logger.debug(lng);
+            logger.debug(productLat);
+            logger.debug(productLng);
             const distanceInMeters = calculateDistance(lat, lng, productLat, productLng);
+            logger.debug(distanceInMeters);
+            logger.debug(distance);
             return distanceInMeters <= distance;
         }
     });

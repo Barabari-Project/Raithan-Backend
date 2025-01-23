@@ -38,16 +38,13 @@ export const getImageUrl = async (fileKey: string): Promise<string> => {
     if (!fileKey.includes('/secured')) {
         return `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`;
     } else {
-        console.log("we are here");
         const params = {
             Bucket: process.env.AWS_BUCKET_NAME!,
             Key: fileKey,
         };
 
         const command = new GetObjectCommand(params);
-        console.log("going to make a call");
-        const presignedUrl = await getSignedUrl(s3, command, { expiresIn: 60 * 5 }); // Expires in 5 minutes
-        console.log("getting error make a call");
+        const presignedUrl = await getSignedUrl(s3, command, { expiresIn: 60 * 5 });
         return presignedUrl;
     }
 };
