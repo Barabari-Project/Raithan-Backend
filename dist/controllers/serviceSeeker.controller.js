@@ -80,7 +80,7 @@ exports.createCallEvent = (0, express_async_handler_1.default)((req, res) => __a
         serviceProvider: serviceProviderId,
         serviceSeeker: serviceSeekerId,
     });
-    res.sendStatus(200);
+    res.sendStatus(204);
 }));
 exports.getProductsByDistanceAndHp = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let { lat, lng, distance, category, hp } = req.body;

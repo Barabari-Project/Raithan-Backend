@@ -87,7 +87,7 @@ export const createCallEvent = expressAsyncHandler(async (req: Request, res: Res
         serviceProvider: serviceProviderId,
         serviceSeeker: serviceSeekerId,
     });
-    res.sendStatus(200);
+    res.sendStatus(204);
 });
 
 type ProductWithLocation = ProductType & {
