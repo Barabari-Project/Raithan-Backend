@@ -75,9 +75,9 @@ export const createCallEvent = expressAsyncHandler(async (req: Request, res: Res
         throw createHttpError(404, "Service provider not found");
     }
 
-    if (serviceProvider.status !== ServiceProviderStatus.VERIFIED) {
-        throw createHttpError(403, "Service provider is not verified");
-    }
+    // if (serviceProvider.status !== ServiceProviderStatus.VERIFIED) {
+    //     throw createHttpError(403, "Service provider is not verified");
+    // }
 
     const serviceSeeker = await ServiceSeeker.findById(serviceSeekerId);
 
@@ -100,7 +100,6 @@ type ProductWithLocation = ProductType & {
 
 export const getProductsByDistanceAndHp = expressAsyncHandler(async (req: Request, res: Response) => {
     let { lat, lng, distance, category, hp } = req.body;
-
     if (!Object.values(BusinessCategory).includes(category as BusinessCategory)) {
         throw createHttpError(400, "Invalid category");
     }

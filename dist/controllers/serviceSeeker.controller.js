@@ -22,7 +22,6 @@ const serviceSeeker_model_1 = __importDefault(require("../models/serviceSeeker.m
 const business_types_1 = require("../types/business.types");
 const product_types_1 = require("../types/product.types");
 const modelMapping_1 = require("../utils/modelMapping");
-const provider_types_1 = require("../types/provider.types");
 const seeker_types_1 = require("../types/seeker.types");
 const formatImageUrl_1 = require("../utils/formatImageUrl");
 const jwt_1 = require("../utils/jwt");
@@ -71,9 +70,9 @@ exports.createCallEvent = (0, express_async_handler_1.default)((req, res) => __a
     if (!serviceProvider) {
         throw (0, http_errors_1.default)(404, "Service provider not found");
     }
-    if (serviceProvider.status !== provider_types_1.ServiceProviderStatus.VERIFIED) {
-        throw (0, http_errors_1.default)(403, "Service provider is not verified");
-    }
+    // if (serviceProvider.status !== ServiceProviderStatus.VERIFIED) {
+    //     throw createHttpError(403, "Service provider is not verified");
+    // }
     const serviceSeeker = yield serviceSeeker_model_1.default.findById(serviceSeekerId);
     yield callHistory_model_1.default.create({
         serviceSeekerMobileNumber: serviceSeeker === null || serviceSeeker === void 0 ? void 0 : serviceSeeker.mobileNumber,
