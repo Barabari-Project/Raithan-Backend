@@ -57,7 +57,8 @@ const MachineProductSchema: Schema = new Schema<IMachineProduct>({
     },
     ratings: {
         type: [RatingSchema],
-        default: []
+        default: [],
+        select: false,
     },
 }, { timestamps: true });
 

@@ -53,7 +53,8 @@ const DroneProductSchema: Schema = new Schema<IDroneProduct>({
     },
     ratings: {
         type: [RatingSchema],
-        default: []
+        default: [],
+        select: false, 
     },
 }, { timestamps: true });
 

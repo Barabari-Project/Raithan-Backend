@@ -57,7 +57,8 @@ const PaddyTransplantorProductSchema: Schema = new Schema<IPaddyTransplantorProd
     },
     ratings: {
         type: [RatingSchema],
-        default: []
+        default: [],
+        select: false,
     },
 }, { timestamps: true });
 

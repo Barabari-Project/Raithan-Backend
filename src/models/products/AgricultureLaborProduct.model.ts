@@ -55,7 +55,8 @@ const AgricultureLaborProductSchema: Schema = new Schema<IAgricultureLaborProduc
     },
     ratings: {
         type: [RatingSchema],
-        default: []
+        default: [],
+        select: false, 
     },
 }, { timestamps: true });
 

@@ -335,7 +335,7 @@ exports.rateProduct = (0, express_async_handler_1.default)((req, res) => __await
     if (isNaN(rating)) {
         throw (0, http_errors_1.default)(400, 'Rating must be a number');
     }
-    if (rating < 0 || rating > 10) {
+    if (rating < 0 || rating > 5) {
         throw (0, http_errors_1.default)(400, 'Rating must be between 0 and 10');
     }
     const userId = req.userId;
@@ -350,24 +350,23 @@ exports.rateProduct = (0, express_async_handler_1.default)((req, res) => __await
     if (!model) {
         throw (0, http_errors_1.default)(400, "Invalid category");
     }
-    product = yield model.findById(productId);
+    product = yield model.findById(productId).select('ratings verificationStatus');
     if (!product) {
         throw (0, http_errors_1.default)(404, 'Product not found');
     }
     else if (product.verificationStatus != product_types_1.ProductStatus.VERIFIED) {
         throw (0, http_errors_1.default)(400, 'Product is not verified');
     }
-    if (product.ratings.find(r => r.userId.toString() == userId)) {
-        throw (0, http_errors_1.default)(400, 'You have already rated this product');
-    }
-    product = yield model.findByIdAndUpdate(productId, {
-        $set: {
-            avgRating: (product.avgRating * product.ratings.length + rating) / (product.ratings.length + 1),
-        },
-        $push: {
-            ratings: { userId: new mongoose_1.default.Types.ObjectId(userId), rating }
+    console.log(product);
+    product = yield model.findByIdAndUpdate({ _id: productId }, {
+        $pull: {
+            ratings: { userId: new mongoose_1.default.Types.ObjectId(userId) } // Remove the old rating by the user
         }
-    }, { new: true, runValidators: true });
+    }, { new: true, runValidation: true }).select('ratings');
+    const ratings = product.ratings;
+    ratings.push({ userId: new mongoose_1.default.Types.ObjectId(req.userId), rating: rating });
+    const updatedAvgRating = ratings.reduce((acc, rating) => acc + rating.rating, 0) / ratings.length;
+    yield model.findByIdAndUpdate(productId, { $set: { ratings, avgRating: updatedAvgRating } }, { runValidation: true });
     yield (0, formatImageUrl_1.formatProductImageUrls)(product);
-    res.status(200).json({ message: 'Product rated successfully', product });
+    res.status(200).json({ message: 'Product rated successfully', avgRating: updatedAvgRating });
 }));

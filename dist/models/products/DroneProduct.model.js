@@ -91,7 +91,8 @@ const DroneProductSchema = new mongoose_1.Schema({
     },
     ratings: {
         type: [Rating_model_1.RatingSchema],
-        default: []
+        default: [],
+        select: false,
     },
 }, { timestamps: true });
 const handleMongooseError = (error, next) => {

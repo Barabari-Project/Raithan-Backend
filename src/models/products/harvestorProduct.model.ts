@@ -61,7 +61,8 @@ const HarvestorProductSchema: Schema = new Schema<IHarvestorProduct>({
     },
     ratings: {
         type: [RatingSchema],
-        default: []
+        default: [],
+        select: false,
     },
 }, { timestamps: true });
 

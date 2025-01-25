@@ -61,7 +61,8 @@ const EarthMoverProductSchema: Schema = new Schema<IEarthMoverProduct>({
     },
     ratings: {
         type: [RatingSchema],
-        default: []
+        default: [],
+        select: false, 
     },
 }, { timestamps: true });
 

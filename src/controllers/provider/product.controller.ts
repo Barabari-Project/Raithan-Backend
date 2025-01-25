@@ -358,7 +358,7 @@ export const rateProduct = expressAsyncHandler(async (req: Request, res: Respons
     if (isNaN(rating)) {
         throw createHttpError(400, 'Rating must be a number');
     }
-    if (rating < 0 || rating > 10) {
+    if (rating < 0 || rating > 5) {
         throw createHttpError(400, 'Rating must be between 0 and 10');
     }
     const userId = req.userId;
@@ -375,26 +375,29 @@ export const rateProduct = expressAsyncHandler(async (req: Request, res: Respons
         throw createHttpError(400, "Invalid category");
     }
 
-    product = await model.findById(productId);
+    product = await model.findById(productId).select('ratings verificationStatus');
 
     if (!product) {
         throw createHttpError(404, 'Product not found');
     } else if (product.verificationStatus != ProductStatus.VERIFIED) {
         throw createHttpError(400, 'Product is not verified');
     }
-    if (product.ratings.find(r => r.userId.toString() == userId)) {
-        throw createHttpError(400, 'You have already rated this product');
-    }
-    
-    product = await model.findByIdAndUpdate(productId, {
-        $set: {
-            avgRating: (product.avgRating * product.ratings.length + rating) / (product.ratings.length + 1),
-        },
-        $push: {
-            ratings: { userId: new mongoose.Types.ObjectId(userId), rating }
+
+    console.log(product);
+    product = await model.findByIdAndUpdate(
+        { _id: productId },
+        {
+            $pull: {
+                ratings: { userId: new mongoose.Types.ObjectId(userId) } // Remove the old rating by the user
+            }
         }
-    }, { new: true, runValidators: true });
+        , { new: true, runValidation: true }).select('ratings');
+    const ratings = product!.ratings;
+    ratings.push({ userId: new mongoose.Types.ObjectId(req.userId), rating: rating });
+    const updatedAvgRating = ratings.reduce((acc, rating) => acc + rating.rating, 0) / ratings.length;
+
+    await model.findByIdAndUpdate(productId, { $set: { ratings, avgRating: updatedAvgRating } }, { runValidation: true });
 
     await formatProductImageUrls(product!);
-    res.status(200).json({ message: 'Product rated successfully', product });
+    res.status(200).json({ message: 'Product rated successfully', avgRating: updatedAvgRating });
 });

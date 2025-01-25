@@ -57,7 +57,8 @@ const ImplementProductSchema: Schema = new Schema<IImplementProduct>({
     },
     ratings: {
         type: [RatingSchema],
-        default: []
+        default: [],
+        select: false,
     },
 }, { timestamps: true });
 
