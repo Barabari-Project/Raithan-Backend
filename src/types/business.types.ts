@@ -24,6 +24,7 @@ export interface IBusiness extends Document {
     state: string;
     serviceProvider: mongoose.Types.ObjectId;
     workingDays: { [day: string]: boolean };
+    businessType: string;
     workingTime: { start: string; end: string };
     category: BusinessCategory[];
     location?: {

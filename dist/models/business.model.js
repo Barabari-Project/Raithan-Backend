@@ -102,6 +102,10 @@ const BusinessSchema = new mongoose_1.Schema({
             Sunday: false,
         },
     },
+    businessType: {
+        type: String,
+        required: [true, 'businessType is required'],
+    },
     workingTime: {
         type: new mongoose_1.Schema({
             start: {

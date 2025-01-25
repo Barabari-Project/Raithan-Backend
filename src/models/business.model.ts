@@ -65,6 +65,10 @@ const BusinessSchema: Schema = new Schema<IBusiness>(
                 Sunday: false,
             },
         },
+        businessType: {
+            type: String,
+            required: [true, 'businessType is required'],
+        },
         workingTime: {
             type: new Schema(
                 {
