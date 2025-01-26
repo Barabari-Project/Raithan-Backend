@@ -7,7 +7,7 @@ const BusinessSchema: Schema = new Schema<IBusiness>(
     {
         businessName: {
             type: String,
-            required: [true, "Business Name is required"],
+            // required: [true, "Business Name is required"],
             trim: true,
         },
         pincode: {

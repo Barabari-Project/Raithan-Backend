@@ -44,7 +44,7 @@ const __1 = require("..");
 const BusinessSchema = new mongoose_1.Schema({
     businessName: {
         type: String,
-        required: [true, "Business Name is required"],
+        // required: [true, "Business Name is required"],
         trim: true,
     },
     pincode: {

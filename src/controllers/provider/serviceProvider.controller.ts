@@ -27,7 +27,7 @@ export const initiateOnboarding = expressAsyncHandler(async (req: Request, res: 
     }
 
     const existingProvider = await ServiceProvider.findOne({ mobileNumber: { $eq: mobileNumber } });
-    if (existingProvider) {
+    if (existingProvider && existingProvider.status != ServiceProviderStatus.PENDING) {
         throw createHttpError(400, "User is already in onboarding process");
     }
 
@@ -37,10 +37,12 @@ export const initiateOnboarding = expressAsyncHandler(async (req: Request, res: 
         throw createHttpError(400, "User already exists");
     }
 
-    await ServiceProvider.create({
-        mobileNumber,
-        status: ServiceProviderStatus.PENDING
-    });
+    if (existingProvider == null) {
+        await ServiceProvider.create({
+            mobileNumber,
+            status: ServiceProviderStatus.PENDING
+        });
+    }
 
     await sendOTP(mobileNumber);
 
