@@ -5,7 +5,7 @@ const requiredEnvVars = [
     'MONGO_URI',
     'DB',
     'LOG_FILE_PATH',
-    'ACCOUNT_SID',
+    // 'ACCOUNT_SID',
     'TWILIO_ACCOUNT_SID',
     'TWILIO_AUTH_TOKEN',
     'TWILIO_VERIFY_SERVICE_SID',

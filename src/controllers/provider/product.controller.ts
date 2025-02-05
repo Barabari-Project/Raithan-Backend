@@ -19,6 +19,7 @@ import { modelMapping } from '../../utils/modelMapping';
 import { ServiceProviderStatus } from "../../types/provider.types";
 import { formatProductImageUrls } from "../../utils/formatImageUrl";
 import { uploadFileToS3 } from "../../utils/s3Upload";
+import { TechnicianProduct } from "../../models/products/TechnicianProduct.model";
 
 
 export const createProduct = expressAsyncHandler(async (req: Request, res: Response) => {
@@ -108,7 +109,7 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
             modelNo,
             business: business._id,
         });
-    } else if (category === BusinessCategory.MECHANICS || category === BusinessCategory.AGRICULTURE_LABOR) {
+    } else if (category === BusinessCategory.MECHANICS || category === BusinessCategory.AGRICULTURE_LABOR || category == BusinessCategory.TECHNICIAN) {
         const requiredField = 'e-shram-card';
         if (!files[requiredField] || files[requiredField].length === 0) {
             throw createHttpError(400, `Missing required image: ${requiredField}`);
@@ -131,8 +132,9 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
             numberOfWorkers,
             business: business._id,
         };
-
-        if (category === BusinessCategory.MECHANICS) {
+        if (category === BusinessCategory.TECHNICIAN) {
+            product = await TechnicianProduct.create(createData);
+        } else if (category === BusinessCategory.MECHANICS) {
             product = await MechanicProduct.create(createData);
         } else {
             product = await AgricultureLaborProduct.create(createData);

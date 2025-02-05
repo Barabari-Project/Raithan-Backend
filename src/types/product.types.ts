@@ -133,6 +133,15 @@ export enum MechanicServiceType {
     TRACTOR_REPAIR = 'Tractor Repair',
 }
 
+export enum TechnicianServiceType {
+    HYDROPONICS_TECHNICIAN = 'Hydroponics Technician',
+    POLYHOUSE_TECHNICIAN = 'Polyhouse Technician',
+    DRONE_TECHNICIAN = 'Drone technician',
+    VERTICAL_FARM_TECHNICIAN = 'Vertical Farm Technician',
+    AGRONOMIST = 'Agronomist',
+    PRECISION_IRRIGATION_TECHNICIANS = 'Precision Irrigation Technicians',
+}
+
 export interface IAgricultureLaborProduct extends Document {
     _id: mongoose.Types.ObjectId;
     business: mongoose.Types.ObjectId | IBusiness;

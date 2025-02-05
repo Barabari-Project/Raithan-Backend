@@ -6,6 +6,7 @@ import { ImplementProduct } from "../models/products/ImplementProduct.model";
 import { MachineProduct } from "../models/products/MachineProduct.model";
 import { MechanicProduct } from "../models/products/MechanicProduct.model";
 import { PaddyTransplantorProduct } from "../models/products/PaddyTransplantorProduct.model";
+import { TechnicianProduct } from "../models/products/TechnicianProduct.model";
 import { BusinessCategory } from "../types/business.types";
 
 export const modelMapping: Record<BusinessCategory, any> = {
@@ -17,4 +18,5 @@ export const modelMapping: Record<BusinessCategory, any> = {
     [BusinessCategory.AGRICULTURE_LABOR]: AgricultureLaborProduct,
     [BusinessCategory.EARTH_MOVERS]: EarthMoverProduct,
     [BusinessCategory.DRONES]: DroneProduct,
+    [BusinessCategory.TECHNICIAN]: TechnicianProduct,
 };

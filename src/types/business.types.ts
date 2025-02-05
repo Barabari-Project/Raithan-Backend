@@ -9,13 +9,14 @@ export enum BusinessCategory {
     EARTH_MOVERS = 'Earth Movers',
     IMPLEMENTS = 'Implements',
     MACHINES = 'Machines',
+    TECHNICIAN = 'Technician'
 }
 
 export interface IBusiness extends Document {
     _id: mongoose.Types.ObjectId;
     businessName: string;
     pincode: string;
-    mobileNumber:string;
+    mobileNumber: string;
     blockNumber: string;
     street: string;
     area: string;
@@ -31,4 +32,11 @@ export interface IBusiness extends Document {
         lat: number;
         lng: number;
     };
+}
+
+export interface IOTP extends Document {
+    phone: string;
+    otp: string;
+    expiresAt: Date;
+    isVerified: boolean;
 }

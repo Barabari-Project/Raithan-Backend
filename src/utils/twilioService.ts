@@ -21,7 +21,7 @@ const client = new Twilio(accountSid, authToken);
  * @returns Promise with the verification SID
  */
 export const sendOTP = async (toPhoneNumber: string): Promise<string> => {
-    return "";
+    // return "";
     const verification = await client.verify.v2.services(verifyServiceSid)
         .verifications.create({ to: toPhoneNumber, channel: 'sms' });
     return verification.sid;
@@ -34,17 +34,17 @@ export const sendOTP = async (toPhoneNumber: string): Promise<string> => {
  * @returns Promise indicating if the OTP is verified
  */
 export const verifyOTP = async (toPhoneNumber: string, code: string): Promise<void> => {
-    if (code == '123123') {
-        return;
-    } else {
-        throw createHttpError(400, 'OTP verification failed');
-    }
-    // const verificationCheck = await client.verify.v2.services(verifyServiceSid)
-    //     .verificationChecks.create({ to: toPhoneNumber, code });
-
-    // if (verificationCheck.status !== 'approved') {
-    //     logger.error('OTP verification failed');
+    // if (code == '123123') {
+    //     return;
+    // } else {
     //     throw createHttpError(400, 'OTP verification failed');
     // }
+    const verificationCheck = await client.verify.v2.services(verifyServiceSid)
+        .verificationChecks.create({ to: toPhoneNumber, code });
+
+    if (verificationCheck.status !== 'approved') {
+        logger.error('OTP verification failed');
+        throw createHttpError(400, 'OTP verification failed');
+    }
 
 };

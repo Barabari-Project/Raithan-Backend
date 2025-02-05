@@ -13,9 +13,10 @@ import { Gender, ServiceProviderStatus } from '../../types/provider.types';
 import { formateProviderImage, formatProductImageUrls } from '../../utils/formatImageUrl';
 import { generateJwt } from "../../utils/jwt";
 import { uploadFileToS3 } from '../../utils/s3Upload';
-import { sendOTP, verifyOTP } from '../../utils/twilioService';
+
 import { validateMobileNumber, validateName } from '../../utils/validation';
 import { modelMapping } from '../../utils/modelMapping';
+import { sendOTP, verifyOTP } from '../../utils/s3OTPService';
 
 // Onboarding
 // Step 1: Store mobile number and send OTP

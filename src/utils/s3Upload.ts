@@ -1,8 +1,7 @@
-import { S3Client, PutObjectCommand, GetObjectCommand, PutObjectCommandInput, } from '@aws-sdk/client-s3';
+import { GetObjectCommand, PutObjectCommand, PutObjectCommandInput, S3Client, } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { logger } from '..';
-import createHttpError from 'http-errors';
 import dotenv from 'dotenv';
+import createHttpError from 'http-errors';
 import path from 'path';
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 

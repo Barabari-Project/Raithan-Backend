@@ -15,8 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getImageUrl = exports.uploadFileToS3 = void 0;
 const client_s3_1 = require("@aws-sdk/client-s3");
 const s3_request_presigner_1 = require("@aws-sdk/s3-request-presigner");
-const http_errors_1 = __importDefault(require("http-errors"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const http_errors_1 = __importDefault(require("http-errors"));
 const path_1 = __importDefault(require("path"));
 dotenv_1.default.config({ path: path_1.default.resolve(__dirname, '../../.env') });
 // Create an S3 client

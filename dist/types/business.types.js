@@ -11,4 +11,5 @@ var BusinessCategory;
     BusinessCategory["EARTH_MOVERS"] = "Earth Movers";
     BusinessCategory["IMPLEMENTS"] = "Implements";
     BusinessCategory["MACHINES"] = "Machines";
+    BusinessCategory["TECHNICIAN"] = "Technician";
 })(BusinessCategory || (exports.BusinessCategory = BusinessCategory = {}));

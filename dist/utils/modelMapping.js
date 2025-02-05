@@ -9,6 +9,7 @@ const ImplementProduct_model_1 = require("../models/products/ImplementProduct.mo
 const MachineProduct_model_1 = require("../models/products/MachineProduct.model");
 const MechanicProduct_model_1 = require("../models/products/MechanicProduct.model");
 const PaddyTransplantorProduct_model_1 = require("../models/products/PaddyTransplantorProduct.model");
+const TechnicianProduct_model_1 = require("../models/products/TechnicianProduct.model");
 const business_types_1 = require("../types/business.types");
 exports.modelMapping = {
     [business_types_1.BusinessCategory.HARVESTORS]: harvestorProduct_model_1.HarvestorProduct,
@@ -19,4 +20,5 @@ exports.modelMapping = {
     [business_types_1.BusinessCategory.AGRICULTURE_LABOR]: AgricultureLaborProduct_model_1.AgricultureLaborProduct,
     [business_types_1.BusinessCategory.EARTH_MOVERS]: earthMoverProduct_model_1.EarthMoverProduct,
     [business_types_1.BusinessCategory.DRONES]: DroneProduct_model_1.DroneProduct,
+    [business_types_1.BusinessCategory.TECHNICIAN]: TechnicianProduct_model_1.TechnicianProduct,
 };

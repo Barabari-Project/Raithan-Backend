@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AgricultureLaborServiceType = exports.MechanicServiceType = exports.ProductStatus = void 0;
+exports.AgricultureLaborServiceType = exports.TechnicianServiceType = exports.MechanicServiceType = exports.ProductStatus = void 0;
 var ProductStatus;
 (function (ProductStatus) {
     ProductStatus["VERIFIED"] = "Verified";
@@ -17,6 +17,15 @@ var MechanicServiceType;
     MechanicServiceType["SOLAR_WATER_PUMP"] = "Solar Water Pump";
     MechanicServiceType["TRACTOR_REPAIR"] = "Tractor Repair";
 })(MechanicServiceType || (exports.MechanicServiceType = MechanicServiceType = {}));
+var TechnicianServiceType;
+(function (TechnicianServiceType) {
+    TechnicianServiceType["HYDROPONICS_TECHNICIAN"] = "Hydroponics Technician";
+    TechnicianServiceType["POLYHOUSE_TECHNICIAN"] = "Polyhouse Technician";
+    TechnicianServiceType["DRONE_TECHNICIAN"] = "Drone technician";
+    TechnicianServiceType["VERTICAL_FARM_TECHNICIAN"] = "Vertical Farm Technician";
+    TechnicianServiceType["AGRONOMIST"] = "Agronomist";
+    TechnicianServiceType["PRECISION_IRRIGATION_TECHNICIANS"] = "Precision Irrigation Technicians";
+})(TechnicianServiceType || (exports.TechnicianServiceType = TechnicianServiceType = {}));
 var AgricultureLaborServiceType;
 (function (AgricultureLaborServiceType) {
     AgricultureLaborServiceType["SOWING_DRYLANDS"] = "Sowing Drylands";

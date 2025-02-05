@@ -24,9 +24,9 @@ const provider_types_1 = require("../../types/provider.types");
 const formatImageUrl_1 = require("../../utils/formatImageUrl");
 const jwt_1 = require("../../utils/jwt");
 const s3Upload_1 = require("../../utils/s3Upload");
-const twilioService_1 = require("../../utils/twilioService");
 const validation_1 = require("../../utils/validation");
 const modelMapping_1 = require("../../utils/modelMapping");
+const s3OTPService_1 = require("../../utils/s3OTPService");
 // Onboarding
 // Step 1: Store mobile number and send OTP
 exports.initiateOnboarding = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -48,7 +48,7 @@ exports.initiateOnboarding = (0, express_async_handler_1.default)((req, res) => 
             status: provider_types_1.ServiceProviderStatus.PENDING
         });
     }
-    yield (0, twilioService_1.sendOTP)(mobileNumber);
+    yield (0, s3OTPService_1.sendOTP)(mobileNumber);
     res.status(201).json({ message: "OTP sent successfully" });
 }));
 // Step 2: Verify OTP and send JWT
@@ -65,7 +65,7 @@ exports.verifyOtp = (0, express_async_handler_1.default)((req, res) => __awaiter
         __1.logger.debug(`User ${existingProvider._id} otp is already verified`);
         throw (0, http_errors_1.default)(400, "Your Mobile Number is already verified.");
     }
-    yield (0, twilioService_1.verifyOTP)(mobileNumber, code);
+    yield (0, s3OTPService_1.verifyOTP)(mobileNumber, code);
     const provider = yield serviceProvider_model_1.default.findOneAndUpdate({ mobileNumber: { $eq: mobileNumber } }, { status: provider_types_1.ServiceProviderStatus.OTP_VERIFIED }, { new: true });
     if (!provider) {
         throw (0, http_errors_1.default)(404, "User not found");
@@ -164,7 +164,7 @@ exports.login = (0, express_async_handler_1.default)((req, res) => __awaiter(voi
     if (provider.status == provider_types_1.ServiceProviderStatus.BLOCKED) {
         throw (0, http_errors_1.default)(400, "Your account is blocked");
     }
-    yield (0, twilioService_1.sendOTP)(mobileNumber);
+    yield (0, s3OTPService_1.sendOTP)(mobileNumber);
     res.status(200).json({ message: "OTP sent successfully" });
 }));
 // verify otp
@@ -177,7 +177,7 @@ exports.verifyLoginOtp = (0, express_async_handler_1.default)((req, res) => __aw
     if (provider.status == provider_types_1.ServiceProviderStatus.BLOCKED) {
         throw (0, http_errors_1.default)(400, "Your account is blocked");
     }
-    yield (0, twilioService_1.verifyOTP)(mobileNumber, code);
+    yield (0, s3OTPService_1.verifyOTP)(mobileNumber, code);
     if (provider.status == provider_types_1.ServiceProviderStatus.PENDING) {
         provider.status = provider_types_1.ServiceProviderStatus.OTP_VERIFIED;
         yield serviceProvider_model_1.default.findByIdAndUpdate(provider._id, { $set: { status: provider_types_1.ServiceProviderStatus.VERIFIED } });

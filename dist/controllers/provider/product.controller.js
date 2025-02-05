@@ -66,6 +66,7 @@ const modelMapping_1 = require("../../utils/modelMapping");
 const provider_types_1 = require("../../types/provider.types");
 const formatImageUrl_1 = require("../../utils/formatImageUrl");
 const s3Upload_1 = require("../../utils/s3Upload");
+const TechnicianProduct_model_1 = require("../../models/products/TechnicianProduct.model");
 exports.createProduct = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { category } = req.body;
     if (!Object.values(business_types_1.BusinessCategory).includes(category)) {
@@ -137,7 +138,7 @@ exports.createProduct = (0, express_async_handler_1.default)((req, res) => __awa
             business: business._id,
         });
     }
-    else if (category === business_types_1.BusinessCategory.MECHANICS || category === business_types_1.BusinessCategory.AGRICULTURE_LABOR) {
+    else if (category === business_types_1.BusinessCategory.MECHANICS || category === business_types_1.BusinessCategory.AGRICULTURE_LABOR || category == business_types_1.BusinessCategory.TECHNICIAN) {
         const requiredField = 'e-shram-card';
         if (!files[requiredField] || files[requiredField].length === 0) {
             throw (0, http_errors_1.default)(400, `Missing required image: ${requiredField}`);
@@ -157,7 +158,10 @@ exports.createProduct = (0, express_async_handler_1.default)((req, res) => __awa
             numberOfWorkers,
             business: business._id,
         };
-        if (category === business_types_1.BusinessCategory.MECHANICS) {
+        if (category === business_types_1.BusinessCategory.TECHNICIAN) {
+            product = yield TechnicianProduct_model_1.TechnicianProduct.create(createData);
+        }
+        else if (category === business_types_1.BusinessCategory.MECHANICS) {
             product = yield MechanicProduct_model_1.MechanicProduct.create(createData);
         }
         else {
