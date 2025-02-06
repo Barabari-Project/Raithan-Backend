@@ -244,7 +244,7 @@ exports.updateProduct = (0, express_async_handler_1.default)((req, res) => __awa
             },
         }, { new: true, runValidators: true });
     }
-    else if (category === business_types_1.BusinessCategory.MECHANICS || category === business_types_1.BusinessCategory.AGRICULTURE_LABOR) {
+    else if (category === business_types_1.BusinessCategory.MECHANICS || category === business_types_1.BusinessCategory.AGRICULTURE_LABOR || category === business_types_1.BusinessCategory.TECHNICIAN) {
         let { eShramCardNumber, readyToTravelIn10Km, isIndividual, services } = req.body;
         services = JSON.parse(services);
         let { numberOfWorkers } = req.body;
@@ -259,7 +259,10 @@ exports.updateProduct = (0, express_async_handler_1.default)((req, res) => __awa
             numberOfWorkers,
             verificationStatus: product_types_1.ProductStatus.RE_VERIFICATION_REQUIRED
         };
-        if (category === business_types_1.BusinessCategory.MECHANICS) {
+        if (category === business_types_1.BusinessCategory.TECHNICIAN) {
+            product = yield TechnicianProduct_model_1.TechnicianProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true });
+        }
+        else if (category === business_types_1.BusinessCategory.MECHANICS) {
             product = yield MechanicProduct_model_1.MechanicProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true });
         }
         else {

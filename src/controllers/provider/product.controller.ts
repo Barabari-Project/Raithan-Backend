@@ -255,7 +255,7 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
                 verificationStatus: ProductStatus.RE_VERIFICATION_REQUIRED
             },
         }, { new: true, runValidators: true });
-    } else if (category === BusinessCategory.MECHANICS || category === BusinessCategory.AGRICULTURE_LABOR) {
+    } else if (category === BusinessCategory.MECHANICS || category === BusinessCategory.AGRICULTURE_LABOR || category === BusinessCategory.TECHNICIAN) {
 
 
         let { eShramCardNumber, readyToTravelIn10Km, isIndividual, services } = req.body;
@@ -272,8 +272,9 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
             numberOfWorkers,
             verificationStatus: ProductStatus.RE_VERIFICATION_REQUIRED
         };
-
-        if (category === BusinessCategory.MECHANICS) {
+        if (category === BusinessCategory.TECHNICIAN) {
+            product = await TechnicianProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true });
+        } else if (category === BusinessCategory.MECHANICS) {
             product = await MechanicProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true });
         } else {
             product = await AgricultureLaborProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true });
