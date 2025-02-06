@@ -1,7 +1,6 @@
-import { Twilio } from 'twilio';
-import { logger } from '..';
-import createHttpError from 'http-errors';
 import dotenv from 'dotenv';
+import createHttpError from 'http-errors';
+import { Twilio } from 'twilio';
 
 dotenv.config();
 
@@ -43,7 +42,6 @@ export const verifyOTP = async (toPhoneNumber: string, code: string): Promise<vo
         .verificationChecks.create({ to: toPhoneNumber, code });
 
     if (verificationCheck.status !== 'approved') {
-        logger.error('OTP verification failed');
         throw createHttpError(400, 'OTP verification failed');
     }
 

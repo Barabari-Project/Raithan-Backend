@@ -8,14 +8,11 @@ import ServiceProvider from '../models/serviceProvider.model';
 import ServiceSeeker from '../models/serviceSeeker.model';
 import { BusinessCategory, IBusiness } from '../types/business.types';
 import { ProductStatus, ProductType } from '../types/product.types';
-import { modelMapping } from '../utils/modelMapping';
-import { ServiceProviderStatus } from '../types/provider.types';
 import { ServiceSeekerStatus } from '../types/seeker.types';
 import { formatProductImageUrls } from '../utils/formatImageUrl';
 import { generateJwt } from '../utils/jwt';
+import { modelMapping } from '../utils/modelMapping';
 import { sendOTP, verifyOTP } from '../utils/twilioService';
-import { logger } from '..';
-import { log } from 'console';
 
 // Login
 export const login = expressAsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
@@ -28,13 +25,18 @@ export const login = expressAsyncHandler(async (req: Request, res: Response, nex
     if (provider) {
         throw createHttpError(400, "Please login as service provider");
     } else if (!seeker) {
-        const newSeeker = new ServiceSeeker({ mobileNumber, status: ServiceSeekerStatus.PENDING });
+        // const newSeeker = new ServiceSeeker({ mobileNumber, status: ServiceSeekerStatus.PENDING });
+        const newSeeker = new ServiceSeeker({ mobileNumber, status: ServiceSeekerStatus.VERIFIED });
         await newSeeker.save();
     }
 
-    await sendOTP(mobileNumber);
+    const token = generateJwt({ userId: seeker!._id }, process.env.SEEKER_JWT_SECRET!);
 
-    res.status(200).json({ message: "OTP sent successfully" });
+    res.status(200).json({ success: true, message: "LogIn successfully", token, seeker });
+
+    // await sendOTP(mobileNumber);
+
+    // res.status(200).json({ message: "OTP sent successfully" });
 });
 
 // verify otp
@@ -136,13 +138,7 @@ export const getProductsByDistanceAndHp = expressAsyncHandler(async (req: Reques
     let filteredProductList: ProductWithLocation[] = products.filter((product: ProductWithLocation) => {
         if (product.business.location) {
             const { lat: productLat, lng: productLng } = product.business.location;
-            logger.debug(lat);
-            logger.debug(lng);
-            logger.debug(productLat);
-            logger.debug(productLng);
             const distanceInMeters = calculateDistance(lat, lng, productLat, productLng);
-            logger.debug(distanceInMeters);
-            logger.debug(distance);
             return distanceInMeters <= distance;
         }
     });

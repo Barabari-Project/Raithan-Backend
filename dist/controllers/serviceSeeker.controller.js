@@ -21,12 +21,11 @@ const serviceProvider_model_1 = __importDefault(require("../models/serviceProvid
 const serviceSeeker_model_1 = __importDefault(require("../models/serviceSeeker.model"));
 const business_types_1 = require("../types/business.types");
 const product_types_1 = require("../types/product.types");
-const modelMapping_1 = require("../utils/modelMapping");
 const seeker_types_1 = require("../types/seeker.types");
 const formatImageUrl_1 = require("../utils/formatImageUrl");
 const jwt_1 = require("../utils/jwt");
+const modelMapping_1 = require("../utils/modelMapping");
 const twilioService_1 = require("../utils/twilioService");
-const __1 = require("..");
 // Login
 exports.login = (0, express_async_handler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { mobileNumber } = req.body;
@@ -36,11 +35,14 @@ exports.login = (0, express_async_handler_1.default)((req, res, next) => __await
         throw (0, http_errors_1.default)(400, "Please login as service provider");
     }
     else if (!seeker) {
-        const newSeeker = new serviceSeeker_model_1.default({ mobileNumber, status: seeker_types_1.ServiceSeekerStatus.PENDING });
+        // const newSeeker = new ServiceSeeker({ mobileNumber, status: ServiceSeekerStatus.PENDING });
+        const newSeeker = new serviceSeeker_model_1.default({ mobileNumber, status: seeker_types_1.ServiceSeekerStatus.VERIFIED });
         yield newSeeker.save();
     }
-    yield (0, twilioService_1.sendOTP)(mobileNumber);
-    res.status(200).json({ message: "OTP sent successfully" });
+    const token = (0, jwt_1.generateJwt)({ userId: seeker._id }, process.env.SEEKER_JWT_SECRET);
+    res.status(200).json({ success: true, message: "LogIn successfully", token, seeker });
+    // await sendOTP(mobileNumber);
+    // res.status(200).json({ message: "OTP sent successfully" });
 }));
 // verify otp
 exports.verifyLoginOtp = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -112,13 +114,7 @@ exports.getProductsByDistanceAndHp = (0, express_async_handler_1.default)((req, 
     let filteredProductList = products.filter((product) => {
         if (product.business.location) {
             const { lat: productLat, lng: productLng } = product.business.location;
-            __1.logger.debug(lat);
-            __1.logger.debug(lng);
-            __1.logger.debug(productLat);
-            __1.logger.debug(productLng);
             const distanceInMeters = calculateDistance(lat, lng, productLat, productLng);
-            __1.logger.debug(distanceInMeters);
-            __1.logger.debug(distance);
             return distanceInMeters <= distance;
         }
     });

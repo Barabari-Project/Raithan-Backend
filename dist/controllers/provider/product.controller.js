@@ -364,7 +364,6 @@ exports.rateProduct = (0, express_async_handler_1.default)((req, res) => __await
     else if (product.verificationStatus != product_types_1.ProductStatus.VERIFIED) {
         throw (0, http_errors_1.default)(400, 'Product is not verified');
     }
-    console.log(product);
     product = yield model.findByIdAndUpdate({ _id: productId }, {
         $pull: {
             ratings: { userId: new mongoose_1.default.Types.ObjectId(userId) } // Remove the old rating by the user

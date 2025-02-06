@@ -16,14 +16,13 @@ exports.findProductsByStatus = exports.getProductsByCategory = exports.getServic
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const mongoose_1 = require("mongoose");
 const http_errors_1 = __importDefault(require("http-errors"));
-const __1 = require("..");
 const business_model_1 = require("../models/business.model");
 const serviceProvider_model_1 = __importDefault(require("../models/serviceProvider.model"));
 const serviceSeeker_model_1 = __importDefault(require("../models/serviceSeeker.model"));
 const business_types_1 = require("../types/business.types");
 const product_types_1 = require("../types/product.types");
-const modelMapping_1 = require("../utils/modelMapping");
 const formatImageUrl_1 = require("../utils/formatImageUrl");
+const modelMapping_1 = require("../utils/modelMapping");
 exports.getServiceProviderById = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     // Validate the id parameter
@@ -74,9 +73,7 @@ exports.getServiceSeekerById = (0, express_async_handler_1.default)((req, res) =
     res.status(200).json({ serviceSeeker });
 }));
 exports.getProductsByCategory = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    __1.logger.info("getProductsByCategory");
     const { category } = req.params;
-    __1.logger.info(category);
     const products = yield (0, exports.findProductsByStatus)(category, product_types_1.ProductStatus.VERIFIED);
     res.status(200).json({ products });
 }));

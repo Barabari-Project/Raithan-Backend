@@ -16,7 +16,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyLoginOtp = exports.login = exports.getProductsByCategoryAndProivderId = exports.profile = exports.updateProfile = exports.verifyOtp = exports.initiateOnboarding = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const http_errors_1 = __importDefault(require("http-errors"));
-const __1 = require("../..");
 const serviceProvider_model_1 = __importDefault(require("../../models/serviceProvider.model"));
 const serviceSeeker_model_1 = __importDefault(require("../../models/serviceSeeker.model"));
 const business_types_1 = require("../../types/business.types");
@@ -24,9 +23,8 @@ const provider_types_1 = require("../../types/provider.types");
 const formatImageUrl_1 = require("../../utils/formatImageUrl");
 const jwt_1 = require("../../utils/jwt");
 const s3Upload_1 = require("../../utils/s3Upload");
-const validation_1 = require("../../utils/validation");
 const modelMapping_1 = require("../../utils/modelMapping");
-const s3OTPService_1 = require("../../utils/s3OTPService");
+const validation_1 = require("../../utils/validation");
 // Onboarding
 // Step 1: Store mobile number and send OTP
 exports.initiateOnboarding = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -48,7 +46,7 @@ exports.initiateOnboarding = (0, express_async_handler_1.default)((req, res) => 
             status: provider_types_1.ServiceProviderStatus.PENDING
         });
     }
-    yield (0, s3OTPService_1.sendOTP)(mobileNumber);
+    // await sendOTP(mobileNumber);
     res.status(201).json({ message: "OTP sent successfully" });
 }));
 // Step 2: Verify OTP and send JWT
@@ -62,11 +60,10 @@ exports.verifyOtp = (0, express_async_handler_1.default)((req, res) => __awaiter
         throw (0, http_errors_1.default)(404, "User not found");
     }
     else if (!existingProvider.status.endsWith(provider_types_1.ServiceProviderStatus.PENDING)) {
-        __1.logger.debug(`User ${existingProvider._id} otp is already verified`);
         throw (0, http_errors_1.default)(400, "Your Mobile Number is already verified.");
     }
-    yield (0, s3OTPService_1.verifyOTP)(mobileNumber, code);
-    const provider = yield serviceProvider_model_1.default.findOneAndUpdate({ mobileNumber: { $eq: mobileNumber } }, { status: provider_types_1.ServiceProviderStatus.OTP_VERIFIED }, { new: true });
+    // await verifyOTP(mobileNumber, code);
+    const provider = yield serviceProvider_model_1.default.findOneAndUpdate({ mobileNumber: { $eq: mobileNumber } }, { status: provider_types_1.ServiceProviderStatus.OTP_VERIFIED, code }, { new: true });
     if (!provider) {
         throw (0, http_errors_1.default)(404, "User not found");
     }
@@ -164,7 +161,7 @@ exports.login = (0, express_async_handler_1.default)((req, res) => __awaiter(voi
     if (provider.status == provider_types_1.ServiceProviderStatus.BLOCKED) {
         throw (0, http_errors_1.default)(400, "Your account is blocked");
     }
-    yield (0, s3OTPService_1.sendOTP)(mobileNumber);
+    // await sendOTP(mobileNumber);
     res.status(200).json({ message: "OTP sent successfully" });
 }));
 // verify otp
@@ -177,7 +174,10 @@ exports.verifyLoginOtp = (0, express_async_handler_1.default)((req, res) => __aw
     if (provider.status == provider_types_1.ServiceProviderStatus.BLOCKED) {
         throw (0, http_errors_1.default)(400, "Your account is blocked");
     }
-    yield (0, s3OTPService_1.verifyOTP)(mobileNumber, code);
+    if (provider.code != code) {
+        throw (0, http_errors_1.default)(401, "Invalid Credentials");
+    }
+    // await verifyOTP(mobileNumber, code);
     if (provider.status == provider_types_1.ServiceProviderStatus.PENDING) {
         provider.status = provider_types_1.ServiceProviderStatus.OTP_VERIFIED;
         yield serviceProvider_model_1.default.findByIdAndUpdate(provider._id, { $set: { status: provider_types_1.ServiceProviderStatus.VERIFIED } });

@@ -386,7 +386,6 @@ export const rateProduct = expressAsyncHandler(async (req: Request, res: Respons
         throw createHttpError(400, 'Product is not verified');
     }
 
-    console.log(product);
     product = await model.findByIdAndUpdate(
         { _id: productId },
         {

@@ -1,8 +1,6 @@
 import AWS from "aws-sdk";
 import dotenv from 'dotenv';
 import path from 'path';
-import OTPModel from "../models/otp.model";
-import createHttpError from "http-errors";
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 AWS.config.update({

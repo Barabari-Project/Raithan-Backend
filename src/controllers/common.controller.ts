@@ -3,14 +3,13 @@ import expressAsyncHandler from "express-async-handler";
 import { isValidObjectId } from "mongoose";
 
 import createHttpError from "http-errors";
-import { logger } from "..";
 import { Business } from "../models/business.model";
 import ServiceProvider from "../models/serviceProvider.model";
 import ServiceSeeker from "../models/serviceSeeker.model";
 import { BusinessCategory } from "../types/business.types";
 import { ProductStatus } from "../types/product.types";
-import { modelMapping } from '../utils/modelMapping';
 import { formateProviderImage, formatProductImageUrls } from "../utils/formatImageUrl";
+import { modelMapping } from '../utils/modelMapping';
 
 export const getServiceProviderById = expressAsyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -72,9 +71,7 @@ export const getServiceSeekerById = expressAsyncHandler(async (req: Request, res
 });
 
 export const getProductsByCategory = expressAsyncHandler(async (req: Request, res: Response) => {
-    logger.info("getProductsByCategory");
     const { category } = req.params;
-    logger.info(category);
     const products = await findProductsByStatus(category, ProductStatus.VERIFIED)
     res.status(200).json({ products });
 });

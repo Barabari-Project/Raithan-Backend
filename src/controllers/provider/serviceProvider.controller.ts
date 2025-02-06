@@ -4,7 +4,6 @@ import { Request, Response } from 'express';
 import expressAsyncHandler from 'express-async-handler';
 import createHttpError from 'http-errors';
 import mongoose from 'mongoose';
-import { logger } from '../..';
 import ServiceProvider from '../../models/serviceProvider.model';
 import ServiceSeeker from '../../models/serviceSeeker.model';
 import { BusinessCategory } from '../../types/business.types';
@@ -14,9 +13,9 @@ import { formateProviderImage, formatProductImageUrls } from '../../utils/format
 import { generateJwt } from "../../utils/jwt";
 import { uploadFileToS3 } from '../../utils/s3Upload';
 
-import { validateMobileNumber, validateName } from '../../utils/validation';
 import { modelMapping } from '../../utils/modelMapping';
 import { sendOTP, verifyOTP } from '../../utils/s3OTPService';
+import { validateMobileNumber, validateName } from '../../utils/validation';
 
 // Onboarding
 // Step 1: Store mobile number and send OTP
@@ -45,7 +44,7 @@ export const initiateOnboarding = expressAsyncHandler(async (req: Request, res: 
         });
     }
 
-    await sendOTP(mobileNumber);
+    // await sendOTP(mobileNumber);
 
     res.status(201).json({ message: "OTP sent successfully" });
 
@@ -63,15 +62,14 @@ export const verifyOtp = expressAsyncHandler(async (req: Request, res: Response)
     if (!existingProvider) {
         throw createHttpError(404, "User not found");
     } else if (!existingProvider.status.endsWith(ServiceProviderStatus.PENDING)) {
-        logger.debug(`User ${existingProvider._id} otp is already verified`);
         throw createHttpError(400, "Your Mobile Number is already verified.");
     }
 
-    await verifyOTP(mobileNumber, code);
+    // await verifyOTP(mobileNumber, code);
 
     const provider = await ServiceProvider.findOneAndUpdate(
         { mobileNumber: { $eq: mobileNumber } },
-        { status: ServiceProviderStatus.OTP_VERIFIED },
+        { status: ServiceProviderStatus.OTP_VERIFIED,code },
         { new: true }
     );
 
@@ -200,7 +198,7 @@ export const login = expressAsyncHandler(async (req: Request, res: Response) => 
         throw createHttpError(400, "Your account is blocked");
     }
 
-    await sendOTP(mobileNumber);
+    // await sendOTP(mobileNumber);
 
     res.status(200).json({ message: "OTP sent successfully" });
 });
@@ -219,7 +217,10 @@ export const verifyLoginOtp = expressAsyncHandler(async (req: Request, res: Resp
         throw createHttpError(400, "Your account is blocked");
     }
 
-    await verifyOTP(mobileNumber, code);
+    if( provider.code!=code ){
+        throw createHttpError(401,"Invalid Credentials");
+    }
+    // await verifyOTP(mobileNumber, code);
 
     if (provider.status == ServiceProviderStatus.PENDING) {
         provider.status = ServiceProviderStatus.OTP_VERIFIED;

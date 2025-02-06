@@ -2,16 +2,15 @@ import { Request, Response } from 'express';
 import expressAsyncHandler from 'express-async-handler';
 import createHttpError from 'http-errors';
 import { isValidObjectId } from 'mongoose';
-import { logger } from '..';
 import CallHistory from '../models/callHistory.model';
 import ServiceProvider from '../models/serviceProvider.model';
 import ServiceSeeker from '../models/serviceSeeker.model';
 import { BusinessCategory } from '../types/business.types';
 import { ProductStatus } from '../types/product.types';
-import { modelMapping } from '../utils/modelMapping';
 import { IServiceProvider, ServiceProviderStatus } from '../types/provider.types';
 import { formateProviderImage, formatProductImageUrls } from '../utils/formatImageUrl';
 import { generateJwt } from '../utils/jwt';
+import { modelMapping } from '../utils/modelMapping';
 import { validateEmail } from '../utils/validation';
 import { findProductsByStatus } from './common.controller';
 
@@ -164,7 +163,6 @@ export const updateProductStatus = expressAsyncHandler(async (req: Request, res:
 
 export const getProductByStatusAndCategoryAndBusinessId = expressAsyncHandler(async (req: Request, res: Response) => {
     const { category, status, business } = req.query;
-    logger.debug(business)
     if (status && !Object.values(ProductStatus).includes(status as ProductStatus)) {
         throw createHttpError(400, "Invalid status");
     }

@@ -16,16 +16,15 @@ exports.getCallHistoryByServiceProviderId = exports.getCallHistoryByServiceSeeke
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const http_errors_1 = __importDefault(require("http-errors"));
 const mongoose_1 = require("mongoose");
-const __1 = require("..");
 const callHistory_model_1 = __importDefault(require("../models/callHistory.model"));
 const serviceProvider_model_1 = __importDefault(require("../models/serviceProvider.model"));
 const serviceSeeker_model_1 = __importDefault(require("../models/serviceSeeker.model"));
 const business_types_1 = require("../types/business.types");
 const product_types_1 = require("../types/product.types");
-const modelMapping_1 = require("../utils/modelMapping");
 const provider_types_1 = require("../types/provider.types");
 const formatImageUrl_1 = require("../utils/formatImageUrl");
 const jwt_1 = require("../utils/jwt");
+const modelMapping_1 = require("../utils/modelMapping");
 const validation_1 = require("../utils/validation");
 const common_controller_1 = require("./common.controller");
 exports.login = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -148,7 +147,6 @@ exports.updateProductStatus = (0, express_async_handler_1.default)((req, res) =>
 }));
 exports.getProductByStatusAndCategoryAndBusinessId = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { category, status, business } = req.query;
-    __1.logger.debug(business);
     if (status && !Object.values(product_types_1.ProductStatus).includes(status)) {
         throw (0, http_errors_1.default)(400, "Invalid status");
     }

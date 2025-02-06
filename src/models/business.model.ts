@@ -1,7 +1,6 @@
+import createHttpError from 'http-errors';
 import mongoose, { Schema } from 'mongoose';
 import { BusinessCategory, IBusiness } from '../types/business.types';
-import createHttpError from 'http-errors';
-import { logger } from '..';
 
 const BusinessSchema: Schema = new Schema<IBusiness>(
     {
@@ -111,7 +110,6 @@ const BusinessSchema: Schema = new Schema<IBusiness>(
 );
 
 const handleMongooseError = (error: any, next: Function) => {
-    logger.debug(error.name)
     if (error.name === 'ValidationError') {
         const firstError = error.errors[Object.keys(error.errors)[0]];
         throw createHttpError(400, firstError.message);

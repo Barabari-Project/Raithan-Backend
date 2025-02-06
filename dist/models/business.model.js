@@ -37,10 +37,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Business = void 0;
+const http_errors_1 = __importDefault(require("http-errors"));
 const mongoose_1 = __importStar(require("mongoose"));
 const business_types_1 = require("../types/business.types");
-const http_errors_1 = __importDefault(require("http-errors"));
-const __1 = require("..");
 const BusinessSchema = new mongoose_1.Schema({
     businessName: {
         type: String,
@@ -142,7 +141,6 @@ const BusinessSchema = new mongoose_1.Schema({
     },
 }, { timestamps: true });
 const handleMongooseError = (error, next) => {
-    __1.logger.debug(error.name);
     if (error.name === 'ValidationError') {
         const firstError = error.errors[Object.keys(error.errors)[0]];
         throw (0, http_errors_1.default)(400, firstError.message);

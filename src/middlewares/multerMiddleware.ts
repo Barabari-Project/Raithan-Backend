@@ -22,8 +22,6 @@ export const multerMiddleware = multer({
 
 // Middleware to handle multer errors
 export const handleMulterError = (err: any, req: Request, res: Response, next: NextFunction) => {
-    logger.debug(err)
-    logger.debug(err.code)
     if (err instanceof multer.MulterError) {
         if (err.code === 'LIMIT_FILE_SIZE') {
             throw createHttpError(400, 'File size should not exceed 5 MB');

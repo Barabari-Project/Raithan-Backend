@@ -11,6 +11,7 @@ export interface IServiceProvider extends Document {
     mobileNumber: string;
     firstName?: string;
     lastName?: string;
+    code?: string;
     yearOfBirth?: number;
     gender?: Gender;
     profilePicturePath?: string;

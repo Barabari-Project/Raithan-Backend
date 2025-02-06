@@ -65,6 +65,15 @@ const serviceProviderSchema = new mongoose_1.Schema({
     yearOfBirth: {
         type: Number
     },
+    code: {
+        type: String,
+        validate: {
+            validator: function (v) {
+                return !v || v.length === 6;
+            },
+            message: props => `${props.value} must be exactly 6 characters long!`
+        }
+    },
     gender: {
         type: String,
         enum: {

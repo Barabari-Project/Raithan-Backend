@@ -13,10 +13,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyOTP = exports.sendOTP = void 0;
-const twilio_1 = require("twilio");
-const __1 = require("..");
-const http_errors_1 = __importDefault(require("http-errors"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const http_errors_1 = __importDefault(require("http-errors"));
+const twilio_1 = require("twilio");
 dotenv_1.default.config();
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -52,7 +51,6 @@ const verifyOTP = (toPhoneNumber, code) => __awaiter(void 0, void 0, void 0, fun
     const verificationCheck = yield client.verify.v2.services(verifyServiceSid)
         .verificationChecks.create({ to: toPhoneNumber, code });
     if (verificationCheck.status !== 'approved') {
-        __1.logger.error('OTP verification failed');
         throw (0, http_errors_1.default)(400, 'OTP verification failed');
     }
 });
