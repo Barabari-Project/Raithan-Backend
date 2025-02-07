@@ -29,15 +29,15 @@ const twilioService_1 = require("../utils/twilioService");
 // Login
 exports.login = (0, express_async_handler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { mobileNumber } = req.body;
-    const seeker = yield serviceSeeker_model_1.default.findOne({ mobileNumber: { $eq: mobileNumber } });
+    let seeker = yield serviceSeeker_model_1.default.findOne({ mobileNumber: { $eq: mobileNumber } });
     const provider = yield serviceProvider_model_1.default.exists({ mobileNumber: { $eq: mobileNumber } });
     if (provider) {
         throw (0, http_errors_1.default)(400, "Please login as service provider");
     }
     else if (!seeker) {
         // const newSeeker = new ServiceSeeker({ mobileNumber, status: ServiceSeekerStatus.PENDING });
-        const newSeeker = new serviceSeeker_model_1.default({ mobileNumber, status: seeker_types_1.ServiceSeekerStatus.VERIFIED });
-        yield newSeeker.save();
+        seeker = new serviceSeeker_model_1.default({ mobileNumber, status: seeker_types_1.ServiceSeekerStatus.VERIFIED });
+        yield seeker.save();
     }
     const token = (0, jwt_1.generateJwt)({ userId: seeker._id }, process.env.SEEKER_JWT_SECRET);
     res.status(200).json({ success: true, message: "LogIn successfully", token, seeker });

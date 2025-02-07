@@ -18,7 +18,7 @@ import { sendOTP, verifyOTP } from '../utils/twilioService';
 export const login = expressAsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const { mobileNumber } = req.body;
 
-    const seeker = await ServiceSeeker.findOne({ mobileNumber: { $eq: mobileNumber } });
+    let seeker = await ServiceSeeker.findOne({ mobileNumber: { $eq: mobileNumber } });
 
     const provider = await ServiceProvider.exists({ mobileNumber: { $eq: mobileNumber } });
 
@@ -26,8 +26,8 @@ export const login = expressAsyncHandler(async (req: Request, res: Response, nex
         throw createHttpError(400, "Please login as service provider");
     } else if (!seeker) {
         // const newSeeker = new ServiceSeeker({ mobileNumber, status: ServiceSeekerStatus.PENDING });
-        const newSeeker = new ServiceSeeker({ mobileNumber, status: ServiceSeekerStatus.VERIFIED });
-        await newSeeker.save();
+        seeker = new ServiceSeeker({ mobileNumber, status: ServiceSeekerStatus.VERIFIED });
+        await seeker.save();
     }
 
     const token = generateJwt({ userId: seeker!._id }, process.env.SEEKER_JWT_SECRET!);
