@@ -69,7 +69,7 @@ exports.verifyOtp = (0, express_async_handler_1.default)((req, res) => __awaiter
     }
     const token = (0, jwt_1.generateJwt)({ userId: provider._id }, process.env.PROVIDER_JWT_SECRET);
     res.status(200).json({
-        message: "OTP verified successfully",
+        message: "credentials storded successfully.",
         token,
     });
 }));
@@ -184,5 +184,5 @@ exports.verifyLoginOtp = (0, express_async_handler_1.default)((req, res) => __aw
     }
     const token = (0, jwt_1.generateJwt)({ userId: provider._id }, process.env.PROVIDER_JWT_SECRET);
     (0, formatImageUrl_1.formateProviderImage)(provider);
-    res.status(200).json({ message: "OTP verified successfully", token, provider });
+    res.status(200).json({ message: "LoggedIn Sucessfully.", token, provider });
 }));

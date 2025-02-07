@@ -80,7 +80,7 @@ export const verifyOtp = expressAsyncHandler(async (req: Request, res: Response)
     const token = generateJwt({ userId: provider._id }, process.env.PROVIDER_JWT_SECRET!);
 
     res.status(200).json({
-        message: "OTP verified successfully",
+        message: "credentials storded successfully.",
         token,
     });
 });
@@ -231,5 +231,5 @@ export const verifyLoginOtp = expressAsyncHandler(async (req: Request, res: Resp
 
     formateProviderImage(provider);
 
-    res.status(200).json({ message: "OTP verified successfully", token, provider });
+    res.status(200).json({ message: "LoggedIn Sucessfully.", token, provider });
 });
