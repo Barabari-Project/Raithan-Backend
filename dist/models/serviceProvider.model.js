@@ -69,7 +69,7 @@ const serviceProviderSchema = new mongoose_1.Schema({
         type: String,
         validate: {
             validator: function (v) {
-                return !v || v.length === 6;
+                return !v || v.length === 4;
             },
             message: props => `${props.value} must be exactly 6 characters long!`
         }
