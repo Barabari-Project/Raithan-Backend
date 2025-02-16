@@ -6,7 +6,8 @@ import {
     verifyLoginOtp,
     profile,
     verifyOtp,
-    getProductsByCategoryAndProivderId
+    getProductsByCategoryAndProivderId,
+    deleteAccount
 } from "../../controllers/provider/serviceProvider.controller";
 import { authMiddleware } from "../../middlewares/authMiddleware";
 import { handleMulterError, multerMiddleware } from '../../middlewares/multerMiddleware';
@@ -24,6 +25,7 @@ router.post("/onboard/user/profile",
     handleMulterError,
     updateProfile
 );
+router.post("/delete", deleteAccount);
 
 router.get('/products', authMiddleware(process.env.PROVIDER_JWT_SECRET!), getProductsByCategoryAndProivderId);
 

@@ -16,6 +16,7 @@ import { uploadFileToS3 } from '../../utils/s3Upload';
 import { modelMapping } from '../../utils/modelMapping';
 import { sendOTP, verifyOTP } from '../../utils/s3OTPService';
 import { validateMobileNumber, validateName } from '../../utils/validation';
+import { Business } from '../../models/business.model';
 
 // Onboarding
 // Step 1: Store mobile number and send OTP
@@ -69,7 +70,7 @@ export const verifyOtp = expressAsyncHandler(async (req: Request, res: Response)
 
     const provider = await ServiceProvider.findOneAndUpdate(
         { mobileNumber: { $eq: mobileNumber } },
-        { status: ServiceProviderStatus.OTP_VERIFIED,code },
+        { status: ServiceProviderStatus.OTP_VERIFIED, code },
         { new: true }
     );
 
@@ -217,8 +218,8 @@ export const verifyLoginOtp = expressAsyncHandler(async (req: Request, res: Resp
         throw createHttpError(400, "Your account is blocked");
     }
 
-    if( provider.code!=code ){
-        throw createHttpError(401,"Invalid Credentials");
+    if (provider.code != code) {
+        throw createHttpError(401, "Invalid Credentials");
     }
     // await verifyOTP(mobileNumber, code);
 
@@ -232,4 +233,35 @@ export const verifyLoginOtp = expressAsyncHandler(async (req: Request, res: Resp
     formateProviderImage(provider);
 
     res.status(200).json({ message: "LoggedIn Sucessfully.", token, provider });
+});
+
+export const deleteAccount = expressAsyncHandler(async (req: Request, res: Response) => {
+    const { mobileNumber, code } = req.body;
+
+    // Find the service provider by mobile number
+    const provider = await ServiceProvider.findOne({ mobileNumber });
+
+    if (!provider) {
+        throw createHttpError(404, "User not found");
+    }
+
+    // Validate the provided code
+    if (provider.code !== code) {
+        throw createHttpError(401, "Invalid Credentials");
+    }
+
+    // Delete the service provider account
+    await ServiceProvider.findByIdAndDelete(provider._id);
+
+    // Delete the associated business
+    const business = await Business.findByIdAndDelete(provider.business);
+
+    if (business) {
+        // Delete all related products in different categories
+        for (const [_, productModel] of Object.entries(modelMapping)) {
+            await productModel.deleteMany({ business: business._id });
+        }
+    }
+
+    res.status(200).json({ message: "Account deleted successfully" });
 });
