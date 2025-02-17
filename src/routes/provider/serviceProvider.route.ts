@@ -25,7 +25,7 @@ router.post("/onboard/user/profile",
     handleMulterError,
     updateProfile
 );
-router.post("/delete", deleteAccount);
+router.delete("/delete", deleteAccount);
 
 router.get('/products', authMiddleware(process.env.PROVIDER_JWT_SECRET!), getProductsByCategoryAndProivderId);
 
