@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyLoginOtp = exports.login = exports.getProductsByCategoryAndProivderId = exports.profile = exports.updateProfile = exports.verifyOtp = exports.initiateOnboarding = void 0;
+exports.deleteAccount = exports.verifyLoginOtp = exports.login = exports.getProductsByCategoryAndProivderId = exports.profile = exports.updateProfile = exports.verifyOtp = exports.initiateOnboarding = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const http_errors_1 = __importDefault(require("http-errors"));
 const serviceProvider_model_1 = __importDefault(require("../../models/serviceProvider.model"));
@@ -25,6 +25,7 @@ const jwt_1 = require("../../utils/jwt");
 const s3Upload_1 = require("../../utils/s3Upload");
 const modelMapping_1 = require("../../utils/modelMapping");
 const validation_1 = require("../../utils/validation");
+const business_model_1 = require("../../models/business.model");
 // Onboarding
 // Step 1: Store mobile number and send OTP
 exports.initiateOnboarding = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -185,4 +186,27 @@ exports.verifyLoginOtp = (0, express_async_handler_1.default)((req, res) => __aw
     const token = (0, jwt_1.generateJwt)({ userId: provider._id }, process.env.PROVIDER_JWT_SECRET);
     (0, formatImageUrl_1.formateProviderImage)(provider);
     res.status(200).json({ message: "LoggedIn Sucessfully.", token, provider });
+}));
+exports.deleteAccount = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { mobileNumber, code } = req.body;
+    // Find the service provider by mobile number
+    const provider = yield serviceProvider_model_1.default.findOne({ mobileNumber });
+    if (!provider) {
+        throw (0, http_errors_1.default)(404, "User not found");
+    }
+    // Validate the provided code
+    if (provider.code !== code) {
+        throw (0, http_errors_1.default)(401, "Invalid Credentials");
+    }
+    // Delete the service provider account
+    yield serviceProvider_model_1.default.findByIdAndDelete(provider._id);
+    // Delete the associated business
+    const business = yield business_model_1.Business.findByIdAndDelete(provider.business);
+    if (business) {
+        // Delete all related products in different categories
+        for (const [_, productModel] of Object.entries(modelMapping_1.modelMapping)) {
+            yield productModel.deleteMany({ business: business._id });
+        }
+    }
+    res.status(200).json({ message: "Account deleted successfully" });
 }));
