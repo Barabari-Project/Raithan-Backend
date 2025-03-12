@@ -102,8 +102,7 @@ exports.createProduct = (0, express_async_handler_1.default)((req, res) => __awa
         }
         const { modelNo, hp, type } = req.body;
         const createData = Object.assign({ images: uploadedImages, _id,
-            modelNo,
-            hp, business: business._id }, (type && { type }));
+            modelNo, hp: parseInt(hp), business: business._id }, (type && { type }));
         switch (category) {
             case business_types_1.BusinessCategory.HARVESTORS:
                 product = yield harvestorProduct_model_1.HarvestorProduct.create(createData);
@@ -213,8 +212,7 @@ exports.updateProduct = (0, express_async_handler_1.default)((req, res) => __awa
     }
     if (category === business_types_1.BusinessCategory.HARVESTORS || category === business_types_1.BusinessCategory.EARTH_MOVERS || category === business_types_1.BusinessCategory.IMPLEMENTS || category === business_types_1.BusinessCategory.MACHINES || category === business_types_1.BusinessCategory.PADDY_TRANSPLANTORS) {
         const { modelNo, hp, type } = req.body;
-        const createData = Object.assign(Object.assign({ images: uploadedImages, modelNo,
-            hp }, (type && { type })), { verificationStatus: product_types_1.ProductStatus.RE_VERIFICATION_REQUIRED });
+        const createData = Object.assign(Object.assign({ images: uploadedImages, modelNo, hp: parseInt(hp) }, (type && { type })), { verificationStatus: product_types_1.ProductStatus.RE_VERIFICATION_REQUIRED });
         switch (category) {
             case business_types_1.BusinessCategory.HARVESTORS:
                 product = yield harvestorProduct_model_1.HarvestorProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true });

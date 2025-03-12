@@ -69,7 +69,7 @@ const PaddyTransplantorProductSchema = new mongoose_1.Schema({
         },
     },
     hp: {
-        type: String,
+        type: Number,
         required: [true, "Horsepower (hp) is required."],
     },
     verificationStatus: {

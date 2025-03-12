@@ -105,12 +105,15 @@ exports.getProductsByDistanceAndHp = (0, express_async_handler_1.default)((req, 
     }
     const query = {};
     if (hp) {
-        query.hp = { $lte: hp };
+        query.hp = { $lte: parseInt(hp) };
     }
+    console.log(hp);
+    console.log(query);
     query.verificationStatus = product_types_1.ProductStatus.VERIFIED;
     const products = yield model
         .find(query)
         .populate("business");
+    console.log(products);
     let filteredProductList = products.filter((product) => {
         if (product.business.location) {
             const { lat: productLat, lng: productLng } = product.business.location;
