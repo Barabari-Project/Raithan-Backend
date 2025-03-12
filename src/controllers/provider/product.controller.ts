@@ -71,7 +71,7 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
             images: uploadedImages,
             _id,
             modelNo,
-            hp,
+            hp:parseInt(hp),
             business: business._id,
             ...(type && { type }),
         };
@@ -201,7 +201,7 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
         const createData = {
             images: uploadedImages,
             modelNo,
-            hp,
+            hp:parseInt(hp),
             ...(type && { type }),
             verificationStatus: ProductStatus.RE_VERIFICATION_REQUIRED
         };

@@ -31,7 +31,7 @@ const ImplementProductSchema: Schema = new Schema<IImplementProduct>({
         },
     },
     hp: {
-        type: String,
+        type: Number,
         required: [true, "Horsepower (hp) is required."],
     },
     modelNo: {

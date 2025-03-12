@@ -126,15 +126,16 @@ export const getProductsByDistanceAndHp = expressAsyncHandler(async (req: Reques
 
     const query: any = {};
     if (hp) {
-        query.hp = { $lte: hp };
+        query.hp = { $lte: parseInt(hp) };
     }
-
+    console.log(hp);
+    console.log(query);
     query.verificationStatus = ProductStatus.VERIFIED;
 
     const products = await model
         .find(query)
         .populate("business");
-
+    console.log(products)
     let filteredProductList: ProductWithLocation[] = products.filter((product: ProductWithLocation) => {
         if (product.business.location) {
             const { lat: productLat, lng: productLng } = product.business.location;

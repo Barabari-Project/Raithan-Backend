@@ -31,7 +31,7 @@ const MachineProductSchema: Schema = new Schema<IMachineProduct>({
         },
     },
     hp: {
-        type: String,
+        type: Number,
         required: [true, "Horsepower (hp) is required."],
     },
     modelNo: {

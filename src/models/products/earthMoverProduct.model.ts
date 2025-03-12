@@ -31,7 +31,7 @@ const EarthMoverProductSchema: Schema = new Schema<IEarthMoverProduct>({
         },
     },
     hp: {
-        type: String,
+        type: Number,
         required: [true, "Horsepower (hp) is required."],
     },
     modelNo: {

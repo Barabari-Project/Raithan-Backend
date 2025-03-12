@@ -31,7 +31,7 @@ const HarvestorProductSchema: Schema = new Schema<IHarvestorProduct>({
         },
     },
     hp: {
-        type: String,
+        type: Number,
         required: [true, "Horsepower (hp) is required."],
     },
     modelNo: {

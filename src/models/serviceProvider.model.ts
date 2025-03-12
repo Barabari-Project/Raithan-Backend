@@ -62,6 +62,7 @@ const handleMongooseError = (error: any, next: Function) => {
         next(error); // Pass any other errors to the next middleware
     }
 }
+
 serviceProviderSchema.post('save', function (error: any, doc: any, next: Function) {
     handleMongooseError(error, next);
 });

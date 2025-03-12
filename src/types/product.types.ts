@@ -13,7 +13,7 @@ export interface IHarvestorProduct extends Document {
     _id: mongoose.Types.ObjectId;
     business: mongoose.Types.ObjectId | IBusiness;
     images: UploadedImages;
-    hp: string;
+    hp: number;
     modelNo: string;
     type: string;
     verificationStatus: ProductStatus;
@@ -41,7 +41,7 @@ export interface IEarthMoverProduct extends Document {
     _id: mongoose.Types.ObjectId;
     business: mongoose.Types.ObjectId | IBusiness;
     images: UploadedImages;
-    hp: string;
+    hp: number;
     modelNo: string;
     type: string;
     verificationStatus: ProductStatus;
@@ -72,7 +72,7 @@ export interface IImplementProduct extends Document {
     _id: mongoose.Types.ObjectId;
     business: mongoose.Types.ObjectId;
     images: UploadedImages;
-    hp: string;
+    hp: number;
     modelNo: string;
     verificationStatus: ProductStatus;
     avgRating: number;
@@ -83,7 +83,7 @@ export interface IMachineProduct extends Document {
     _id: mongoose.Types.ObjectId;
     business: mongoose.Types.ObjectId | IBusiness;
     images: UploadedImages;
-    hp: string;
+    hp: number;
     modelNo: string;
     verificationStatus: ProductStatus;
     avgRating: number;
@@ -94,7 +94,7 @@ export interface IPaddyTransplantorProduct extends Document {
     _id: mongoose.Types.ObjectId;
     business: mongoose.Types.ObjectId | IBusiness;
     images: UploadedImages;
-    hp: string;
+    hp: number;
     modelNo: string;
     verificationStatus: ProductStatus;
     avgRating: number;

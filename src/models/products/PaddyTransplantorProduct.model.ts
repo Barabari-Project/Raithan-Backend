@@ -31,7 +31,7 @@ const PaddyTransplantorProductSchema: Schema = new Schema<IPaddyTransplantorProd
         },
     },
     hp: {
-        type: String,
+        type: Number,
         required: [true, "Horsepower (hp) is required."],
     },
     verificationStatus: {
