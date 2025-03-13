@@ -85,7 +85,7 @@ exports.createCallEvent = (0, express_async_handler_1.default)((req, res) => __a
     res.sendStatus(204);
 }));
 exports.getProductsByDistanceAndHp = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let { lat, lng, distance, category, hp } = req.body;
+    let { lat, lng, distance, category, hpLow, hpHigh } = req.body;
     if (!Object.values(business_types_1.BusinessCategory).includes(category)) {
         throw (0, http_errors_1.default)(400, "Invalid category");
     }
@@ -94,8 +94,13 @@ exports.getProductsByDistanceAndHp = (0, express_async_handler_1.default)((req, 
     }
     lat = parseFloat(lat);
     lng = parseFloat(lng);
-    if (hp) {
-        if (isNaN(hp)) {
+    if (hpLow) {
+        if (isNaN(hpLow)) {
+            throw (0, http_errors_1.default)(400, "Invalid hp");
+        }
+    }
+    if (hpHigh) {
+        if (isNaN(hpHigh)) {
             throw (0, http_errors_1.default)(400, "Invalid hp");
         }
     }
@@ -104,16 +109,15 @@ exports.getProductsByDistanceAndHp = (0, express_async_handler_1.default)((req, 
         throw (0, http_errors_1.default)(400, "Invalid category");
     }
     const query = {};
-    if (hp) {
-        query.hp = { $lte: parseInt(hp) };
+    if (hpHigh && hpLow) {
+        query.hp = {};
+        query.hp.$lte = parseInt(hpHigh);
+        query.hp.$gte = parseInt(hpLow);
     }
-    console.log(hp);
-    console.log(query);
     query.verificationStatus = product_types_1.ProductStatus.VERIFIED;
     const products = yield model
         .find(query)
         .populate("business");
-    console.log(products);
     let filteredProductList = products.filter((product) => {
         if (product.business.location) {
             const { lat: productLat, lng: productLng } = product.business.location;

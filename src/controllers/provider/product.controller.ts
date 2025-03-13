@@ -24,7 +24,6 @@ import { TechnicianProduct } from "../../models/products/TechnicianProduct.model
 
 export const createProduct = expressAsyncHandler(async (req: Request, res: Response) => {
     const { category } = req.body;
-
     if (!Object.values(BusinessCategory).includes(category)) {
         throw createHttpError(400, "Invalid category");
     }
@@ -75,7 +74,6 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
             business: business._id,
             ...(type && { type }),
         };
-
         switch (category) {
             case BusinessCategory.HARVESTORS:
                 product = await HarvestorProduct.create(createData);

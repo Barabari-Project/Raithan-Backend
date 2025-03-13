@@ -101,7 +101,7 @@ type ProductWithLocation = ProductType & {
 };
 
 export const getProductsByDistanceAndHp = expressAsyncHandler(async (req: Request, res: Response) => {
-    let { lat, lng, distance, category, hp } = req.body;
+    let { lat, lng, distance, category, hpLow,hpHigh } = req.body;
     if (!Object.values(BusinessCategory).includes(category as BusinessCategory)) {
         throw createHttpError(400, "Invalid category");
     }
@@ -113,8 +113,13 @@ export const getProductsByDistanceAndHp = expressAsyncHandler(async (req: Reques
     lat = parseFloat(lat);
     lng = parseFloat(lng);
 
-    if (hp) {
-        if (isNaN(hp)) {
+    if (hpLow) {
+        if (isNaN(hpLow)) {
+            throw createHttpError(400, "Invalid hp");
+        }
+    }
+    if (hpHigh) {
+        if (isNaN(hpHigh)) {
             throw createHttpError(400, "Invalid hp");
         }
     }
@@ -125,17 +130,16 @@ export const getProductsByDistanceAndHp = expressAsyncHandler(async (req: Reques
     }
 
     const query: any = {};
-    if (hp) {
-        query.hp = { $lte: parseInt(hp) };
+    if (hpHigh && hpLow) {
+        query.hp = {};
+        query.hp.$lte =  parseInt(hpHigh);
+        query.hp.$gte =  parseInt(hpLow);
     }
-    console.log(hp);
-    console.log(query);
     query.verificationStatus = ProductStatus.VERIFIED;
 
     const products = await model
         .find(query)
         .populate("business");
-    console.log(products)
     let filteredProductList: ProductWithLocation[] = products.filter((product: ProductWithLocation) => {
         if (product.business.location) {
             const { lat: productLat, lng: productLng } = product.business.location;
