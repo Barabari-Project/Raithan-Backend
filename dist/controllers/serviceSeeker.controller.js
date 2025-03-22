@@ -85,7 +85,7 @@ exports.createCallEvent = (0, express_async_handler_1.default)((req, res) => __a
     res.sendStatus(204);
 }));
 exports.getProductsByDistanceAndHp = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let { lat, lng, distance, category, hpLow, hpHigh } = req.body;
+    let { lat, lng, distance, category, hpLow, hpHigh, type, service } = req.body;
     if (!Object.values(business_types_1.BusinessCategory).includes(category)) {
         throw (0, http_errors_1.default)(400, "Invalid category");
     }
@@ -115,6 +115,12 @@ exports.getProductsByDistanceAndHp = (0, express_async_handler_1.default)((req, 
         query.hp.$gte = parseInt(hpLow);
     }
     query.verificationStatus = product_types_1.ProductStatus.VERIFIED;
+    if (category == business_types_1.BusinessCategory.DRONES || category == business_types_1.BusinessCategory.HARVESTORS || category == business_types_1.BusinessCategory.EARTH_MOVERS) {
+        query.type = { $regex: type, $options: 'i' };
+    }
+    else {
+        query.services = { $in: [service] };
+    }
     const products = yield model
         .find(query)
         .populate("business");

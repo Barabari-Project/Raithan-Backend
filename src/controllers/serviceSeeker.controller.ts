@@ -101,7 +101,7 @@ type ProductWithLocation = ProductType & {
 };
 
 export const getProductsByDistanceAndHp = expressAsyncHandler(async (req: Request, res: Response) => {
-    let { lat, lng, distance, category, hpLow,hpHigh } = req.body;
+    let { lat, lng, distance, category, hpLow, hpHigh, type, service } = req.body;
     if (!Object.values(BusinessCategory).includes(category as BusinessCategory)) {
         throw createHttpError(400, "Invalid category");
     }
@@ -132,10 +132,16 @@ export const getProductsByDistanceAndHp = expressAsyncHandler(async (req: Reques
     const query: any = {};
     if (hpHigh && hpLow) {
         query.hp = {};
-        query.hp.$lte =  parseInt(hpHigh);
-        query.hp.$gte =  parseInt(hpLow);
+        query.hp.$lte = parseInt(hpHigh);
+        query.hp.$gte = parseInt(hpLow);
     }
     query.verificationStatus = ProductStatus.VERIFIED;
+
+    if (category == BusinessCategory.DRONES || category == BusinessCategory.HARVESTORS || category == BusinessCategory.EARTH_MOVERS) {
+        query.type = { $regex: type, $options: 'i' };
+    } else {
+        query.services = { $in: [service] };
+    }
 
     const products = await model
         .find(query)
