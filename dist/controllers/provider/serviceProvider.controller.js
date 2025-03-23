@@ -127,7 +127,7 @@ exports.profile = (0, express_async_handler_1.default)((req, res) => __awaiter(v
     res.status(200).json({ provider });
 }));
 exports.getProductsByCategoryAndProivderId = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { category, status } = req.query;
+    const { category, status, type } = req.query;
     const userId = req.userId;
     const serviceProvider = yield serviceProvider_model_1.default.findById(userId);
     if (serviceProvider.status == provider_types_1.ServiceProviderStatus.BUSINESS_DETAILS_REMAINING ||
@@ -143,6 +143,12 @@ exports.getProductsByCategoryAndProivderId = (0, express_async_handler_1.default
         }
         if (status)
             query.verificationStatus = status;
+        if (category == business_types_1.BusinessCategory.DRONES || category == business_types_1.BusinessCategory.HARVESTORS || category == business_types_1.BusinessCategory.EARTH_MOVERS) {
+            query.type = { $regex: type, $options: 'i' };
+        }
+        else {
+            query.services = { $in: [type] };
+        }
         const products = yield model.find(query);
         const formatedImgUrlPromises = products.map((product) => __awaiter(void 0, void 0, void 0, function* () { return (0, formatImageUrl_1.formatProductImageUrls)(product); }));
         yield Promise.all(formatedImgUrlPromises);

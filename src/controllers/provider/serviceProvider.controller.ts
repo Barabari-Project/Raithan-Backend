@@ -151,7 +151,7 @@ export const profile = expressAsyncHandler(async (req: Request, res: Response) =
 });
 
 export const getProductsByCategoryAndProivderId = expressAsyncHandler(async (req: Request, res: Response) => {
-    const { category, status } = req.query;
+    const { category, status,type } = req.query;
     const userId = req.userId;
 
     const serviceProvider = await ServiceProvider.findById(userId);
@@ -164,7 +164,7 @@ export const getProductsByCategoryAndProivderId = expressAsyncHandler(async (req
 
     if (Object.values(BusinessCategory).includes(category as BusinessCategory)) {
         const model = modelMapping[category as BusinessCategory];
-        const query: Query = {};
+        const query: any = {};
         interface Query {
             verificationStatus?: ProductStatus;
             business?: mongoose.Types.ObjectId;
@@ -173,6 +173,11 @@ export const getProductsByCategoryAndProivderId = expressAsyncHandler(async (req
             query.business = serviceProvider.business;
         }
         if (status) query.verificationStatus = status as ProductStatus;
+        if (category == BusinessCategory.DRONES || category == BusinessCategory.HARVESTORS || category == BusinessCategory.EARTH_MOVERS) {
+            query.type = { $regex: type, $options: 'i' };
+        } else {
+            query.services = { $in: [type] };
+        }
         const products = await model.find(query);
 
         const formatedImgUrlPromises = products.map(async (product: ProductType) => formatProductImageUrls(product));
