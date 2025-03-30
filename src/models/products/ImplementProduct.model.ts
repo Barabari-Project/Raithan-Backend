@@ -46,6 +46,10 @@ const ImplementProductSchema: Schema = new Schema<IImplementProduct>({
         },
         default: ProductStatus.UNVERIFIED,
     },
+    type: {
+        type: String,
+        required: [true, "Type is required."],
+    },
     business: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'business',

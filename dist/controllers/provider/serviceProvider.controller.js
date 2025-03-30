@@ -143,7 +143,7 @@ exports.getProductsByCategoryAndProivderId = (0, express_async_handler_1.default
         }
         if (status)
             query.verificationStatus = status;
-        if (category == business_types_1.BusinessCategory.DRONES || category == business_types_1.BusinessCategory.HARVESTORS || category == business_types_1.BusinessCategory.EARTH_MOVERS) {
+        if (category == business_types_1.BusinessCategory.DRONES || category == business_types_1.BusinessCategory.IMPLEMENTS || category == business_types_1.BusinessCategory.HARVESTORS || category == business_types_1.BusinessCategory.EARTH_MOVERS) {
             query.type = { $regex: type, $options: 'i' };
         }
         else {

@@ -74,6 +74,7 @@ export interface IImplementProduct extends Document {
     images: UploadedImages;
     hp: number;
     modelNo: string;
+    type: string;
     verificationStatus: ProductStatus;
     avgRating: number;
     ratings: IRating[];

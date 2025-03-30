@@ -137,7 +137,7 @@ export const getProductsByDistanceAndHp = expressAsyncHandler(async (req: Reques
     }
     query.verificationStatus = ProductStatus.VERIFIED;
 
-    if (category == BusinessCategory.DRONES || category == BusinessCategory.HARVESTORS || category == BusinessCategory.EARTH_MOVERS) {
+    if (category == BusinessCategory.DRONES || category == BusinessCategory.IMPLEMENTS || category == BusinessCategory.HARVESTORS || category == BusinessCategory.EARTH_MOVERS) {
         query.type = { $regex: type, $options: 'i' };
     } else {
         query.services = { $in: [service] };

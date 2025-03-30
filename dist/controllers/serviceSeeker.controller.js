@@ -115,7 +115,7 @@ exports.getProductsByDistanceAndHp = (0, express_async_handler_1.default)((req, 
         query.hp.$gte = parseInt(hpLow);
     }
     query.verificationStatus = product_types_1.ProductStatus.VERIFIED;
-    if (category == business_types_1.BusinessCategory.DRONES || category == business_types_1.BusinessCategory.HARVESTORS || category == business_types_1.BusinessCategory.EARTH_MOVERS) {
+    if (category == business_types_1.BusinessCategory.DRONES || category == business_types_1.BusinessCategory.IMPLEMENTS || category == business_types_1.BusinessCategory.HARVESTORS || category == business_types_1.BusinessCategory.EARTH_MOVERS) {
         query.type = { $regex: type, $options: 'i' };
     }
     else {

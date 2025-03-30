@@ -151,7 +151,7 @@ export const profile = expressAsyncHandler(async (req: Request, res: Response) =
 });
 
 export const getProductsByCategoryAndProivderId = expressAsyncHandler(async (req: Request, res: Response) => {
-    const { category, status,type } = req.query;
+    const { category, status, type } = req.query;
     const userId = req.userId;
 
     const serviceProvider = await ServiceProvider.findById(userId);
@@ -173,7 +173,7 @@ export const getProductsByCategoryAndProivderId = expressAsyncHandler(async (req
             query.business = serviceProvider.business;
         }
         if (status) query.verificationStatus = status as ProductStatus;
-        if (category == BusinessCategory.DRONES || category == BusinessCategory.HARVESTORS || category == BusinessCategory.EARTH_MOVERS) {
+        if (category == BusinessCategory.DRONES || category == BusinessCategory.IMPLEMENTS || category == BusinessCategory.HARVESTORS || category == BusinessCategory.EARTH_MOVERS) {
             query.type = { $regex: type, $options: 'i' };
         } else {
             query.services = { $in: [type] };
