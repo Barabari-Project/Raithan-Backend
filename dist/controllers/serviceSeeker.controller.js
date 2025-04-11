@@ -116,11 +116,14 @@ exports.getProductsByDistanceAndHp = (0, express_async_handler_1.default)((req, 
     }
     query.verificationStatus = product_types_1.ProductStatus.VERIFIED;
     if (category == business_types_1.BusinessCategory.DRONES || category == business_types_1.BusinessCategory.IMPLEMENTS || category == business_types_1.BusinessCategory.HARVESTORS || category == business_types_1.BusinessCategory.EARTH_MOVERS) {
-        query.type = { $regex: type, $options: 'i' };
+        if (type) {
+            query.type = { $regex: type, $options: 'i' };
+        }
     }
-    else {
+    else if (service) {
         query.services = { $in: [service] };
     }
+    console.log(query);
     const products = yield model
         .find(query)
         .select("-images.driving-license -images.rc-book -images.bill -images.e-shram-card  ")

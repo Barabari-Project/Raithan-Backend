@@ -138,10 +138,14 @@ export const getProductsByDistanceAndHp = expressAsyncHandler(async (req: Reques
     query.verificationStatus = ProductStatus.VERIFIED;
 
     if (category == BusinessCategory.DRONES || category == BusinessCategory.IMPLEMENTS || category == BusinessCategory.HARVESTORS || category == BusinessCategory.EARTH_MOVERS) {
-        query.type = { $regex: type, $options: 'i' };
-    } else {
+        if (type) {
+            query.type = { $regex: type, $options: 'i' };
+        }
+    } else if (service) {
         query.services = { $in: [service] };
     }
+
+    console.log(query);
 
     const products = await model
         .find(query)
