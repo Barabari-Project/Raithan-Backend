@@ -145,6 +145,7 @@ export const getProductsByDistanceAndHp = expressAsyncHandler(async (req: Reques
 
     const products = await model
         .find(query)
+        .select("-images.driving-license -images.rc-book -images.bill -images.e-shram-card  ")
         .populate("business");
     let filteredProductList: ProductWithLocation[] = products.filter((product: ProductWithLocation) => {
         if (product.business.location) {

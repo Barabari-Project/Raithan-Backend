@@ -123,6 +123,7 @@ exports.getProductsByDistanceAndHp = (0, express_async_handler_1.default)((req, 
     }
     const products = yield model
         .find(query)
+        .select("-images.driving-license -images.rc-book -images.bill -images.e-shram-card  ")
         .populate("business");
     let filteredProductList = products.filter((product) => {
         if (product.business.location) {
