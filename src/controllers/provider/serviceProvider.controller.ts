@@ -174,9 +174,13 @@ export const getProductsByCategoryAndProivderId = expressAsyncHandler(async (req
         }
         if (status) query.verificationStatus = status as ProductStatus;
         if (category == BusinessCategory.DRONES || category == BusinessCategory.IMPLEMENTS || category == BusinessCategory.HARVESTORS || category == BusinessCategory.EARTH_MOVERS) {
-            query.type = { $regex: type, $options: 'i' };
+            if (type) {
+                query.type = { $regex: type, $options: 'i' };
+            }
         } else {
-            query.services = { $in: [type] };
+            if (type) {
+                query.services = { $in: [type] };
+            }
         }
         const products = await model.find(query);
 

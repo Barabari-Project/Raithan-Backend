@@ -145,8 +145,6 @@ export const getProductsByDistanceAndHp = expressAsyncHandler(async (req: Reques
         query.services = { $in: [service] };
     }
 
-    console.log(query);
-
     const products = await model
         .find(query)
         .select("-images.driving-license -images.rc-book -images.bill -images.e-shram-card  ")
