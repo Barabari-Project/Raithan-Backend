@@ -144,10 +144,14 @@ exports.getProductsByCategoryAndProivderId = (0, express_async_handler_1.default
         if (status)
             query.verificationStatus = status;
         if (category == business_types_1.BusinessCategory.DRONES || category == business_types_1.BusinessCategory.IMPLEMENTS || category == business_types_1.BusinessCategory.HARVESTORS || category == business_types_1.BusinessCategory.EARTH_MOVERS) {
-            query.type = { $regex: type, $options: 'i' };
+            if (type) {
+                query.type = { $regex: type, $options: 'i' };
+            }
         }
         else {
-            query.services = { $in: [type] };
+            if (type) {
+                query.services = { $in: [type] };
+            }
         }
         const products = yield model.find(query);
         const formatedImgUrlPromises = products.map((product) => __awaiter(void 0, void 0, void 0, function* () { return (0, formatImageUrl_1.formatProductImageUrls)(product); }));
