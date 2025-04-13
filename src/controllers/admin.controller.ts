@@ -192,3 +192,19 @@ export const getCallHistoryByServiceProviderId = expressAsyncHandler(async (req:
     const callHistory = await CallHistory.find({ serviceProvider: { $eq: id } });
     res.status(200).json({ callHistory });
 });
+
+export const removeProductById = expressAsyncHandler(async (req: Request, res: Response) => {
+    const { id, category } = req.params;
+    if (!isValidObjectId(id)) {
+        throw createHttpError(400, "Invalid product ID");
+    }
+    const model = modelMapping[category as BusinessCategory];
+    if (!model) {
+        throw createHttpError(400, "Invalid category");
+    }
+    const product = await model.findByIdAndDelete(id);
+    if (!product) {
+        throw createHttpError(404, "Product not found");
+    }
+    res.status(200).json({ message: "Product removed successfully" });
+});

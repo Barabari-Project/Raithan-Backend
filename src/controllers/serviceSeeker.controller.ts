@@ -106,12 +106,23 @@ export const getProductsByDistanceAndHp = expressAsyncHandler(async (req: Reques
         throw createHttpError(400, "Invalid category");
     }
 
-    if (isNaN(parseFloat(lat)) || isNaN(parseFloat(lng))) {
-        throw createHttpError(400, "Invalid latitude or longitude");
+    if (lat) {
+        if (isNaN(parseFloat(lat))) {
+            throw createHttpError(400, "Invalid latitude");
+        }
+    }
+    if (lng) {
+        if (isNaN(parseFloat(lng))) {
+            throw createHttpError(400, "Invalid longitude");
+        }
     }
 
-    lat = parseFloat(lat);
-    lng = parseFloat(lng);
+    if (lat) {
+        lat = parseFloat(lat);
+    }
+    if (lng) {
+        lng = parseFloat(lng);
+    }
 
     if (hpLow) {
         if (isNaN(hpLow)) {
@@ -150,7 +161,7 @@ export const getProductsByDistanceAndHp = expressAsyncHandler(async (req: Reques
         .select("-images.driving-license -images.rc-book -images.bill -images.e-shram-card  ")
         .populate("business");
     let filteredProductList: ProductWithLocation[] = products.filter((product: ProductWithLocation) => {
-        if (product.business.location) {
+        if (product.business.location && lat && lng) {
             const { lat: productLat, lng: productLng } = product.business.location;
             const distanceInMeters = calculateDistance(lat, lng, productLat, productLng);
             return distanceInMeters <= distance;

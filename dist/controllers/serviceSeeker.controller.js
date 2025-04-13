@@ -89,11 +89,22 @@ exports.getProductsByDistanceAndHp = (0, express_async_handler_1.default)((req, 
     if (!Object.values(business_types_1.BusinessCategory).includes(category)) {
         throw (0, http_errors_1.default)(400, "Invalid category");
     }
-    if (isNaN(parseFloat(lat)) || isNaN(parseFloat(lng))) {
-        throw (0, http_errors_1.default)(400, "Invalid latitude or longitude");
+    if (lat) {
+        if (isNaN(parseFloat(lat))) {
+            throw (0, http_errors_1.default)(400, "Invalid latitude");
+        }
     }
-    lat = parseFloat(lat);
-    lng = parseFloat(lng);
+    if (lng) {
+        if (isNaN(parseFloat(lng))) {
+            throw (0, http_errors_1.default)(400, "Invalid longitude");
+        }
+    }
+    if (lat) {
+        lat = parseFloat(lat);
+    }
+    if (lng) {
+        lng = parseFloat(lng);
+    }
     if (hpLow) {
         if (isNaN(hpLow)) {
             throw (0, http_errors_1.default)(400, "Invalid hp");
@@ -128,7 +139,7 @@ exports.getProductsByDistanceAndHp = (0, express_async_handler_1.default)((req, 
         .select("-images.driving-license -images.rc-book -images.bill -images.e-shram-card  ")
         .populate("business");
     let filteredProductList = products.filter((product) => {
-        if (product.business.location) {
+        if (product.business.location && lat && lng) {
             const { lat: productLat, lng: productLng } = product.business.location;
             const distanceInMeters = calculateDistance(lat, lng, productLat, productLng);
             return distanceInMeters <= distance;

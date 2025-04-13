@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getCallHistoryByServiceProviderId = exports.getCallHistoryByServiceSeekerId = exports.getCallHistory = exports.getProductByStatusAndCategoryAndBusinessId = exports.updateProductStatus = exports.getServiceSeekers = exports.unblockServiceProvider = exports.blockServiceProvider = exports.updateServiceProviderStatus = exports.getServiceProvidersByStatus = exports.getServiceProviders = exports.login = void 0;
+exports.removeProductById = exports.getCallHistoryByServiceProviderId = exports.getCallHistoryByServiceSeekerId = exports.getCallHistory = exports.getProductByStatusAndCategoryAndBusinessId = exports.updateProductStatus = exports.getServiceSeekers = exports.unblockServiceProvider = exports.blockServiceProvider = exports.updateServiceProviderStatus = exports.getServiceProvidersByStatus = exports.getServiceProviders = exports.login = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const http_errors_1 = __importDefault(require("http-errors"));
 const mongoose_1 = require("mongoose");
@@ -172,4 +172,19 @@ exports.getCallHistoryByServiceProviderId = (0, express_async_handler_1.default)
     }
     const callHistory = yield callHistory_model_1.default.find({ serviceProvider: { $eq: id } });
     res.status(200).json({ callHistory });
+}));
+exports.removeProductById = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id, category } = req.params;
+    if (!(0, mongoose_1.isValidObjectId)(id)) {
+        throw (0, http_errors_1.default)(400, "Invalid product ID");
+    }
+    const model = modelMapping_1.modelMapping[category];
+    if (!model) {
+        throw (0, http_errors_1.default)(400, "Invalid category");
+    }
+    const product = yield model.findByIdAndDelete(id);
+    if (!product) {
+        throw (0, http_errors_1.default)(404, "Product not found");
+    }
+    res.status(200).json({ message: "Product removed successfully" });
 }));
