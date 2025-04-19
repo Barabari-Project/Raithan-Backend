@@ -161,7 +161,7 @@ export const getProductsByDistanceAndHp = expressAsyncHandler(async (req: Reques
         .select("-images.driving-license -images.rc-book -images.bill -images.e-shram-card  ")
         .populate("business");
     let filteredProductList: ProductWithLocation[] = products.filter((product: ProductWithLocation) => {
-        if (lat && lng) {
+        if (distance) {
             if (product.business.location) {
                 const { lat: productLat, lng: productLng } = product.business.location;
                 const distanceInMeters = calculateDistance(lat, lng, productLat, productLng);
