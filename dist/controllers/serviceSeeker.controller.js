@@ -139,10 +139,15 @@ exports.getProductsByDistanceAndHp = (0, express_async_handler_1.default)((req, 
         .select("-images.driving-license -images.rc-book -images.bill -images.e-shram-card  ")
         .populate("business");
     let filteredProductList = products.filter((product) => {
-        if (product.business.location && lat && lng) {
-            const { lat: productLat, lng: productLng } = product.business.location;
-            const distanceInMeters = calculateDistance(lat, lng, productLat, productLng);
-            return distanceInMeters <= distance;
+        if (lat && lng) {
+            if (product.business.location) {
+                const { lat: productLat, lng: productLng } = product.business.location;
+                const distanceInMeters = calculateDistance(lat, lng, productLat, productLng);
+                return distanceInMeters <= distance;
+            }
+        }
+        else {
+            return true;
         }
     });
     const formatedImgUrlPromises = filteredProductList.map((filteredProduct) => __awaiter(void 0, void 0, void 0, function* () { return (0, formatImageUrl_1.formatProductImageUrls)(filteredProduct); }));

@@ -161,10 +161,14 @@ export const getProductsByDistanceAndHp = expressAsyncHandler(async (req: Reques
         .select("-images.driving-license -images.rc-book -images.bill -images.e-shram-card  ")
         .populate("business");
     let filteredProductList: ProductWithLocation[] = products.filter((product: ProductWithLocation) => {
-        if (product.business.location && lat && lng) {
-            const { lat: productLat, lng: productLng } = product.business.location;
-            const distanceInMeters = calculateDistance(lat, lng, productLat, productLng);
-            return distanceInMeters <= distance;
+        if (lat && lng) {
+            if (product.business.location) {
+                const { lat: productLat, lng: productLng } = product.business.location;
+                const distanceInMeters = calculateDistance(lat, lng, productLat, productLng);
+                return distanceInMeters <= distance;
+            }
+        }else{
+            return true;
         }
     });
 
