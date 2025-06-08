@@ -28,7 +28,7 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
         throw createHttpError(400, "Invalid category");
     }
 
-    let product: ProductType | null = null;
+    let product: any = null;
     const userId = req.userId;
     const serviceProvider = await ServiceProvider.findById(userId);
 
@@ -70,25 +70,25 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
             images: uploadedImages,
             _id,
             modelNo,
-            hp:parseInt(hp),
+            hp: parseInt(hp),
             business: business._id,
             ...(type && { type }),
         };
         switch (category) {
             case BusinessCategory.HARVESTORS:
-                product = await HarvestorProduct.create(createData);
+                product = await (await HarvestorProduct.create(createData)).populate('business');
                 break;
             case BusinessCategory.EARTH_MOVERS:
-                product = await EarthMoverProduct.create(createData);
+                product = await (await EarthMoverProduct.create(createData)).populate('business');
                 break;
             case BusinessCategory.IMPLEMENTS:
-                product = await ImplementProduct.create(createData);
+                product = await (await ImplementProduct.create(createData)).populate('business');
                 break;
             case BusinessCategory.MACHINES:
-                product = await MachineProduct.create(createData);
+                product = await (await MachineProduct.create(createData)).populate('business');
                 break;
             case BusinessCategory.PADDY_TRANSPLANTORS:
-                product = await PaddyTransplantorProduct.create(createData);
+                product = await (await PaddyTransplantorProduct.create(createData)).populate('business');
                 break;
         }
     } else if (category === BusinessCategory.DRONES) {
@@ -100,13 +100,13 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
         }
 
         const { type, modelNo } = req.body;
-        product = await DroneProduct.create({
+        product = await (await DroneProduct.create({
             images: uploadedImages,
             type,
             _id,
             modelNo,
             business: business._id,
-        });
+        })).populate('business');
     } else if (category === BusinessCategory.MECHANICS || category === BusinessCategory.AGRICULTURE_LABOR || category == BusinessCategory.TECHNICIAN) {
         const requiredField = 'e-shram-card';
         if (!files[requiredField] || files[requiredField].length === 0) {
@@ -114,12 +114,10 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
         }
 
         let { eShramCardNumber, readyToTravelIn10Km, isIndividual, services } = req.body;
-
         services = JSON.parse(services);
 
         let { numberOfWorkers } = req.body;
         if (isIndividual == 'true') numberOfWorkers = 1;
-
         const createData = {
             images: uploadedImages,
             eShramCardNumber,
@@ -131,11 +129,11 @@ export const createProduct = expressAsyncHandler(async (req: Request, res: Respo
             business: business._id,
         };
         if (category === BusinessCategory.TECHNICIAN) {
-            product = await TechnicianProduct.create(createData);
+            product = await (await TechnicianProduct.create(createData)).populate('business');
         } else if (category === BusinessCategory.MECHANICS) {
-            product = await MechanicProduct.create(createData);
+            product = await (await MechanicProduct.create(createData)).populate('business');
         } else {
-            product = await AgricultureLaborProduct.create(createData);
+            product = await (await AgricultureLaborProduct.create(createData)).populate('business');
         }
     } else {
         throw createHttpError(400, "Invalid category");
@@ -199,7 +197,7 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
         const createData = {
             images: uploadedImages,
             modelNo,
-            hp:parseInt(hp),
+            hp: parseInt(hp),
             ...(type && { type }),
             verificationStatus: ProductStatus.RE_VERIFICATION_REQUIRED
         };
@@ -210,35 +208,35 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
                     id,
                     { $set: createData },
                     { new: true, runValidators: true }
-                );
+                ).populate('business');
                 break;
             case BusinessCategory.EARTH_MOVERS:
                 product = await EarthMoverProduct.findByIdAndUpdate(
                     id,
                     { $set: createData },
                     { new: true, runValidators: true }
-                );
+                ).populate('business');
                 break;
             case BusinessCategory.IMPLEMENTS:
                 product = await ImplementProduct.findByIdAndUpdate(
                     id,
                     { $set: createData },
                     { new: true, runValidators: true }
-                );
+                ).populate('business');
                 break;
             case BusinessCategory.MACHINES:
                 product = await MachineProduct.findByIdAndUpdate(
                     id,
                     { $set: createData },
                     { new: true, runValidators: true }
-                );
+                ).populate('business');
                 break;
             case BusinessCategory.PADDY_TRANSPLANTORS:
                 product = await PaddyTransplantorProduct.findByIdAndUpdate(
                     id,
                     { $set: createData },
                     { new: true, runValidators: true }
-                );
+                ).populate('business');
                 break;
         }
     } else if (category === BusinessCategory.DRONES) {
@@ -252,7 +250,7 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
                 modelNo,
                 verificationStatus: ProductStatus.RE_VERIFICATION_REQUIRED
             },
-        }, { new: true, runValidators: true });
+        }, { new: true, runValidators: true }).populate('business');
     } else if (category === BusinessCategory.MECHANICS || category === BusinessCategory.AGRICULTURE_LABOR || category === BusinessCategory.TECHNICIAN) {
 
 
@@ -271,11 +269,11 @@ export const updateProduct = expressAsyncHandler(async (req: Request, res: Respo
             verificationStatus: ProductStatus.RE_VERIFICATION_REQUIRED
         };
         if (category === BusinessCategory.TECHNICIAN) {
-            product = await TechnicianProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true });
+            product = await TechnicianProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true }).populate('business');
         } else if (category === BusinessCategory.MECHANICS) {
-            product = await MechanicProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true });
+            product = await MechanicProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true }).populate('business');
         } else {
-            product = await AgricultureLaborProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true });
+            product = await AgricultureLaborProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true }).populate('business');
         }
     } else {
         throw createHttpError(400, "Invalid category");

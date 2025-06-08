@@ -1,13 +1,5 @@
 import mongoose, { Document } from "mongoose";
-import { BusinessCategory, IBusiness } from "./business.types";
-import { HarvestorProduct } from "../models/products/harvestorProduct.model";
-import { ImplementProduct } from "../models/products/ImplementProduct.model";
-import { MechanicProduct } from "../models/products/MechanicProduct.model";
-import { MachineProduct } from "../models/products/MachineProduct.model";
-import { PaddyTransplantorProduct } from "../models/products/PaddyTransplantorProduct.model";
-import { EarthMoverProduct } from "../models/products/earthMoverProduct.model";
-import { AgricultureLaborProduct } from "../models/products/AgricultureLaborProduct.model";
-import { DroneProduct } from "../models/products/DroneProduct.model";
+import { IBusiness } from "./business.types";
 
 export interface IHarvestorProduct extends Document {
     _id: mongoose.Types.ObjectId;

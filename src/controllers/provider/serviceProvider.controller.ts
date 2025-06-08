@@ -182,7 +182,7 @@ export const getProductsByCategoryAndProivderId = expressAsyncHandler(async (req
                 query.services = { $in: [type] };
             }
         }
-        const products = await model.find(query);
+        const products = await model.find(query).populate('business');
 
         const formatedImgUrlPromises = products.map(async (product: ProductType) => formatProductImageUrls(product));
 
@@ -216,7 +216,7 @@ export const login = expressAsyncHandler(async (req: Request, res: Response) => 
 // verify otp
 export const verifyLoginOtp = expressAsyncHandler(async (req: Request, res: Response) => {
     const { mobileNumber, code } = req.body;
-
+    console.log(mobileNumber, code);
     const provider = await ServiceProvider.findOne({ mobileNumber: { $eq: mobileNumber } });
 
     if (!provider) {

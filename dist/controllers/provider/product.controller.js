@@ -105,19 +105,19 @@ exports.createProduct = (0, express_async_handler_1.default)((req, res) => __awa
             modelNo, hp: parseInt(hp), business: business._id }, (type && { type }));
         switch (category) {
             case business_types_1.BusinessCategory.HARVESTORS:
-                product = yield harvestorProduct_model_1.HarvestorProduct.create(createData);
+                product = yield (yield harvestorProduct_model_1.HarvestorProduct.create(createData)).populate('business');
                 break;
             case business_types_1.BusinessCategory.EARTH_MOVERS:
-                product = yield earthMoverProduct_model_1.EarthMoverProduct.create(createData);
+                product = yield (yield earthMoverProduct_model_1.EarthMoverProduct.create(createData)).populate('business');
                 break;
             case business_types_1.BusinessCategory.IMPLEMENTS:
-                product = yield ImplementProduct_model_1.ImplementProduct.create(createData);
+                product = yield (yield ImplementProduct_model_1.ImplementProduct.create(createData)).populate('business');
                 break;
             case business_types_1.BusinessCategory.MACHINES:
-                product = yield MachineProduct_model_1.MachineProduct.create(createData);
+                product = yield (yield MachineProduct_model_1.MachineProduct.create(createData)).populate('business');
                 break;
             case business_types_1.BusinessCategory.PADDY_TRANSPLANTORS:
-                product = yield PaddyTransplantorProduct_model_1.PaddyTransplantorProduct.create(createData);
+                product = yield (yield PaddyTransplantorProduct_model_1.PaddyTransplantorProduct.create(createData)).populate('business');
                 break;
         }
     }
@@ -129,13 +129,13 @@ exports.createProduct = (0, express_async_handler_1.default)((req, res) => __awa
             }
         }
         const { type, modelNo } = req.body;
-        product = yield DroneProduct_model_1.DroneProduct.create({
+        product = yield (yield DroneProduct_model_1.DroneProduct.create({
             images: uploadedImages,
             type,
             _id,
             modelNo,
             business: business._id,
-        });
+        })).populate('business');
     }
     else if (category === business_types_1.BusinessCategory.MECHANICS || category === business_types_1.BusinessCategory.AGRICULTURE_LABOR || category == business_types_1.BusinessCategory.TECHNICIAN) {
         const requiredField = 'e-shram-card';
@@ -158,13 +158,13 @@ exports.createProduct = (0, express_async_handler_1.default)((req, res) => __awa
             business: business._id,
         };
         if (category === business_types_1.BusinessCategory.TECHNICIAN) {
-            product = yield TechnicianProduct_model_1.TechnicianProduct.create(createData);
+            product = yield (yield TechnicianProduct_model_1.TechnicianProduct.create(createData)).populate('business');
         }
         else if (category === business_types_1.BusinessCategory.MECHANICS) {
-            product = yield MechanicProduct_model_1.MechanicProduct.create(createData);
+            product = yield (yield MechanicProduct_model_1.MechanicProduct.create(createData)).populate('business');
         }
         else {
-            product = yield AgricultureLaborProduct_model_1.AgricultureLaborProduct.create(createData);
+            product = yield (yield AgricultureLaborProduct_model_1.AgricultureLaborProduct.create(createData)).populate('business');
         }
     }
     else {
@@ -215,19 +215,19 @@ exports.updateProduct = (0, express_async_handler_1.default)((req, res) => __awa
         const createData = Object.assign(Object.assign({ images: uploadedImages, modelNo, hp: parseInt(hp) }, (type && { type })), { verificationStatus: product_types_1.ProductStatus.RE_VERIFICATION_REQUIRED });
         switch (category) {
             case business_types_1.BusinessCategory.HARVESTORS:
-                product = yield harvestorProduct_model_1.HarvestorProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true });
+                product = yield harvestorProduct_model_1.HarvestorProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true }).populate('business');
                 break;
             case business_types_1.BusinessCategory.EARTH_MOVERS:
-                product = yield earthMoverProduct_model_1.EarthMoverProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true });
+                product = yield earthMoverProduct_model_1.EarthMoverProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true }).populate('business');
                 break;
             case business_types_1.BusinessCategory.IMPLEMENTS:
-                product = yield ImplementProduct_model_1.ImplementProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true });
+                product = yield ImplementProduct_model_1.ImplementProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true }).populate('business');
                 break;
             case business_types_1.BusinessCategory.MACHINES:
-                product = yield MachineProduct_model_1.MachineProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true });
+                product = yield MachineProduct_model_1.MachineProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true }).populate('business');
                 break;
             case business_types_1.BusinessCategory.PADDY_TRANSPLANTORS:
-                product = yield PaddyTransplantorProduct_model_1.PaddyTransplantorProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true });
+                product = yield PaddyTransplantorProduct_model_1.PaddyTransplantorProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true }).populate('business');
                 break;
         }
     }
@@ -240,7 +240,7 @@ exports.updateProduct = (0, express_async_handler_1.default)((req, res) => __awa
                 modelNo,
                 verificationStatus: product_types_1.ProductStatus.RE_VERIFICATION_REQUIRED
             },
-        }, { new: true, runValidators: true });
+        }, { new: true, runValidators: true }).populate('business');
     }
     else if (category === business_types_1.BusinessCategory.MECHANICS || category === business_types_1.BusinessCategory.AGRICULTURE_LABOR || category === business_types_1.BusinessCategory.TECHNICIAN) {
         let { eShramCardNumber, readyToTravelIn10Km, isIndividual, services } = req.body;
@@ -258,13 +258,13 @@ exports.updateProduct = (0, express_async_handler_1.default)((req, res) => __awa
             verificationStatus: product_types_1.ProductStatus.RE_VERIFICATION_REQUIRED
         };
         if (category === business_types_1.BusinessCategory.TECHNICIAN) {
-            product = yield TechnicianProduct_model_1.TechnicianProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true });
+            product = yield TechnicianProduct_model_1.TechnicianProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true }).populate('business');
         }
         else if (category === business_types_1.BusinessCategory.MECHANICS) {
-            product = yield MechanicProduct_model_1.MechanicProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true });
+            product = yield MechanicProduct_model_1.MechanicProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true }).populate('business');
         }
         else {
-            product = yield AgricultureLaborProduct_model_1.AgricultureLaborProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true });
+            product = yield AgricultureLaborProduct_model_1.AgricultureLaborProduct.findByIdAndUpdate(id, { $set: createData }, { new: true, runValidators: true }).populate('business');
         }
     }
     else {

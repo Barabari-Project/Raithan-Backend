@@ -110,9 +110,11 @@ const handleMongooseError = (error, next) => {
     }
 };
 AgricultureLaborProductSchema.post('save', function (error, doc, next) {
+    console.log(doc);
     handleMongooseError(error, next);
 });
 AgricultureLaborProductSchema.post('findOneAndUpdate', function (error, doc, next) {
+    console.log(doc);
     handleMongooseError(error, next);
 });
 exports.AgricultureLaborProduct = mongoose_1.default.model('agricultureLaborProduct', AgricultureLaborProductSchema, 'agricultureLaborProduct');

@@ -73,9 +73,11 @@ const handleMongooseError = (error: any, next: Function) => {
 };
 
 AgricultureLaborProductSchema.post('save', function (error: any, doc: any, next: Function) {
+    console.log(doc)
     handleMongooseError(error, next);
 });
 AgricultureLaborProductSchema.post('findOneAndUpdate', function (error: any, doc: any, next: Function) {
+    console.log(doc)
     handleMongooseError(error, next);
 });
 

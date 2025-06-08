@@ -153,7 +153,7 @@ exports.getProductsByCategoryAndProivderId = (0, express_async_handler_1.default
                 query.services = { $in: [type] };
             }
         }
-        const products = yield model.find(query);
+        const products = yield model.find(query).populate('business');
         const formatedImgUrlPromises = products.map((product) => __awaiter(void 0, void 0, void 0, function* () { return (0, formatImageUrl_1.formatProductImageUrls)(product); }));
         yield Promise.all(formatedImgUrlPromises);
         res.status(200).json({ products });
@@ -178,6 +178,7 @@ exports.login = (0, express_async_handler_1.default)((req, res) => __awaiter(voi
 // verify otp
 exports.verifyLoginOtp = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { mobileNumber, code } = req.body;
+    console.log(mobileNumber, code);
     const provider = yield serviceProvider_model_1.default.findOne({ mobileNumber: { $eq: mobileNumber } });
     if (!provider) {
         throw (0, http_errors_1.default)(404, "User not found");
